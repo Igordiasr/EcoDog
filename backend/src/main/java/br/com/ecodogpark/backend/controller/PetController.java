@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.PetRequestDto;
-import br.com.ecodogpark.backend.dto.PetResponseDto;
+import br.com.ecodogpark.backend.dto.PetRequest;
+import br.com.ecodogpark.backend.dto.PetResponse;
 import br.com.ecodogpark.backend.service.PetService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -18,19 +18,19 @@ public class PetController {
     public PetController(PetService petService) { this.petService = petService; }
 
     @PostMapping
-    public ResponseEntity<PetResponseDto> criar(@Valid @RequestBody PetRequestDto dto) {
-        PetResponseDto pet = petService.criar(dto);
+    public ResponseEntity<PetResponse> criar(@Valid @RequestBody PetRequest dto) {
+        PetResponse pet = petService.criar(dto);
         return ResponseEntity.created(URI.create("/pets/" + pet.id())).body(pet);
     }
 
     @GetMapping
-    public List<PetResponseDto> listar() { return petService.listar(); }
+    public List<PetResponse> listar() { return petService.listar(); }
 
     @GetMapping("/{id}")
-    public PetResponseDto buscarPorId(@PathVariable Long id) { return petService.buscarPorId(id); }
+    public PetResponse buscarPorId(@PathVariable Long id) { return petService.buscarPorId(id); }
 
     @PutMapping("/{id}")
-    public PetResponseDto atualizar(@PathVariable Long id, @Valid @RequestBody PetRequestDto dto) {
+    public PetResponse atualizar(@PathVariable Long id, @Valid @RequestBody PetRequest dto) {
         return petService.atualizar(id, dto);
     }
 

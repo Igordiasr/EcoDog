@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-public record PetRequestDto(
+public record PetRequest(
         @NotBlank @Size(max = 100) String nome,
         @Size(max = 100) String raca,
         Boolean castrado,

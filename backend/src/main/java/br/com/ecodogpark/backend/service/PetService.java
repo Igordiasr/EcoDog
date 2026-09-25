@@ -2,8 +2,8 @@ package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.Entity.PetEntity;
 import br.com.ecodogpark.backend.Entity.UsuarioEntity;
-import br.com.ecodogpark.backend.dto.PetRequestDto;
-import br.com.ecodogpark.backend.dto.PetResponseDto;
+import br.com.ecodogpark.backend.dto.PetRequest;
+import br.com.ecodogpark.backend.dto.PetResponse;
 import br.com.ecodogpark.backend.repository.PetRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
@@ -21,19 +21,19 @@ public class PetService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public PetResponseDto criar(PetRequestDto dto) {
+    public PetResponse criar(PetRequest dto) {
         PetEntity pet = new PetEntity();
         preencher(pet, dto);
         return paraDto(petRepository.save(pet));
     }
 
-    public List<PetResponseDto> listar() {
+    public List<PetResponse> listar() {
         return petRepository.findAll().stream().map(this::paraDto).toList();
     }
 
-    public PetResponseDto buscarPorId(Long id) { return paraDto(obter(id)); }
+    public PetResponse buscarPorId(Long id) { return paraDto(obter(id)); }
 
-    public PetResponseDto atualizar(Long id, PetRequestDto dto) {
+    public PetResponse atualizar(Long id, PetRequest dto) {
         PetEntity pet = obter(id);
         preencher(pet, dto);
         return paraDto(petRepository.save(pet));
@@ -51,7 +51,7 @@ public class PetService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
     }
 
-    private void preencher(PetEntity pet, PetRequestDto dto) {
+    private void preencher(PetEntity pet, PetRequest dto) {
         pet.setNome(dto.nome().trim());
         pet.setRaca(dto.raca());
         pet.setCastrado(dto.castrado());
@@ -66,8 +66,8 @@ public class PetService {
         pet.setCuidadosEspeciais(dto.cuidadosEspeciais());
     }
 
-    private PetResponseDto paraDto(PetEntity pet) {
-        return new PetResponseDto(pet.getId(), pet.getNome(), pet.getRaca(), pet.getCastrado(),
+    private PetResponse paraDto(PetEntity pet) {
+        return new PetResponse(pet.getId(), pet.getNome(), pet.getRaca(), pet.getCastrado(),
                 pet.getTutor().getId(), pet.getIdade(), pet.getRelacionamento(), pet.getVermifugo(),
                 pet.getVacina(), pet.getAlergias(), pet.getSexo(), pet.getPlano(), pet.getCuidadosEspeciais());
     }

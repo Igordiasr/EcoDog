@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.UsuarioRequestDto;
-import br.com.ecodogpark.backend.dto.UsuarioResponseDto;
+import br.com.ecodogpark.backend.dto.UsuarioRequest;
+import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.service.UsuarioService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -20,19 +20,19 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDto> criar(@Valid @RequestBody UsuarioRequestDto dto) {
-        UsuarioResponseDto usuario = usuarioService.criar(dto);
+    public ResponseEntity<UsuarioResponse> criar(@Valid @RequestBody UsuarioRequest dto) {
+        UsuarioResponse usuario = usuarioService.criar(dto);
         return ResponseEntity.created(URI.create("/usuarios/" + usuario.id())).body(usuario);
     }
 
     @GetMapping
-    public List<UsuarioResponseDto> listar() { return usuarioService.listar(); }
+    public List<UsuarioResponse> listar() { return usuarioService.listar(); }
 
     @GetMapping("/{id}")
-    public UsuarioResponseDto buscarPorId(@PathVariable Long id) { return usuarioService.buscarPorId(id); }
+    public UsuarioResponse buscarPorId(@PathVariable Long id) { return usuarioService.buscarPorId(id); }
 
     @PutMapping("/{id}")
-    public UsuarioResponseDto atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDto dto) {
+    public UsuarioResponse atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequest dto) {
         return usuarioService.atualizar(id, dto);
     }
 

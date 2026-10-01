@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class PetEntity {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+        private Long idPet;
         @Column(nullable = false, length = 100)
         private String nome;
         private String raca;
@@ -24,10 +24,10 @@ public class PetEntity {
         private String cuidadosEspeciais;
 
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
-        @JoinColumn(name = "usuario_id", nullable = false)
+        @JoinColumn(name = "idUsuario", nullable = false)
         private UsuarioEntity tutor;
 
-        public Long getId() { return id; }
+        public Long getIdPet() { return idPet; }
 
         public String getNome() {
             return nome;

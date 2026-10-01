@@ -70,7 +70,7 @@ public class UsuarioService {
     }
 
     private UsuarioResponse paraUsuarioResponse(UsuarioEntity usuario) {
-        return new UsuarioResponse(usuario.getId(), usuario.getNome(), usuario.getEmail(), usuario.getTelefone());
+        return new UsuarioResponse(usuario.getIdUsuario(), usuario.getNome(), usuario.getEmail(), usuario.getTelefone());
     }
 
     // -------------------------- Regras de negócio para Gestão de Usuários --------------------------------------
@@ -108,7 +108,7 @@ public class UsuarioService {
         }
         UsuarioEntity monitorParaAtualizar = new UsuarioEntity();
         paraUsuarioEntity(monitorParaAtualizar, request);
-        monitorParaAtualizar.setId(id);
+        monitorParaAtualizar.setIdUsuario(id);
         return paraMonitorResponse(usuarioRepository.save(monitorParaAtualizar));
     }
 
@@ -121,7 +121,7 @@ public class UsuarioService {
 
     private MonitorResponse paraMonitorResponse(UsuarioEntity usuario) {
         return new MonitorResponse(
-                usuario.getId(),
+                usuario.getIdUsuario(),
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getTelefone(),

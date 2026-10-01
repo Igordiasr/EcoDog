@@ -67,8 +67,8 @@ public class PetService {
     }
 
     private PetResponse paraDto(PetEntity pet) {
-        return new PetResponse(pet.getId(), pet.getNome(), pet.getRaca(), pet.getCastrado(),
-                pet.getTutor().getId(), pet.getIdade(), pet.getRelacionamento(), pet.getVermifugo(),
+        return new PetResponse(pet.getIdPet(), pet.getNome(), pet.getRaca(), pet.getCastrado(),
+                pet.getTutor().getIdUsuario(), pet.getIdade(), pet.getRelacionamento(), pet.getVermifugo(),
                 pet.getVacina(), pet.getAlergias(), pet.getSexo(), pet.getPlano(), pet.getCuidadosEspeciais());
     }
 }

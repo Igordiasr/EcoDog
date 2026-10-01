@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class UsuarioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idUsuario;
     @Column(nullable = false, length = 120) // posso adicionar o nome da coluna do banco de dados3
     private String nome;
     @Column(nullable = false, length = 11, unique = true)
@@ -30,8 +30,8 @@ public class UsuarioEntity {
     @Column(nullable = false,  length = 1)
     private Integer nivelAcesso;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Long id) { this.idUsuario = id; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public String getCpf() { return cpf; }

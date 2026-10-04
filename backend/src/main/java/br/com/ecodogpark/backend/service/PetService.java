@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.Entity.PetEntity;
-import br.com.ecodogpark.backend.Entity.UsuarioEntity;
+import br.com.ecodogpark.backend.entity.PetEntity;
+import br.com.ecodogpark.backend.entity.UsuarioEntity;
 import br.com.ecodogpark.backend.dto.PetRequest;
 import br.com.ecodogpark.backend.dto.PetResponse;
 import br.com.ecodogpark.backend.repository.PetRepository;
@@ -52,23 +52,19 @@ public class PetService {
     }
 
     private void preencher(PetEntity pet, PetRequest dto) {
-        pet.setNome(dto.nome().trim());
+        pet.setNome(dto.nome());
         pet.setRaca(dto.raca());
         pet.setCastrado(dto.castrado());
         pet.setTutor(obterTutor(dto.tutorId()));
-        pet.setIdade(dto.idade());
-        pet.setRelacionamento(dto.relacionamento());
-        pet.setVermifugo(dto.vermifugo());
-        pet.setVacina(dto.vacina());
-        pet.setAlergias(dto.alergias());
+        pet.setDataNascimento(dto.dataNascimento());
+        pet.setRelacaoComOutros(dto.relacaoComOutros());
         pet.setSexo(dto.sexo());
-        pet.setPlano(dto.plano());
         pet.setCuidadosEspeciais(dto.cuidadosEspeciais());
     }
 
     private PetResponse paraDto(PetEntity pet) {
         return new PetResponse(pet.getIdPet(), pet.getNome(), pet.getRaca(), pet.getCastrado(),
-                pet.getTutor().getIdUsuario(), pet.getIdade(), pet.getRelacionamento(), pet.getVermifugo(),
-                pet.getVacina(), pet.getAlergias(), pet.getSexo(), pet.getPlano(), pet.getCuidadosEspeciais());
+                pet.getTutor().getIdUsuario(), pet.getDataNascimento(), pet.getRelacaoComOutros(),
+                pet.getSexo(), pet.getCuidadosEspeciais());
     }
 }

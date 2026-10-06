@@ -8,6 +8,6 @@ import java.util.List;
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
     boolean existsByEmail(String email);
     boolean existsByCpf(String cpf);
-    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByEmailAndIdUsuarioNot(String email, Long id);
     List<UsuarioEntity> findByNivelAcesso(Integer nivelAcesso);
 }

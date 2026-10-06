@@ -4,5 +4,5 @@ import br.com.ecodogpark.backend.Entity.PetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PetRepository extends JpaRepository<PetEntity, Long> {
-    boolean existsByTutorId(Long tutorId);
+    boolean existsByTutorIdUsuario(Long tutorId);
 }

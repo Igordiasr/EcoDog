@@ -37,7 +37,7 @@ public class UsuarioService {
     }
 
     public UsuarioResponse atualizarTutor(Long id, UsuarioRequest usuarioRequest) {
-        if (usuarioRepository.existsByEmailAndIdNot(usuarioRequest.email(), id)) {
+        if (usuarioRepository.existsByEmailAndIdUsuarioNot(usuarioRequest.email(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
         UsuarioEntity usuario = buscarTutor(id);
@@ -49,7 +49,7 @@ public class UsuarioService {
         if (!usuarioRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado");
         }
-        if (petRepository.existsByTutorId(id)) {
+        if (petRepository.existsByTutorIdUsuario(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Exclua os pets deste usuário antes de removê-lo");
         }
         usuarioRepository.deleteById(id);

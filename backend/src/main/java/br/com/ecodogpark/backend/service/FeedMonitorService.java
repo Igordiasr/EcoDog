@@ -8,6 +8,7 @@ import br.com.ecodogpark.backend.repository.AtividadeDoDiaRepository;
 import br.com.ecodogpark.backend.repository.MedicacaoDoDiaRepository;
 import br.com.ecodogpark.backend.repository.ObservacaoDoDiaRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class FeedMonitorService {
     private final AgendamentoRepository agendamentoRepository;
     private final AtividadeDoDiaRepository atividadeDoDiaRepository;
@@ -89,7 +91,7 @@ public class FeedMonitorService {
 
 
     private void preencherObservacao(Long id, ObservacaoDoDiaEntity observacao, ObservacaoDoDiaRequest request) {
-        observacao.setAgendamento(agendamentoRepository.findByContratoPetIdPetAndCalendarioData(id, LocalDate.now()));
+            observacao.setAgendamento(agendamentoRepository.findByContratoPetIdPetAndCalendarioData(id, LocalDate.now()));
         observacao.setDescricao(request.observacao());
         observacao.setHorario(LocalTime.now());
     }

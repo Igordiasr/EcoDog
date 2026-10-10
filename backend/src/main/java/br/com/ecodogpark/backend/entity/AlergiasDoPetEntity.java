@@ -4,22 +4,20 @@ import br.com.ecodogpark.backend.entity.id.AlergiasDoPetId;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Alergias_do_pet")
+@Table(name = "alergias_do_pet")
 public class AlergiasDoPetEntity {
     @EmbeddedId
     private AlergiasDoPetId idAlergia = new AlergiasDoPetId();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("fkPet")
-    @JoinColumn(name = "fkPet")
-    private PetEntity pet;
+    @MapsId("fkAlergia")
+    @JoinColumn(name = "fkAlergia")
+    private AlergiasEntity alergia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("fkAlergia")
-    @JoinColumn(name = "fk_alergia")
-    private AlergiaEntity alergia;
-
-    private String grauSeveridade;
+    @MapsId("fkPet")
+    @JoinColumn(name = "fkPet")
+    private PetsEntity pet;
 
     public AlergiasDoPetId getIdAlergia() {
         return idAlergia;
@@ -29,27 +27,19 @@ public class AlergiasDoPetEntity {
         this.idAlergia = idAlergia;
     }
 
-    public PetEntity getPet() {
+    public PetsEntity getPet() {
         return pet;
     }
 
-    public void setPet(PetEntity pet) {
+    public void setPet(PetsEntity pet) {
         this.pet = pet;
     }
 
-    public AlergiaEntity getAlergia() {
+    public AlergiasEntity getAlergia() {
         return alergia;
     }
 
-    public void setAlergia(AlergiaEntity alergia) {
+    public void setAlergia(AlergiasEntity alergia) {
         this.alergia = alergia;
-    }
-
-    public String getGrauSeveridade() {
-        return grauSeveridade;
-    }
-
-    public void setGrauSeveridade(String grauSeveridade) {
-        this.grauSeveridade = grauSeveridade;
     }
 }

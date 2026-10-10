@@ -1,18 +1,19 @@
-package br.com.ecodogpark.backend.Entity;
+package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Servico")
+@Table(name = "servico")
 public class ServicoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idServico;
     private String nome;
-    private String tipo;
+    private String categoria;
+    private String modalidade;
     private Character frequencia;
-    private Double preco;
-    private Boolean statusServico;
+    private Double valor;
+    private Boolean status;
 
     public Integer getIdServico() {
         return idServico;
@@ -30,12 +31,20 @@ public class ServicoEntity {
         this.nome = nome;
     }
 
-    public String getTipo() {
-        return tipo;
+    public String getCategoria() {
+        return categoria;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public String getModalidade() {
+        return modalidade;
+    }
+
+    public void setModalidade(String modalidade) {
+        this.modalidade = modalidade;
     }
 
     public Character getFrequencia() {
@@ -46,19 +55,19 @@ public class ServicoEntity {
         this.frequencia = frequencia;
     }
 
-    public Double getPreco() {
-        return preco;
+    public Double getValor() {
+        return valor;
     }
 
-    public void setPreco(Double preco) {
-        this.preco = preco;
+    public void setValor(Double valor) {
+        this.valor = valor;
     }
 
-    public Boolean getStatusServico() {
-        return statusServico;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setStatusServico(Boolean statusServico) {
-        this.statusServico = statusServico;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }

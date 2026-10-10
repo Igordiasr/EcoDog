@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Movimentacao")
-public class MovimentacaoEntity {
+@Table(name = "movimentacoes")
+public class MovimentacoesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMovimentacao;
@@ -17,8 +17,8 @@ public class MovimentacaoEntity {
     private LocalDate dataPagamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_contrato")
-    private ContratoEntity contrato;
+    @JoinColumn(name = "fkContrato")
+    private ContratosEntity contrato;
 
     public Long getIdMovimentacao() {
         return idMovimentacao;
@@ -68,11 +68,11 @@ public class MovimentacaoEntity {
         this.dataPagamento = dataPagamento;
     }
 
-    public ContratoEntity getContrato() {
+    public ContratosEntity getContrato() {
         return contrato;
     }
 
-    public void setContrato(ContratoEntity contrato) {
+    public void setContrato(ContratosEntity contrato) {
         this.contrato = contrato;
     }
 }

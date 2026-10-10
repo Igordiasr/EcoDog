@@ -1,26 +1,27 @@
 package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "Medicacao_do_dia")
+@Table(name = "medicacao_do_dia")
 public class MedicacaoDoDiaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMedicacaoDoDia;
-    private Boolean status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkMedicacaoDoPet")
+    private MedicacoesDoPetEntity fkMedicacaoDoPet;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkAgendamento")
+    private AgendamentosEntity fkAgendamento;
+
+    @NotBlank
+    private String situacao;
+    @NotBlank
     private String observacao;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name = "fk_contrato", referencedColumnName = "fk_contrato"),
-            @JoinColumn(name = "fk_calendario", referencedColumnName = "fk_calendario")
-    })
-    private AgendamentoEntity agendamento;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_medicacao")
-    private MedicacaoEntity medicacao;
 
     public Long getIdMedicacaoDoDia() {
         return idMedicacaoDoDia;
@@ -30,12 +31,28 @@ public class MedicacaoDoDiaEntity {
         this.idMedicacaoDoDia = idMedicacaoDoDia;
     }
 
-    public Boolean getStatus() {
-        return status;
+    public MedicacoesDoPetEntity getFkMedicacaoDoPet() {
+        return fkMedicacaoDoPet;
     }
 
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public void setFkMedicacaoDoPet(MedicacoesDoPetEntity fkMedicacaoDoPet) {
+        this.fkMedicacaoDoPet = fkMedicacaoDoPet;
+    }
+
+    public AgendamentosEntity getFkAgendamento() {
+        return fkAgendamento;
+    }
+
+    public void setFkAgendamento(AgendamentosEntity fkAgendamento) {
+        this.fkAgendamento = fkAgendamento;
+    }
+
+    public String getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(String situacao) {
+        this.situacao = situacao;
     }
 
     public String getObservacao() {
@@ -44,21 +61,5 @@ public class MedicacaoDoDiaEntity {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
-    }
-
-    public AgendamentoEntity getAgendamento() {
-        return agendamento;
-    }
-
-    public void setAgendamento(AgendamentoEntity agendamento) {
-        this.agendamento = agendamento;
-    }
-
-    public MedicacaoEntity getMedicacao() {
-        return medicacao;
-    }
-
-    public void setMedicacao(MedicacaoEntity medicacao) {
-        this.medicacao = medicacao;
     }
 }

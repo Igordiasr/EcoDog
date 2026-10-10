@@ -1,22 +1,24 @@
 package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "vacinas")
-public class VacinasEntity {
+@Table(name = "medicacoes")
+public class MedicacoesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idVacinas;
+    private Long idMedicacoes;
+    @NotBlank
     private String nome;
     private String tipo;
 
-    public Integer getIdVacinas() {
-        return idVacinas;
+    public Long getIdMedicacoes() {
+        return idMedicacoes;
     }
 
-    public void setIdVacinas(Integer idVacinas) {
-        this.idVacinas = idVacinas;
+    public void setIdMedicacoes(Long idMedicacoes) {
+        this.idMedicacoes = idMedicacoes;
     }
 
     public String getNome() {

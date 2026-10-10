@@ -1,41 +1,37 @@
 package br.com.ecodogpark.backend.entity;
 
-import br.com.ecodogpark.backend.entity.id.ObservacaoDoDiaId;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "Observacao_do_dia")
+@Table(name = "observacoes_do_dia")
 public class ObservacaoDoDiaEntity {
-    @EmbeddedId
-    private ObservacaoDoDiaId idObservacao = new ObservacaoDoDiaId();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idObservacoes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("agendamentoId")
-    @JoinColumns({
-            @JoinColumn(name = "fk_contrato", referencedColumnName = "fk_contrato"),
-            @JoinColumn(name = "fk_calendario", referencedColumnName = "fk_calendario")
-    })
-    private AgendamentoEntity agendamento;
+    @JoinColumn(name = "fkAgendamento")
+    private AgendamentosEntity agendamento;
 
     private String descricao;
     private LocalTime horario;
 
 
-    public ObservacaoDoDiaId getIdObservacao() {
-        return idObservacao;
+    public Long getIdObservacoes() {
+        return idObservacoes;
     }
 
-    public void setIdObservacao(ObservacaoDoDiaId idObservacao) {
-        this.idObservacao = idObservacao;
+    public void setIdObservacoes(Long idObservacoes) {
+        this.idObservacoes = idObservacoes;
     }
 
-    public AgendamentoEntity getAgendamento() {
+    public AgendamentosEntity getAgendamento() {
         return agendamento;
     }
 
-    public void setAgendamento(AgendamentoEntity agendamento) {
+    public void setAgendamento(AgendamentosEntity agendamento) {
         this.agendamento = agendamento;
     }
 

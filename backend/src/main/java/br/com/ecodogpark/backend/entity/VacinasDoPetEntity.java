@@ -1,42 +1,40 @@
 package br.com.ecodogpark.backend.entity;
 
-import br.com.ecodogpark.backend.entity.id.VacinasDoPetId;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Vacinas_do_pet")
+@Table(name = "vacinas_do_pet")
 public class VacinasDoPetEntity {
-    @EmbeddedId
-    private VacinasDoPetId idVacina = new VacinasDoPetId();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idVacinasDoPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("fkPet")
-    @JoinColumn(name = "fk_pet")
-    private PetEntity pet;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("fkVacina")
-    @JoinColumn(name = "fk_vacina")
+    @JoinColumn(name = "fkVacina")
     private VacinasEntity vacina;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkPet")
+    private PetsEntity pet;
 
     private LocalDate dataAplicacao;
     private LocalDate dataValidade;
 
-    public VacinasDoPetId getIdVacina() {
-        return idVacina;
+    public Long getIdVacinasDoPet() {
+        return idVacinasDoPet;
     }
 
-    public void setIdVacina(VacinasDoPetId idVacina) {
-        this.idVacina = idVacina;
+    public void setIdVacinasDoPet(Long idVacinasDoPet) {
+        this.idVacinasDoPet = idVacinasDoPet;
     }
 
-    public PetEntity getPet() {
+    public PetsEntity getPet() {
         return pet;
     }
 
-    public void setPet(PetEntity pet) {
+    public void setPet(PetsEntity pet) {
         this.pet = pet;
     }
 

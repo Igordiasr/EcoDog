@@ -5,19 +5,19 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Contrato")
-public class ContratoEntity {
+@Table(name = "contratos")
+public class ContratosEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idContrato;
     private LocalDate dataInicio;
     private LocalDate dataFim;
-    private Double valorContrato;
+    private Double valor;
     private String situacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fkPet", referencedColumnName = "idPet")
-    private PetEntity pet;
+    private PetsEntity pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fkServico", referencedColumnName = "idServico")
@@ -35,24 +35,24 @@ public class ContratoEntity {
         return dataInicio;
     }
 
-    public void setDataInicio(LocalDate dataInicioContrato) {
-        this.dataInicio = dataInicioContrato;
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
     }
 
     public LocalDate getDataFim() {
         return dataFim;
     }
 
-    public void setDataFim(LocalDate dataFimContrato) {
-        this.dataFim = dataFimContrato;
+    public void setDataFim(LocalDate dataFim) {
+        this.dataFim = dataFim;
     }
 
-    public Double getValorContrato() {
-        return valorContrato;
+    public Double getValor() {
+        return valor;
     }
 
-    public void setValorContrato(Double valorContrato) {
-        this.valorContrato = valorContrato;
+    public void setValor(Double valor) {
+        this.valor = valor;
     }
 
     public String getSituacao() {
@@ -63,11 +63,11 @@ public class ContratoEntity {
         this.situacao = situacao;
     }
 
-    public PetEntity getPet() {
+    public PetsEntity getPet() {
         return pet;
     }
 
-    public void setPet(PetEntity pet) {
+    public void setPet(PetsEntity pet) {
         this.pet = pet;
     }
 

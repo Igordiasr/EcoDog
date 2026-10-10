@@ -2,41 +2,36 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 @Entity
-@Table(name = "medicacao_do_dia")
-public class MedicacaoDoDiaEntity {
+@Table(name = "particicao_do_pet")
+public class ParticipacaoDoPet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idMedicacaoDoDia;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkMedicacaoDoPet")
-    private MedicacoesDoPetEntity fkMedicacaoDoPet;
+    private Long idParticipacaoDoPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fkAgendamento")
     private AgendamentosEntity fkAgendamento;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkAtividadesDoDia")
+    private AtividadesDoDiaEntity fkAtividadesDoDia;
+
     @NotBlank
     private String situacao;
     @NotBlank
     private String observacao;
+    @Positive
+    private Integer grupo;
 
-    public Long getIdMedicacaoDoDia() {
-        return idMedicacaoDoDia;
+    public Long getIdParticipacaoDoPet() {
+        return idParticipacaoDoPet;
     }
 
-    public void setIdMedicacaoDoDia(Long idMedicacaoDoDia) {
-        this.idMedicacaoDoDia = idMedicacaoDoDia;
-    }
-
-    public MedicacoesDoPetEntity getFkMedicacaoDoPet() {
-        return fkMedicacaoDoPet;
-    }
-
-    public void setFkMedicacaoDoPet(MedicacoesDoPetEntity fkMedicacaoDoPet) {
-        this.fkMedicacaoDoPet = fkMedicacaoDoPet;
+    public void setIdParticipacaoDoPet(Long idParticipacaoDoPet) {
+        this.idParticipacaoDoPet = idParticipacaoDoPet;
     }
 
     public AgendamentosEntity getFkAgendamento() {
@@ -45,6 +40,14 @@ public class MedicacaoDoDiaEntity {
 
     public void setFkAgendamento(AgendamentosEntity fkAgendamento) {
         this.fkAgendamento = fkAgendamento;
+    }
+
+    public AtividadesDoDiaEntity getFkAtividadesDoDia() {
+        return fkAtividadesDoDia;
+    }
+
+    public void setFkAtividadesDoDia(AtividadesDoDiaEntity fkAtividadesDoDia) {
+        this.fkAtividadesDoDia = fkAtividadesDoDia;
     }
 
     public String getSituacao() {
@@ -61,5 +64,13 @@ public class MedicacaoDoDiaEntity {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    public Integer getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(Integer grupo) {
+        this.grupo = grupo;
     }
 }

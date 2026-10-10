@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.entity.UsuarioEntity;
+import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import br.com.ecodogpark.backend.dto.*;
 import br.com.ecodogpark.backend.repository.PetRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
@@ -23,13 +23,13 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmail(usuarioRequest.email())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
-        UsuarioEntity usuario = new UsuarioEntity();
+        UsuariosEntity usuario = new UsuariosEntity();
         preencher(usuario, usuarioRequest);
         return paraUsuarioResponse(usuarioRepository.save(usuario));
     }
 
     public List<UsuarioResponse> listarTutores() {
-        return usuarioRepository.findByNivelAcesso(1).stream().map(this::paraUsuarioResponse).toList();
+        return usuarioRepository.findByTipo("1").stream().map(this::paraUsuarioResponse).toList();
     }
 
     public UsuarioResponse buscarTutorPorId(Long id) {
@@ -40,7 +40,7 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmailAndIdUsuarioNot(usuarioRequest.email(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
-        UsuarioEntity usuario = buscarTutor(id);
+        UsuariosEntity usuario = buscarTutor(id);
         preencher(usuario, usuarioRequest);
         return paraUsuarioResponse(usuarioRepository.save(usuario));
     }
@@ -55,28 +55,28 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
-    private UsuarioEntity buscarTutor(Long id) {
+    private UsuariosEntity buscarTutor(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
-    private void preencher(UsuarioEntity usuario, UsuarioRequest usuarioRequest) {
+    private void preencher(UsuariosEntity usuario, UsuarioRequest usuarioRequest) {
         usuario.setNome(usuarioRequest.nome());
         usuario.setEmail(usuarioRequest.email());
         usuario.setCpf(usuarioRequest.cpf());
         usuario.setTelefone(usuarioRequest.telefone().trim());
         usuario.setSenha(usuarioRequest.senha());
-        usuario.setNivelAcesso(1);
+        usuario.setTipo("1");
     }
 
-    private UsuarioResponse paraUsuarioResponse(UsuarioEntity usuario) {
+    private UsuarioResponse paraUsuarioResponse(UsuariosEntity usuario) {
         return new UsuarioResponse(usuario.getIdUsuario(), usuario.getNome(), usuario.getEmail(), usuario.getTelefone());
     }
 
     // -------------------------- Regras de negócio para Gestão de Usuários --------------------------------------
 
     public List<MonitorResponse> listarMonitores() {
-        return usuarioRepository.findByNivelAcesso(2)
+        return usuarioRepository.findByTipo("2")
                 .stream()
                 .map(this::paraMonitorResponse)
                 .toList();
@@ -89,7 +89,7 @@ public class UsuarioService {
         if (usuarioRepository.existsByCpf(request.cpf())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
         }
-        UsuarioEntity usuario = new UsuarioEntity();
+        UsuariosEntity usuario = new UsuariosEntity();
         paraUsuarioEntity(usuario, request);
         return paraMonitorResponse(usuarioRepository.save(usuario));
     }
@@ -106,7 +106,7 @@ public class UsuarioService {
         if (!usuarioRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado");
         }
-        UsuarioEntity monitorParaAtualizar = new UsuarioEntity();
+        UsuariosEntity monitorParaAtualizar = new UsuariosEntity();
         paraUsuarioEntity(monitorParaAtualizar, request);
         monitorParaAtualizar.setIdUsuario(id);
         return paraMonitorResponse(usuarioRepository.save(monitorParaAtualizar));
@@ -119,22 +119,22 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
-    private MonitorResponse paraMonitorResponse(UsuarioEntity usuario) {
+    private MonitorResponse paraMonitorResponse(UsuariosEntity usuario) {
         return new MonitorResponse(
                 usuario.getIdUsuario(),
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getTelefone(),
-                usuario.getDataRegistro()
+                usuario.getDataCadastro()
         );
     }
 
-    private void paraUsuarioEntity(UsuarioEntity usuario, MonitorRequest monitorRequest) {
+    private void paraUsuarioEntity(UsuariosEntity usuario, MonitorRequest monitorRequest) {
         usuario.setNome(monitorRequest.nome());
         usuario.setEmail(monitorRequest.email());
         usuario.setCpf(monitorRequest.cpf());
         usuario.setTelefone(monitorRequest.telefone().trim());
         usuario.setSenha(monitorRequest.senha());
-        usuario.setNivelAcesso(2);
+        usuario.setTipo("2");
     }
 }

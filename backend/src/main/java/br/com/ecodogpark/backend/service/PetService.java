@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.entity.PetEntity;
-import br.com.ecodogpark.backend.entity.UsuarioEntity;
+import br.com.ecodogpark.backend.entity.PetsEntity;
+import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import br.com.ecodogpark.backend.dto.PetRequest;
 import br.com.ecodogpark.backend.dto.PetResponse;
 import br.com.ecodogpark.backend.repository.PetRepository;
@@ -22,7 +22,7 @@ public class PetService {
     }
 
     public PetResponse criar(PetRequest dto) {
-        PetEntity pet = new PetEntity();
+        PetsEntity pet = new PetsEntity();
         preencher(pet, dto);
         return paraDto(petRepository.save(pet));
     }
@@ -34,37 +34,37 @@ public class PetService {
     public PetResponse buscarPorId(Long id) { return paraDto(obter(id)); }
 
     public PetResponse atualizar(Long id, PetRequest dto) {
-        PetEntity pet = obter(id);
+        PetsEntity pet = obter(id);
         preencher(pet, dto);
         return paraDto(petRepository.save(pet));
     }
 
     public void excluir(Long id) { petRepository.delete(obter(id)); }
 
-    private PetEntity obter(Long id) {
+    private PetsEntity obter(Long id) {
         return petRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet não encontrado"));
     }
 
-    private UsuarioEntity obterTutor(Long tutorId) {
+    private UsuariosEntity obterTutor(Long tutorId) {
         return usuarioRepository.findById(tutorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
     }
 
-    private void preencher(PetEntity pet, PetRequest dto) {
+    private void preencher(PetsEntity pet, PetRequest dto) {
         pet.setNome(dto.nome());
         pet.setRaca(dto.raca());
         pet.setCastrado(dto.castrado());
-        pet.setTutor(obterTutor(dto.tutorId()));
+        pet.setFkUsuario(obterTutor(dto.tutorId()));
         pet.setDataNascimento(dto.dataNascimento());
         pet.setRelacaoComOutros(dto.relacaoComOutros());
         pet.setSexo(dto.sexo());
-        pet.setCuidadosEspeciais(dto.cuidadosEspeciais());
+        pet.setObservacao(dto.cuidadosEspeciais());
     }
 
-    private PetResponse paraDto(PetEntity pet) {
+    private PetResponse paraDto(PetsEntity pet) {
         return new PetResponse(pet.getIdPet(), pet.getNome(), pet.getRaca(), pet.getCastrado(),
-                pet.getTutor().getIdUsuario(), pet.getDataNascimento(), pet.getRelacaoComOutros(),
-                pet.getSexo(), pet.getCuidadosEspeciais());
+                pet.getFkUsuario().getIdUsuario(), pet.getDataNascimento(), pet.getRelacaoComOutros(),
+                pet.getSexo(), pet.getObservacao());
     }
 }

@@ -11,6 +11,6 @@ public record PetRequest(
         @NotNull Long tutorId,
         @Past LocalDate dataNascimento,
         @Size(max = 100) String relacaoComOutros,
-        Character sexo,
+        String sexo,
         @Size(max = 1000) String cuidadosEspeciais) {
 }

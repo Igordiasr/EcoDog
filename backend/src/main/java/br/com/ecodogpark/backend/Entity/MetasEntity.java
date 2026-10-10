@@ -5,24 +5,24 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Meta")
-public class MetaEntity {
+@Table(name = "metas")
+public class MetasEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long meta;
+    private Long idMeta;
     private LocalDate mesReferencia;
     private Double valor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_servico")
+    @JoinColumn(name = "fkServico")
     private ServicoEntity servico;
 
-    public Long getMeta() {
-        return meta;
+    public Long getIdMeta() {
+        return idMeta;
     }
 
-    public void setMeta(Long meta) {
-        this.meta = meta;
+    public void setIdMeta(Long idMeta) {
+        this.idMeta = idMeta;
     }
 
     public LocalDate getMesReferencia() {

@@ -1,23 +1,27 @@
-package br.com.ecodogpark.backend.Entity;
+package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "Atividades")
-public class AtividadeEntity {
+@Table(name = "atividades")
+public class AtividadesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idAtividades;
+    @NotBlank
     private String nome;
+    @NotBlank
     private String descricao;
-    private Long duracao;
+    @NotBlank
+    private String categoria;
 
     public Integer getIdAtividades() {
         return idAtividades;
     }
 
-    public void setIdAtividades(Integer id) {
-        this.idAtividades = id;
+    public void setIdAtividades(Integer idAtividades) {
+        this.idAtividades = idAtividades;
     }
 
     public String getNome() {
@@ -36,11 +40,11 @@ public class AtividadeEntity {
         this.descricao = descricao;
     }
 
-    public Long getDuracao() {
-        return duracao;
+    public String getCategoria() {
+        return categoria;
     }
 
-    public void setDuracao(Long duracao) {
-        this.duracao = duracao;
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 }

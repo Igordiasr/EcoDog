@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "Meta")
-public class MetaEntity {
+public class MetasEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long meta;
@@ -15,7 +15,7 @@ public class MetaEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_servico")
-    private ServicoEntity servico;
+    private ServicosEntity servico;
 
     public Long getMeta() {
         return meta;
@@ -41,11 +41,11 @@ public class MetaEntity {
         this.valor = valor;
     }
 
-    public ServicoEntity getServico() {
+    public ServicosEntity getServico() {
         return servico;
     }
 
-    public void setServico(ServicoEntity servico) {
+    public void setServico(ServicosEntity servico) {
         this.servico = servico;
     }
 }

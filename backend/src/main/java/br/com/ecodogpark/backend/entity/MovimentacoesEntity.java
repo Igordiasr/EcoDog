@@ -2,15 +2,16 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Movimentacao")
-public class MovimentacaoEntity {
+@Table(name = "movimentacoes")
+public class MovimentacoesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idMovimentacao;
-    private Double valor;
+    private Long idMovimentacoes;
+    private BigDecimal valor;
     private LocalDate dataRegistro;
     private String situacao;
     private String formaPagamento;
@@ -18,21 +19,21 @@ public class MovimentacaoEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_contrato")
-    private ContratoEntity contrato;
+    private ContratosEntity contrato;
 
-    public Long getIdMovimentacao() {
-        return idMovimentacao;
+    public Long getIdMovimentacoes() {
+        return idMovimentacoes;
     }
 
-    public void setIdMovimentacao(Long idMovimentacao) {
-        this.idMovimentacao = idMovimentacao;
+    public void setIdMovimentacoes(Long idMovimentacoes) {
+        this.idMovimentacoes = idMovimentacoes;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 
@@ -68,11 +69,11 @@ public class MovimentacaoEntity {
         this.dataPagamento = dataPagamento;
     }
 
-    public ContratoEntity getContrato() {
+    public ContratosEntity getContrato() {
         return contrato;
     }
 
-    public void setContrato(ContratoEntity contrato) {
+    public void setContrato(ContratosEntity contrato) {
         this.contrato = contrato;
     }
 }

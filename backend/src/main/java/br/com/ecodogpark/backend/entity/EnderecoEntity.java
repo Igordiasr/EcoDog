@@ -1,23 +1,28 @@
 package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "Endereco")
+@Table(name = "endereco")
 public class EnderecoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEndereco;
 
+    @NotBlank
     private String rua;
+    @NotBlank
+    @Size(max = 10)
     private String numero;
+    @NotBlank
     private String bairro;
+    @NotBlank
     private String cidade;
+    @NotBlank
+    @Size(min = 8,max = 8)
     private String cep;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario")
-    private UsuarioEntity usuario;
 
     public Long getIdEndereco() {
         return idEndereco;
@@ -65,13 +70,5 @@ public class EnderecoEntity {
 
     public void setCep(String cep) {
         this.cep = cep;
-    }
-
-    public UsuarioEntity getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(UsuarioEntity usuario) {
-        this.usuario = usuario;
     }
 }

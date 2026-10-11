@@ -1,15 +1,19 @@
 package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "Atividades")
-public class AtividadeEntity {
+@Table(name = "atividades")
+public class AtividadesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idAtividades;
+    @NotBlank
     private String nome;
+    @NotBlank
     private String descricao;
+    @NotBlank
     private String categoria;
 
     public Integer getIdAtividades() {

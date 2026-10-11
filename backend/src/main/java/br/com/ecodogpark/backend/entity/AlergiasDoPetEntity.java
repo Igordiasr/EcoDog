@@ -12,12 +12,12 @@ public class AlergiasDoPetEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fkPet")
     @JoinColumn(name = "fkPet")
-    private PetEntity pet;
+    private PetsEntity pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fkAlergia")
     @JoinColumn(name = "fk_alergia")
-    private AlergiaEntity alergia;
+    private AlergiasEntity alergia;
 
     private String grauSeveridade;
 
@@ -29,19 +29,19 @@ public class AlergiasDoPetEntity {
         this.idAlergia = idAlergia;
     }
 
-    public PetEntity getPet() {
+    public PetsEntity getPet() {
         return pet;
     }
 
-    public void setPet(PetEntity pet) {
+    public void setPet(PetsEntity pet) {
         this.pet = pet;
     }
 
-    public AlergiaEntity getAlergia() {
+    public AlergiasEntity getAlergia() {
         return alergia;
     }
 
-    public void setAlergia(AlergiaEntity alergia) {
+    public void setAlergia(AlergiasEntity alergia) {
         this.alergia = alergia;
     }
 

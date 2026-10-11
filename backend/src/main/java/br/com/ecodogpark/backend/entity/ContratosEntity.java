@@ -2,26 +2,27 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Contrato")
-public class ContratoEntity {
+@Table(name = "contratos")
+public class ContratosEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idContrato;
     private LocalDate dataInicio;
     private LocalDate dataFim;
-    private Double valorContrato;
+    private BigDecimal valor;
     private String situacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkPet", referencedColumnName = "idPet")
-    private PetEntity pet;
+    @JoinColumn(name = "fk_pet", referencedColumnName = "idPet")
+    private PetsEntity pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkServico", referencedColumnName = "idServico")
-    private ServicoEntity servico;
+    @JoinColumn(name = "fk_servico", referencedColumnName = "idServico")
+    private ServicosEntity servico;
 
     public Long getIdContrato() {
         return idContrato;
@@ -35,24 +36,24 @@ public class ContratoEntity {
         return dataInicio;
     }
 
-    public void setDataInicio(LocalDate dataInicioContrato) {
-        this.dataInicio = dataInicioContrato;
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
     }
 
     public LocalDate getDataFim() {
         return dataFim;
     }
 
-    public void setDataFim(LocalDate dataFimContrato) {
-        this.dataFim = dataFimContrato;
+    public void setDataFim(LocalDate dataFim) {
+        this.dataFim = dataFim;
     }
 
-    public Double getValorContrato() {
-        return valorContrato;
+    public BigDecimal getValor() {
+        return valor;
     }
 
-    public void setValorContrato(Double valorContrato) {
-        this.valorContrato = valorContrato;
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
     }
 
     public String getSituacao() {
@@ -63,19 +64,19 @@ public class ContratoEntity {
         this.situacao = situacao;
     }
 
-    public PetEntity getPet() {
+    public PetsEntity getPet() {
         return pet;
     }
 
-    public void setPet(PetEntity pet) {
+    public void setPet(PetsEntity pet) {
         this.pet = pet;
     }
 
-    public ServicoEntity getServico() {
+    public ServicosEntity getServico() {
         return servico;
     }
 
-    public void setServico(ServicoEntity servico) {
+    public void setServico(ServicosEntity servico) {
         this.servico = servico;
     }
 }

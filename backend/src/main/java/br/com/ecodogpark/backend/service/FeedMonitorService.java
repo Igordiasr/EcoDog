@@ -42,11 +42,11 @@ public class FeedMonitorService {
     }
 
     public List<AtividadeDoDiaResponse> buscarAtividades(Long id) {
-        List<AtividadeDoDiaEntity> atividades =
+        List<AtividadesDoDiaEntity> atividades =
                 atividadeDoDiaRepository.findByAgendamentoContratoPetIdPetAndAgendamentoCalendarioData(id, LocalDate.now());
         List<AtividadeDoDiaResponse> atividadeDoDiaResponses = new ArrayList<>();
 
-        for (AtividadeDoDiaEntity atividade : atividades) {
+        for (AtividadesDoDiaEntity atividade : atividades) {
            AtividadeDoDiaResponse response = paraDtoAtividade(atividade);
            atividadeDoDiaResponses.add(response);
         }
@@ -75,7 +75,7 @@ public class FeedMonitorService {
     }
 
     public AtividadeDoDiaResponse atualizarAtividade(AtividadeDoDiaId id, AtividadeDoDiaRequest request) {
-        AtividadeDoDiaEntity atividade = obterAtividade(id);
+        AtividadesDoDiaEntity atividade = obterAtividade(id);
         preencherAtividade(atividade, request);
 
         return paraDtoAtividade(atividadeDoDiaRepository.save(atividade));
@@ -96,7 +96,7 @@ public class FeedMonitorService {
         observacao.setHorario(LocalTime.now());
     }
 
-    private void preencherAtividade(AtividadeDoDiaEntity atividade, AtividadeDoDiaRequest request) {
+    private void preencherAtividade(AtividadesDoDiaEntity atividade, AtividadeDoDiaRequest request) {
         atividade.setStatus(request.status());
         atividade.setObservacoes(request.observacao());
     }
@@ -110,7 +110,7 @@ public class FeedMonitorService {
         return new ObservacaoDoDiaResponse(observacao.getDescricao());
     }
 
-    private AtividadeDoDiaResponse paraDtoAtividade(AtividadeDoDiaEntity atividade) {
+    private AtividadeDoDiaResponse paraDtoAtividade(AtividadesDoDiaEntity atividade) {
         return new AtividadeDoDiaResponse(
                 atividade.getAtividade().getNome(),
                 atividade.getStatus(),
@@ -126,7 +126,7 @@ public class FeedMonitorService {
         );
     }
 
-    private AtividadeDoDiaEntity obterAtividade(AtividadeDoDiaId id) {
+    private AtividadesDoDiaEntity obterAtividade(AtividadeDoDiaId id) {
         return atividadeDoDiaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
     }

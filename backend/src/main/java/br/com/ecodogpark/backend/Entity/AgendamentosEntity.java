@@ -12,11 +12,11 @@ public class AgendamentosEntity {
     private Long idAgendamentos;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkPet")
+    @JoinColumn(name = "fk_pet")
     private PetsEntity fkPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkCalendario")
+    @JoinColumn(name = "fk_calendario")
     private CalendarioEntity fkCalendario;
 
     private LocalDateTime dataEntrada;

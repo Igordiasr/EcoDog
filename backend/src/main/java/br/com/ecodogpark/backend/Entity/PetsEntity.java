@@ -38,7 +38,7 @@ public class PetsEntity {
     private Boolean convenio;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkUsuario")
+    @JoinColumn(name = "fk_usuario")
     private UsuariosEntity fkUsuario;
 
     public Long getIdPet() {

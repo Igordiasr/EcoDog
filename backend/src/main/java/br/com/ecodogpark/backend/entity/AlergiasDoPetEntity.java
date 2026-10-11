@@ -11,12 +11,12 @@ public class AlergiasDoPetEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fkAlergia")
-    @JoinColumn(name = "fkAlergia")
+    @JoinColumn(name = "fk_alergia")
     private AlergiasEntity alergia;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fkPet")
-    @JoinColumn(name = "fkPet")
+    @JoinColumn(name = "fk_pet")
     private PetsEntity pet;
 
     public AlergiasDoPetId getIdAlergia() {

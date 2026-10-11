@@ -28,6 +28,7 @@ public class UsuariosEntity {
     private Boolean statusUsuario;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_endereco")
     private EnderecoEntity endereco;
 
     public Long getIdUsuario() {

@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -11,10 +12,10 @@ public class MetasEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMeta;
     private LocalDate mesReferencia;
-    private Double valor;
+    private BigDecimal valor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkServico")
+    @JoinColumn(name = "fk_servico")
     private ServicoEntity servico;
 
     public Long getIdMeta() {
@@ -33,11 +34,11 @@ public class MetasEntity {
         this.mesReferencia = mesReferencia;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 

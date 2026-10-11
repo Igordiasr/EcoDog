@@ -12,7 +12,7 @@ public class ObservacaoDoDiaEntity {
     private Long idObservacoes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkAgendamento")
+    @JoinColumn(name = "fk_agendamento")
     private AgendamentosEntity agendamento;
 
     private String descricao;

@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -9,30 +10,30 @@ import java.time.LocalDate;
 public class MovimentacoesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idMovimentacao;
-    private Double valor;
+    private Long idMovimentacoes;
+    private BigDecimal valor;
     private LocalDate dataRegistro;
     private String situacao;
     private String formaPagamento;
     private LocalDate dataPagamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkContrato")
+    @JoinColumn(name = "fk_contrato")
     private ContratosEntity contrato;
 
-    public Long getIdMovimentacao() {
-        return idMovimentacao;
+    public Long getIdMovimentacoes() {
+        return idMovimentacoes;
     }
 
-    public void setIdMovimentacao(Long idMovimentacao) {
-        this.idMovimentacao = idMovimentacao;
+    public void setIdMovimentacoes(Long idMovimentacoes) {
+        this.idMovimentacoes = idMovimentacoes;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 

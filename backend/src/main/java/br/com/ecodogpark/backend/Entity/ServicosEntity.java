@@ -2,9 +2,11 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
-@Table(name = "servico")
-public class ServicoEntity {
+@Table(name = "servicos")
+public class ServicosEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idServico;
@@ -12,7 +14,7 @@ public class ServicoEntity {
     private String categoria;
     private String modalidade;
     private Character frequencia;
-    private Double valor;
+    private BigDecimal valor;
     private Boolean status;
 
     public Integer getIdServico() {
@@ -55,11 +57,11 @@ public class ServicoEntity {
         this.frequencia = frequencia;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 

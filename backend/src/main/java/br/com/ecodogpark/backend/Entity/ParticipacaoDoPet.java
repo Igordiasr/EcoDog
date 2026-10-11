@@ -5,18 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 @Entity
-@Table(name = "particicao_do_pet")
+@Table(name = "participacao_do_pet")
 public class ParticipacaoDoPet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idParticipacaoDoPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkAgendamento")
+    @JoinColumn(name = "fk_agendamento")
     private AgendamentosEntity fkAgendamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkAtividadesDoDia")
+    @JoinColumn(name = "fk_atividades_do_dia")
     private AtividadesDoDiaEntity fkAtividadesDoDia;
 
     @NotBlank

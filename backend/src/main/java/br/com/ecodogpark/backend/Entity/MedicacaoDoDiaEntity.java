@@ -11,11 +11,11 @@ public class MedicacaoDoDiaEntity {
     private Long idMedicacaoDoDia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkMedicacaoDoPet")
+    @JoinColumn(name = "fk_medicacao_do_pet")
     private MedicacoesDoPetEntity fkMedicacaoDoPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkAgendamento")
+    @JoinColumn(name = "fk_agendamento")
     private AgendamentosEntity fkAgendamento;
 
     @NotBlank

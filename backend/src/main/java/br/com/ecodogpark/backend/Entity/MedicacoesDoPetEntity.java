@@ -11,11 +11,11 @@ public class MedicacoesDoPetEntity {
     private Long idMedicacaoDoPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkPet")
+    @JoinColumn(name = "fk_pet")
     private PetsEntity fkPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkMedicacao")
+    @JoinColumn(name = "fk_medicacao")
     private MedicacoesEntity fkMedicacao;
 
     @NotBlank
@@ -23,7 +23,7 @@ public class MedicacoesDoPetEntity {
     @NotBlank
     private String dosagem;
     @NotBlank
-    private String emUso;
+    private Boolean emUso;
 
     public Long getIdMedicacaoDoPet() {
         return idMedicacaoDoPet;
@@ -49,11 +49,11 @@ public class MedicacoesDoPetEntity {
         this.dosagem = dosagem;
     }
 
-    public String getEmUso() {
+    public Boolean getEmUso() {
         return emUso;
     }
 
-    public void setEmUso(String emUso) {
+    public void setEmUso(Boolean emUso) {
         this.emUso = emUso;
     }
 

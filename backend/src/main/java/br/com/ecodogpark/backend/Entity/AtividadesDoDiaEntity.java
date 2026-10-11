@@ -10,14 +10,14 @@ import java.time.LocalTime;
 public class AtividadesDoDiaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idAtividadedoDia;
+    private Long idAtividadeDoDia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkAtividade")
+    @JoinColumn(name = "fk_atividade")
     private AtividadesEntity fkAtividade;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkCalendario")
+    @JoinColumn(name = "fk_calendario")
     private CalendarioEntity fkCalendario;
 
     @NotNull
@@ -27,12 +27,12 @@ public class AtividadesDoDiaEntity {
     @NotNull
     private String situacao;
 
-    public Long getIdAtividadedoDia() {
-        return idAtividadedoDia;
+    public Long getIdAtividadeDoDia() {
+        return idAtividadeDoDia;
     }
 
-    public void setIdAtividadedoDia(Long idAtividadedoDia) {
-        this.idAtividadedoDia = idAtividadedoDia;
+    public void setIdAtividadeDoDia(Long idAtividadeDoDia) {
+        this.idAtividadeDoDia = idAtividadeDoDia;
     }
 
     public AtividadesEntity getFkAtividade() {

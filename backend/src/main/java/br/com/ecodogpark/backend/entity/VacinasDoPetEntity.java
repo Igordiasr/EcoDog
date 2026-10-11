@@ -12,11 +12,11 @@ public class VacinasDoPetEntity {
     private Long idVacinasDoPet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkVacina")
+    @JoinColumn(name = "fk_vacina")
     private VacinasEntity vacina;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkPet")
+    @JoinColumn(name = "fk_pet")
     private PetsEntity pet;
 
     private LocalDate dataAplicacao;

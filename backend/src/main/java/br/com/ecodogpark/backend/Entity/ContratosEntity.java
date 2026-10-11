@@ -22,7 +22,7 @@ public class ContratosEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_servico", referencedColumnName = "idServico")
-    private ServicoEntity servico;
+    private ServicosEntity servico;
 
     public Long getIdContrato() {
         return idContrato;
@@ -72,11 +72,11 @@ public class ContratosEntity {
         this.pet = pet;
     }
 
-    public ServicoEntity getServico() {
+    public ServicosEntity getServico() {
         return servico;
     }
 
-    public void setServico(ServicoEntity servico) {
+    public void setServico(ServicosEntity servico) {
         this.servico = servico;
     }
 }

@@ -16,7 +16,7 @@ public class MetasEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_servico")
-    private ServicoEntity servico;
+    private ServicosEntity servico;
 
     public Long getIdMeta() {
         return idMeta;
@@ -42,11 +42,11 @@ public class MetasEntity {
         this.valor = valor;
     }
 
-    public ServicoEntity getServico() {
+    public ServicosEntity getServico() {
         return servico;
     }
 
-    public void setServico(ServicoEntity servico) {
+    public void setServico(ServicosEntity servico) {
         this.servico = servico;
     }
 }

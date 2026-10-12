@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "participacao_do_pet")
-public class ParticipacaoDoPet {
+public class ParticipacaoDoPetEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idParticipacaoDoPet;
@@ -19,8 +19,9 @@ public class ParticipacaoDoPet {
     @JoinColumn(name = "fk_atividades_do_dia")
     private AtividadesDoDiaEntity fkAtividadesDoDia;
 
+    @Enumerated(EnumType.STRING)
     @NotBlank
-    private String situacao;
+    private SituacaoAtividade situacao;
     @NotBlank
     private String observacao;
     @Positive
@@ -50,11 +51,11 @@ public class ParticipacaoDoPet {
         this.fkAtividadesDoDia = fkAtividadesDoDia;
     }
 
-    public String getSituacao() {
+    public SituacaoAtividade getSituacao() {
         return situacao;
     }
 
-    public void setSituacao(String situacao) {
+    public void setSituacao(SituacaoAtividade situacao) {
         this.situacao = situacao;
     }
 

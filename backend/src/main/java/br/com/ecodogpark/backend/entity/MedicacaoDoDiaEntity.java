@@ -18,8 +18,9 @@ public class MedicacaoDoDiaEntity {
     @JoinColumn(name = "fk_agendamento")
     private AgendamentosEntity fkAgendamento;
 
+    @Enumerated(EnumType.STRING)
     @NotBlank
-    private String situacao;
+    private SituacaoMedicacao situacao;
     @NotBlank
     private String observacao;
 
@@ -47,11 +48,11 @@ public class MedicacaoDoDiaEntity {
         this.fkAgendamento = fkAgendamento;
     }
 
-    public String getSituacao() {
+    public SituacaoMedicacao getSituacao() {
         return situacao;
     }
 
-    public void setSituacao(String situacao) {
+    public void setSituacao(SituacaoMedicacao situacao) {
         this.situacao = situacao;
     }
 

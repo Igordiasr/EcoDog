@@ -1,8 +1,0 @@
-package br.com.ecodogpark.backend.dto;
-
-public record MedicacaoDoDiaResponse(
-        String nomeMedicacao,
-        Boolean status,
-        String observacao
-) {
-}

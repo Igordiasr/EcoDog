@@ -1,11 +1,11 @@
 package br.com.ecodogpark.backend.repository;
 
-import br.com.ecodogpark.backend.entity.AgendamentoEntity;
-import br.com.ecodogpark.backend.entity.id.AgendamentoId;
+import br.com.ecodogpark.backend.entity.AgendamentosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
-public interface AgendamentoRepository extends JpaRepository<AgendamentoEntity, AgendamentoId> {
-    AgendamentoEntity findByContratoPetIdPetAndCalendarioData(Long idPet, LocalDate data);
+public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity, Long> {
+    Optional<AgendamentosEntity> findByFkPetIdPetAndFkCalendarioData(Long id, LocalDate data);
 }

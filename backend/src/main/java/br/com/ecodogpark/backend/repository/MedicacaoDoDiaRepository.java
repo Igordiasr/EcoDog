@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface MedicacaoDoDiaRepository extends JpaRepository<MedicacaoDoDiaEntity, Long> {
-    List<MedicacaoDoDiaEntity> findByAgendamentoContratoPetIdPetAndAgendamentoCalendarioData(Long id, LocalDate data);
+    List<MedicacaoDoDiaEntity> findByFkAgendamentoFkPetIdPetAndFkAgendamentoFkCalendarioData(Long id, LocalDate data);
+
+    Optional<MedicacaoDoDiaEntity> findByIdMedicacaoDoDiaAndFkAgendamentoFkPetIdPet(Long idMedicacao, Long idPet);
 }

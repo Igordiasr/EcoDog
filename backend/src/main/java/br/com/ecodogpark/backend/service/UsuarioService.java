@@ -7,11 +7,10 @@ import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import br.com.ecodogpark.backend.repository.PetRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Service
 public class UsuarioService {

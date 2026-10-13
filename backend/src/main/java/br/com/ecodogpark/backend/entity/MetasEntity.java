@@ -42,11 +42,11 @@ public class MetasEntity {
         this.valor = valor;
     }
 
-    public ServicosEntity getServico() {
+    public ServicosEntity getServicos() {
         return servico;
     }
 
-    public void setServico(ServicosEntity servico) {
+    public void setServicos(ServicosEntity servico) {
         this.servico = servico;
     }
 }

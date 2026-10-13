@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalTime;
 
@@ -25,6 +26,7 @@ public class AtividadesDoDiaEntity {
     @NotNull
     private LocalTime horaFim;
     @NotNull
+    @Pattern(regexp = "PENDENTE|CONCLUIDO|NAO-CONCLUIDO")
     private String situacao;
 
     public Long getIdAtividadeDoDia() {

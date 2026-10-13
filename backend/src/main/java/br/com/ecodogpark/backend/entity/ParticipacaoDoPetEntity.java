@@ -2,11 +2,12 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "participacao_do_pet")
-public class ParticipacaoDoPet {
+public class ParticipacaoDoPetEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idParticipacaoDoPet;
@@ -20,8 +21,8 @@ public class ParticipacaoDoPet {
     private AtividadesDoDiaEntity fkAtividadesDoDia;
 
     @NotBlank
+    @Pattern(regexp = "PENDENTE|CONCLUIDO|NAO-CONCLUIDO")
     private String situacao;
-    @NotBlank
     private String observacao;
     @Positive
     private Integer grupo;

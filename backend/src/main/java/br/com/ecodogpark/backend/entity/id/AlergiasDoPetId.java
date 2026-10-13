@@ -5,7 +5,7 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public record AlergiasDoPetId (
+public record AlergiasDoPetId(
         Long fkPet,
         Integer fkAlergia
 ) implements Serializable {

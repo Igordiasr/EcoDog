@@ -21,7 +21,8 @@ public class AgendamentosEntity {
 
     private LocalDateTime dataEntrada;
     private LocalDateTime dataSaida;
-    private String situacao;
+    @Enumerated(EnumType.STRING)
+    private SituacaoAgendamento situacao;
     private String tutorCheckin;
     private String tutorCheckout;
     private String pertences;
@@ -68,11 +69,11 @@ public class AgendamentosEntity {
         this.dataSaida = dataSaida;
     }
 
-    public String getSituacao() {
+    public SituacaoAgendamento getSituacao() {
         return situacao;
     }
 
-    public void setSituacao(String situacao) {
+    public void setSituacao(SituacaoAgendamento situacao) {
         this.situacao = situacao;
     }
 

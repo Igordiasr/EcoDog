@@ -26,7 +26,7 @@ public class AtividadesDoDiaEntity {
     @NotNull
     private LocalTime horaFim;
     @NotNull
-    @Pattern(regexp = "PENDENTE|CONCLUIDO|NAO-CONCLUIDO")
+    @Pattern(regexp = "PENDENTE|CONCLUIDA|NAO_CONCLUIDA")
     private String situacao;
 
     public Long getIdAtividadeDoDia() {

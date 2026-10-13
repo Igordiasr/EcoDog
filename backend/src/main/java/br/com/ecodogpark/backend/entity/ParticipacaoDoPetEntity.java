@@ -21,7 +21,7 @@ public class ParticipacaoDoPetEntity {
     private AtividadesDoDiaEntity fkAtividadesDoDia;
 
     @NotBlank
-    @Pattern(regexp = "PENDENTE|CONCLUIDO|NAO-CONCLUIDO")
+    @Pattern(regexp = "PENDENTE|PARTICIPOU|NAO_PARTICIPOU")
     private String situacao;
     private String observacao;
     @Positive

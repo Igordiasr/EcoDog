@@ -37,7 +37,7 @@ public class CheckinCheckoutService {
     @Transactional
     public void realizarCheckin(
             Long id,
-            CheckinCheckoutRequest request
+            CheckinCheckoutRequest requisicao
     ) {
         AgendamentosEntity agendamento = buscarAgendamento(id);
 
@@ -58,8 +58,8 @@ public class CheckinCheckoutService {
         agendamento.setDataEntrada(
                 LocalDateTime.now(FUSO_HORARIO)
         );
-        agendamento.setTutorCheckin(request.responsavel());
-        agendamento.setSituacao("PRESENTE");
+        agendamento.setTutorCheckin(requisicao.responsavel());
+        agendamento.setSituacao("Confirmado");
 
         agendamentosRepository.save(agendamento);
     }
@@ -67,7 +67,7 @@ public class CheckinCheckoutService {
     @Transactional
     public void realizarCheckout(
             Long id,
-            CheckinCheckoutRequest request
+            CheckinCheckoutRequest requisicao
     ) {
         AgendamentosEntity agendamento = buscarAgendamento(id);
 
@@ -88,8 +88,8 @@ public class CheckinCheckoutService {
         agendamento.setDataSaida(
                 LocalDateTime.now(FUSO_HORARIO)
         );
-        agendamento.setTutorCheckout(request.responsavel());
-        agendamento.setSituacao("FINALIZADO");
+        agendamento.setTutorCheckout(requisicao.responsavel());
+        agendamento.setSituacao("Retirado");
 
         agendamentosRepository.save(agendamento);
     }

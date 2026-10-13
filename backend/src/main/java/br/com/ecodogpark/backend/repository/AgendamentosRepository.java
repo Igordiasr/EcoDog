@@ -31,6 +31,7 @@ public interface AgendamentosRepository
         JOIN a.fkPet p
         JOIN a.fkCalendario c
         WHERE c.data = :data
+        AND a.situacao != "Cancelado"
         ORDER BY p.nome ASC
     """)
     List<CheckinCheckoutResponse> listarPorData(

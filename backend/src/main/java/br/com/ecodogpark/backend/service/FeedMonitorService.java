@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class FeedMonitorService {
     public List<AtividadeDoPetResponse> buscarAtividades(Long id) {
         List<AtividadeDoPetResponse> atividadeDoPetResponses = new ArrayList<>();
         List<ParticipacaoDoPetEntity> atividades =
-                participacaoDoPetRepository.buscarAtividadeDoPetAgendadoEConfirmado(id, LocalDate.now(), SituacaoAgendamento.CONFIRMADO);
+                participacaoDoPetRepository.buscarAtividadeDoPetAgendadoEConfirmado(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO);
 
         for (ParticipacaoDoPetEntity atividade : atividades) {
            AtividadeDoPetResponse response = paraDtoAtividade(atividade);
@@ -66,7 +67,7 @@ public class FeedMonitorService {
     public List<MedicacaoDoDiaResponse> buscarMedicacao(Long id) {
         List<MedicacaoDoDiaResponse> medicacaoDoDiaResponses = new ArrayList<>();
         List<MedicacaoDoDiaEntity> medicacoes =
-                medicacaoDoDiaRepository.buscarMedicacaoDoDiaAgendadoEConfirmado(id, LocalDate.now(), SituacaoAgendamento.CONFIRMADO);
+                medicacaoDoDiaRepository.buscarMedicacaoDoDiaAgendadoEConfirmado(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO);
 
         for (MedicacaoDoDiaEntity medicacao : medicacoes) {
             MedicacaoDoDiaResponse response = paraDtoMedicacao(medicacao);
@@ -121,7 +122,7 @@ public class FeedMonitorService {
         validarRequestMedicacao(request);
 
         medicacao.setSituacao(request.situacao());
-        if (request.situacao() == SituacaoMedicacao.APLICADO) {
+        if (request.situacao() == SituacaoMedicacao.TOMOU) {
             medicacao.setObservacao("Sem observação");
             return;
         }
@@ -152,17 +153,17 @@ public class FeedMonitorService {
     }
 
         private AgendamentosEntity buscarAgendamentoDoPet(Long id) {
-            return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(id, LocalDate.now(), SituacaoAgendamento.CONFIRMADO)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
+            return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado ou não confirmado"));
         }
 
     private ParticipacaoDoPetEntity obterAtividade(Long idParticipacao, Long idPet) {
-        return participacaoDoPetRepository.buscarAtividadeDoPetNoAgendamento(idParticipacao, idPet, LocalDate.now(), SituacaoAgendamento.CONFIRMADO)
+        return participacaoDoPetRepository.buscarAtividadeDoPetNoAgendamento(idParticipacao, idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
     }
 
     private MedicacaoDoDiaEntity obterMedicacao(Long idMedicacaoDoDia, Long idPet) {
-        return medicacaoDoDiaRepository.buscarMedicacaoDoPetNoAgendamento(idMedicacaoDoDia, idPet, LocalDate.now(), SituacaoAgendamento.CONFIRMADO)
+        return medicacaoDoDiaRepository.buscarMedicacaoDoPetNoAgendamento(idMedicacaoDoDia, idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicação não encontrada"));
     }
 
@@ -183,7 +184,7 @@ public class FeedMonitorService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Escolha uma opção válida");
         }
 
-        if (request.situacao() == SituacaoMedicacao.NAO_APLICADO &&
+        if (request.situacao() == SituacaoMedicacao.NAO_TOMOU &&
                 (request.observacao() == null || request.observacao().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A observação é obrigatória quando não é aplicado a medicação");
         }

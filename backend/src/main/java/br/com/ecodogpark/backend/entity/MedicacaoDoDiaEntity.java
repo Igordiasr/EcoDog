@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "medicacao_do_dia")
@@ -18,8 +19,8 @@ public class MedicacaoDoDiaEntity {
     @JoinColumn(name = "fk_agendamento")
     private AgendamentosEntity fkAgendamento;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @NotBlank
     private SituacaoMedicacao situacao;
     @NotBlank
     private String observacao;

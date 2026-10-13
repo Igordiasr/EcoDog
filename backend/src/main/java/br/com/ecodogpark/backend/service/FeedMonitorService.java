@@ -40,6 +40,8 @@ public class FeedMonitorService {
         PetResponse pet = petService.buscarPorId(id);
         UsuarioResponse tutor = usuarioService.buscarTutorPorId(pet.tutorId());
 
+        buscarAgendamentoDoPet(id);
+
         return new PetFeedMonitorResponse(
                 pet.nome(),
                 pet.raca(),
@@ -49,9 +51,9 @@ public class FeedMonitorService {
     }
 
     public List<AtividadeDoPetResponse> buscarAtividades(Long id) {
-        List<ParticipacaoDoPetEntity> atividades =
-                participacaoDoPetRepository.findByFkAgendamentoFkPetIdPetAndFkAgendamentoFkCalendarioData(id, LocalDate.now());
         List<AtividadeDoPetResponse> atividadeDoPetResponses = new ArrayList<>();
+        List<ParticipacaoDoPetEntity> atividades =
+                participacaoDoPetRepository.buscarAtividadeDoPetAgendadoEConfirmado(id, LocalDate.now(), SituacaoAgendamento.CONFIRMADO);
 
         for (ParticipacaoDoPetEntity atividade : atividades) {
            AtividadeDoPetResponse response = paraDtoAtividade(atividade);
@@ -62,9 +64,9 @@ public class FeedMonitorService {
     }
 
     public List<MedicacaoDoDiaResponse> buscarMedicacao(Long id) {
-        List<MedicacaoDoDiaEntity> medicacoes =
-                medicacaoDoDiaRepository.findByFkAgendamentoFkPetIdPetAndFkAgendamentoFkCalendarioData(id, LocalDate.now());
         List<MedicacaoDoDiaResponse> medicacaoDoDiaResponses = new ArrayList<>();
+        List<MedicacaoDoDiaEntity> medicacoes =
+                medicacaoDoDiaRepository.buscarMedicacaoDoDiaAgendadoEConfirmado(id, LocalDate.now(), SituacaoAgendamento.CONFIRMADO);
 
         for (MedicacaoDoDiaEntity medicacao : medicacoes) {
             MedicacaoDoDiaResponse response = paraDtoMedicacao(medicacao);
@@ -97,9 +99,7 @@ public class FeedMonitorService {
 
 
     private void preencherObservacao(Long id, ObservacaoDoDiaEntity observacao, ObservacaoDoDiaRequest request) {
-        AgendamentosEntity agendamentoEncontrado =
-                agendamentoRepository.findByFkPetIdPetAndFkCalendarioData(id, LocalDate.now())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
+        AgendamentosEntity agendamentoEncontrado = buscarAgendamentoDoPet(id);
 
         observacao.setAgendamento(agendamentoEncontrado);
         observacao.setDescricao(request.observacao());
@@ -110,6 +110,10 @@ public class FeedMonitorService {
         validarRequestAtividade(request);
 
         atividade.setSituacao(request.situacao());
+        if (request.situacao() == SituacaoAtividade.PARTICIPOU) {
+            atividade.setObservacao("Sem observação");
+            return;
+        }
         atividade.setObservacao(request.observacao());
     }
 
@@ -117,6 +121,10 @@ public class FeedMonitorService {
         validarRequestMedicacao(request);
 
         medicacao.setSituacao(request.situacao());
+        if (request.situacao() == SituacaoMedicacao.APLICADO) {
+            medicacao.setObservacao("Sem observação");
+            return;
+        }
         medicacao.setObservacao(request.observacao());
     }
 
@@ -143,19 +151,25 @@ public class FeedMonitorService {
         );
     }
 
+        private AgendamentosEntity buscarAgendamentoDoPet(Long id) {
+            return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(id, LocalDate.now(), SituacaoAgendamento.CONFIRMADO)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
+        }
+
     private ParticipacaoDoPetEntity obterAtividade(Long idParticipacao, Long idPet) {
-        return participacaoDoPetRepository.findByIdParticipacaoDoPetAndFkAgendamentoFkPetIdPet(idParticipacao, idPet)
+        return participacaoDoPetRepository.buscarAtividadeDoPetNoAgendamento(idParticipacao, idPet, LocalDate.now(), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
     }
 
-    private MedicacaoDoDiaEntity obterMedicacao(Long idMedicacao, Long idPet) {
-        return medicacaoDoDiaRepository.findByIdMedicacaoDoDiaAndFkAgendamentoFkPetIdPet(idMedicacao, idPet)
+    private MedicacaoDoDiaEntity obterMedicacao(Long idMedicacaoDoDia, Long idPet) {
+        return medicacaoDoDiaRepository.buscarMedicacaoDoPetNoAgendamento(idMedicacaoDoDia, idPet, LocalDate.now(), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicação não encontrada"));
     }
 
+
     private void validarRequestAtividade(AtividadeDoPetRequest request) {
-        if (request.situacao() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A situação da atividade do pet não pode ser nula ");
+        if (request.situacao() == null || request.situacao() == SituacaoAtividade.PENDENTE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Escolha uma opção válida");
         }
 
         if (request.situacao() == (SituacaoAtividade.NAO_PARTICIPOU) &&
@@ -165,8 +179,8 @@ public class FeedMonitorService {
     }
 
     private void validarRequestMedicacao(MedicacaoDoDiaRequest request) {
-        if (request.situacao() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A situação da medicação do pet não pode ser nula");
+        if (request.situacao() == null || request.situacao() == SituacaoMedicacao.PENDENTE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Escolha uma opção válida");
         }
 
         if (request.situacao() == SituacaoMedicacao.NAO_APLICADO &&

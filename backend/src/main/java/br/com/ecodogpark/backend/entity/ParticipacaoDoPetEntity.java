@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @Entity
@@ -19,8 +20,8 @@ public class ParticipacaoDoPetEntity {
     @JoinColumn(name = "fk_atividades_do_dia")
     private AtividadesDoDiaEntity fkAtividadesDoDia;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @NotBlank
     private SituacaoAtividade situacao;
     @NotBlank
     private String observacao;

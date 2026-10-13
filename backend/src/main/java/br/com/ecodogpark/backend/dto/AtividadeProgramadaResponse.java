@@ -1,14 +1,18 @@
 package br.com.ecodogpark.backend.dto;
 
+import jakarta.validation.constraints.Pattern;
+
 import java.time.LocalTime;
 import java.util.List;
 
 public record AtividadeProgramadaResponse(
-        DetalhesAtividadeResponse atividade,
-        List<GrupoPetsResponse> grupos,
+        Long idAtividadeDoDia,
+        String nome,
+        String descricao,
+        String categoria,
         LocalTime horaInicio,
         LocalTime horaFim,
-        Boolean status,
-        String observacoes
+        String situacao,
+        List<GrupoPetsResponse> grupos
 ) {
 }

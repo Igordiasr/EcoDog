@@ -4,7 +4,7 @@ import br.com.ecodogpark.backend.entity.PetsEntity;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import br.com.ecodogpark.backend.dto.PetRequest;
 import br.com.ecodogpark.backend.dto.PetResponse;
-import br.com.ecodogpark.backend.repository.PetRepository;
+import br.com.ecodogpark.backend.repository.PetsRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -13,22 +13,22 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PetService {
-    private final PetRepository petRepository;
+    private final PetsRepository petsRepository;
     private final UsuarioRepository usuarioRepository;
 
-    public PetService(PetRepository petRepository, UsuarioRepository usuarioRepository) {
-        this.petRepository = petRepository;
+    public PetService(PetsRepository petsRepository, UsuarioRepository usuarioRepository) {
+        this.petsRepository = petsRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
     public PetResponse criar(PetRequest dto) {
         PetsEntity pet = new PetsEntity();
         preencher(pet, dto);
-        return paraDto(petRepository.save(pet));
+        return paraDto(petsRepository.save(pet));
     }
 
     public List<PetResponse> listar() {
-        return petRepository.findAll().stream().map(this::paraDto).toList();
+        return petsRepository.findAll().stream().map(this::paraDto).toList();
     }
 
     public PetResponse buscarPorId(Long id) { return paraDto(obter(id)); }
@@ -36,13 +36,13 @@ public class PetService {
     public PetResponse atualizar(Long id, PetRequest dto) {
         PetsEntity pet = obter(id);
         preencher(pet, dto);
-        return paraDto(petRepository.save(pet));
+        return paraDto(petsRepository.save(pet));
     }
 
-    public void excluir(Long id) { petRepository.delete(obter(id)); }
+    public void excluir(Long id) { petsRepository.delete(obter(id)); }
 
     private PetsEntity obter(Long id) {
-        return petRepository.findById(id)
+        return petsRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet não encontrado"));
     }
 

@@ -5,7 +5,7 @@ import br.com.ecodogpark.backend.dto.MonitorResponse;
 import br.com.ecodogpark.backend.dto.UsuarioRequest;
 import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
-import br.com.ecodogpark.backend.repository.PetRepository;
+import br.com.ecodogpark.backend.repository.PetsRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -15,11 +15,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
-    private final PetRepository petRepository;
+    private final PetsRepository petsRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PetRepository petRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PetsRepository petsRepository) {
         this.usuarioRepository = usuarioRepository;
-        this.petRepository = petRepository;
+        this.petsRepository = petsRepository;
     }
 
     public UsuarioResponse cadastrarTutor(UsuarioRequest usuarioRequest) {

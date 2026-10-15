@@ -4,6 +4,7 @@ package br.com.ecodogpark.backend.service;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutRequest;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
+import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import br.com.ecodogpark.backend.repository.AgendamentosRepository;
 
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class CheckinCheckoutService {
                 LocalDateTime.now(FUSO_HORARIO)
         );
         agendamento.setTutorCheckin(requisicao.responsavel());
-        agendamento.setSituacao("Confirmado");
+        agendamento.setSituacao(SituacaoAgendamento.CONFIRMADO);
 
         agendamentosRepository.save(agendamento);
     }
@@ -89,7 +90,7 @@ public class CheckinCheckoutService {
                 LocalDateTime.now(FUSO_HORARIO)
         );
         agendamento.setTutorCheckout(requisicao.responsavel());
-        agendamento.setSituacao("Retirado");
+        agendamento.setSituacao(SituacaoAgendamento.RETIRADO);
 
         agendamentosRepository.save(agendamento);
     }

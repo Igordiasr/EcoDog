@@ -16,10 +16,10 @@ public interface ObservacaoRepository extends JpaRepository<ObservacaoDoDiaEntit
             FROM observacoes_do_dia o
             JOIN agendamentos ag ON ag.id_agendamentos = o.fk_agendamento
             JOIN calendario c    ON c.id_calendario    = ag.fk_calendario
-            WHERE ag.fk_pet = :petId
+            WHERE ag.fk_pet = :idPet
               AND c.data = :data
             ORDER BY o.horario, o.id_observacoes
             """, nativeQuery = true)
-    List<ObservacaoDoDiaEntity> buscarPorPetEData(@Param("petId") Long petId,
+    List<ObservacaoDoDiaEntity> buscarPorPetEData(@Param("idPet") Long idPet,
                                                   @Param("data") LocalDate data);
 }

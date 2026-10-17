@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.dto;
 
-public record PetPoucosDetalhesResponse(
+public record PetResumoResponse(
         Long idPet,
         String nome,
         Long idParticipacaoDoPet,

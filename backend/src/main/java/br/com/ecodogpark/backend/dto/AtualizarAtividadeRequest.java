@@ -11,6 +11,6 @@ public record AtualizarAtividadeRequest(
         String situacao,
         @Positive
         @NotNull
-        Long idAtividade
+        Long idAtividadeDoDia
 ) {
 }

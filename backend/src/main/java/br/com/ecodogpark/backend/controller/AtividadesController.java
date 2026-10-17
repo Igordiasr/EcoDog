@@ -24,8 +24,8 @@ public class AtividadesController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> concluirAtividade(@RequestBody @Valid AtualizarAtividadeRequest atividade) {
-        atividadesService.concluirAtividade(atividade.situacao(), atividade.idAtividade());
+    public ResponseEntity<Void> concluirAtividade(@RequestBody @Valid AtualizarAtividadeRequest request) {
+        atividadesService.concluirAtividade(request.situacao(), request.idAtividadeDoDia());
         return ResponseEntity.noContent().build();
     }
 

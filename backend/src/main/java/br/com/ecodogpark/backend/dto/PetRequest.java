@@ -8,7 +8,7 @@ public record PetRequest(
         @NotBlank @Size(max = 100) String nome,
         @Size(max = 100) String raca,
         Boolean castrado,
-        @NotNull Long tutorId,
+        @NotNull Long idTutor,
         @Past LocalDate dataNascimento,
         @Size(max = 100) String relacaoComOutros,
         String sexo,

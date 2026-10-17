@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.DiarioPetResponseDTO;
+import br.com.ecodogpark.backend.dto.DiarioPetResponse;
 import br.com.ecodogpark.backend.service.DiarioPetService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +22,12 @@ public class DiarioPetController {
         this.diarioPetService = diarioPetService;
     }
 
-    @GetMapping("/{petId}")
-    public ResponseEntity<DiarioPetResponseDTO> obterDiarioDoPet(
-            @PathVariable Long petId,
+    @GetMapping("/{idPet}")
+    public ResponseEntity<DiarioPetResponse> obterDiarioDoPet(
+            @PathVariable Long idPet,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
 
-        LocalDate dataSolicitada = data != null ? data : LocalDate.now(FUSO_HORARIO);
-        return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(petId, dataSolicitada));
+        LocalDate dataReferencia = data != null ? data : LocalDate.now(FUSO_HORARIO);
+        return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, dataReferencia));
     }
 }

@@ -3,6 +3,6 @@ package br.com.ecodogpark.backend.dto;
 import java.time.LocalDate;
 
 public record PetResponse(
-        Long id, String nome, String raca, Boolean castrado, Long tutorId,
+        Long id, String nome, String raca, Boolean castrado, Long idTutor,
         LocalDate dataNascimento, String relacaoComOutros, String sexo, String cuidadosEspeciais) {
 }

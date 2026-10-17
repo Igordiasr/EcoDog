@@ -1,12 +1,14 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.dto.AtividadeDTO;
-import br.com.ecodogpark.backend.dto.DiarioPetResponseDTO;
-import br.com.ecodogpark.backend.dto.MedicacaoDTO;
-import br.com.ecodogpark.backend.dto.ResumoDTO;
+import br.com.ecodogpark.backend.dto.AtividadeDiarioPetResponse;
+import br.com.ecodogpark.backend.dto.DiarioPetResponse;
+import br.com.ecodogpark.backend.dto.MedicacaoDiarioPetResponse;
+import br.com.ecodogpark.backend.dto.ResumoDiarioPetResponse;
 import br.com.ecodogpark.backend.entity.AtividadesDoDiaEntity;
 import br.com.ecodogpark.backend.entity.MedicacaoDoDiaEntity;
 import br.com.ecodogpark.backend.entity.ObservacaoDoDiaEntity;
+import br.com.ecodogpark.backend.enums.CategoriaAtividade;
+import br.com.ecodogpark.backend.enums.SituacaoAtividade;
 import br.com.ecodogpark.backend.repository.AtividadeRepository;
 import br.com.ecodogpark.backend.repository.MedicacaoRepository;
 import br.com.ecodogpark.backend.repository.ObservacaoRepository;
@@ -15,17 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class DiarioPetService {
-
-    private static final String SITUACAO_CONCLUIDA = "CONCLUIDA";
-
-    // Categorias de atividade que representam refeições/alimentação.
-    private static final List<String> CATEGORIAS_REFEICAO = List.of("REFEICAO", "ALIMENTACAO", "RACAO");
 
     private final AtividadeRepository atividadeRepository;
     private final MedicacaoRepository medicacaoRepository;
@@ -40,17 +36,17 @@ public class DiarioPetService {
     }
 
     @Transactional(readOnly = true)
-    public DiarioPetResponseDTO obterDiarioDoPet(Long petId, LocalDate data) {
+    public DiarioPetResponse obterDiarioDoPet(Long idPet, LocalDate dataReferencia) {
 
         // Consultas executadas sequencialmente dentro da mesma transação,
         // de modo a permitir o carregamento das associações LAZY usadas no mapeamento.
-        List<AtividadesDoDiaEntity> atividades = atividadeRepository.buscarPorPetEData(petId, data);
-        List<MedicacaoDoDiaEntity> medicacoes = medicacaoRepository.buscarPorPetEData(petId, data);
-        List<ObservacaoDoDiaEntity> observacoes = observacaoRepository.buscarPorPetEData(petId, data);
+        List<AtividadesDoDiaEntity> atividades = atividadeRepository.buscarPorPetEData(idPet, dataReferencia);
+        List<MedicacaoDoDiaEntity> medicacoes = medicacaoRepository.buscarPorPetEData(idPet, dataReferencia);
+        List<ObservacaoDoDiaEntity> observacoes = observacaoRepository.buscarPorPetEData(idPet, dataReferencia);
 
-        return new DiarioPetResponseDTO(
-                petId,
-                data,
+        return new DiarioPetResponse(
+                idPet,
+                dataReferencia,
                 montarResumo(atividades),
                 mapearAtividades(atividades),
                 mapearMedicacoes(medicacoes),
@@ -58,9 +54,9 @@ public class DiarioPetService {
         );
     }
 
-    private List<AtividadeDTO> mapearAtividades(List<AtividadesDoDiaEntity> atividades) {
+    private List<AtividadeDiarioPetResponse> mapearAtividades(List<AtividadesDoDiaEntity> atividades) {
         return atividades.stream()
-                .map(atividade -> new AtividadeDTO(descricaoAtividade(atividade)))
+                .map(atividade -> new AtividadeDiarioPetResponse(descricaoAtividade(atividade)))
                 .toList();
     }
 
@@ -72,11 +68,11 @@ public class DiarioPetService {
         return descricao != null ? descricao : atividade.getFkAtividade().getNome();
     }
 
-    private List<MedicacaoDTO> mapearMedicacoes(List<MedicacaoDoDiaEntity> medicacoes) {
+    private List<MedicacaoDiarioPetResponse> mapearMedicacoes(List<MedicacaoDoDiaEntity> medicacoes) {
         return medicacoes.stream()
-                .map(medicacao -> new MedicacaoDTO(
+                .map(medicacao -> new MedicacaoDiarioPetResponse(
                         nomeMedicacao(medicacao),
-                        SITUACAO_CONCLUIDA.equalsIgnoreCase(medicacao.getSituacao())))
+                        medicacao.getSituacao()))
                 .toList();
     }
 
@@ -95,15 +91,15 @@ public class DiarioPetService {
                 .collect(Collectors.joining("\n"));
     }
 
-    private ResumoDTO montarResumo(List<AtividadesDoDiaEntity> atividades) {
-        return new ResumoDTO(fraseRefeicao(atividades), fraseEngajamento(atividades));
+    private ResumoDiarioPetResponse montarResumo(List<AtividadesDoDiaEntity> atividades) {
+        return new ResumoDiarioPetResponse(fraseRefeicao(atividades), fraseEngajamento(atividades));
     }
 
     private String fraseEngajamento(List<AtividadesDoDiaEntity> atividades) {
         if (atividades.isEmpty()) {
             return "Não foram registadas atividades para este dia.";
         }
-        long concluidas = atividades.stream().filter(this::concluida).count();
+        long concluidas = atividades.stream().filter(this::atividadeEstaConcluida).count();
         int total = atividades.size();
 
         if (concluidas == total) {
@@ -123,7 +119,7 @@ public class DiarioPetService {
         if (refeicoes.isEmpty()) {
             return "Não foram registadas refeições para este dia.";
         }
-        long concluidas = refeicoes.stream().filter(this::concluida).count();
+        long concluidas = refeicoes.stream().filter(this::atividadeEstaConcluida).count();
         int total = refeicoes.size();
 
         if (concluidas == total) {
@@ -135,15 +131,14 @@ public class DiarioPetService {
         return concluidas + " de " + total + " refeições do dia foram concluídas.";
     }
 
-    private boolean concluida(AtividadesDoDiaEntity atividade) {
-        return SITUACAO_CONCLUIDA.equalsIgnoreCase(atividade.getSituacao());
+    private boolean atividadeEstaConcluida(AtividadesDoDiaEntity atividade) {
+        return SituacaoAtividade.isConcluida(atividade.getSituacao());
     }
 
     private boolean ehRefeicao(AtividadesDoDiaEntity atividade) {
         if (atividade.getFkAtividade() == null || atividade.getFkAtividade().getCategoria() == null) {
             return false;
         }
-        String categoria = atividade.getFkAtividade().getCategoria().toUpperCase(Locale.ROOT);
-        return CATEGORIAS_REFEICAO.stream().anyMatch(categoria::contains);
+        return CategoriaAtividade.isRefeicao(atividade.getFkAtividade().getCategoria());
     }
 }

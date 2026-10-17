@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.dto;
 
-public record AtividadeDTO(
+public record AtividadeDiarioPetResponse(
         String descricao
 ) {
 }

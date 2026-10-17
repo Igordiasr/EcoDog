@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.dto;
 
-public record ResumoDTO(
+public record ResumoDiarioPetResponse(
         String statusRefeicao,
         String statusEngajamento
 ) {

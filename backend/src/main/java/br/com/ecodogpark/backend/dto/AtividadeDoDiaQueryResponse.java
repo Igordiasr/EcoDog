@@ -3,7 +3,7 @@ package br.com.ecodogpark.backend.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record DBAtividadesResponse(
+public record AtividadeDoDiaQueryResponse(
         Long idAtividadeDoDia,
         LocalDate dataAgendamento,
         String atividade,

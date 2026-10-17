@@ -18,8 +18,8 @@ public class PetController {
     public PetController(PetService petService) { this.petService = petService; }
 
     @PostMapping
-    public ResponseEntity<PetResponse> criar(@Valid @RequestBody PetRequest dto) {
-        PetResponse pet = petService.criar(dto);
+    public ResponseEntity<PetResponse> criar(@Valid @RequestBody PetRequest request) {
+        PetResponse pet = petService.criar(request);
         return ResponseEntity.created(URI.create("/pets/" + pet.id())).body(pet);
     }
 
@@ -30,8 +30,8 @@ public class PetController {
     public PetResponse buscarPorId(@PathVariable Long id) { return petService.buscarPorId(id); }
 
     @PutMapping("/{id}")
-    public PetResponse atualizar(@PathVariable Long id, @Valid @RequestBody PetRequest dto) {
-        return petService.atualizar(id, dto);
+    public PetResponse atualizar(@PathVariable Long id, @Valid @RequestBody PetRequest request) {
+        return petService.atualizar(id, request);
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.repository;
 
-import br.com.ecodogpark.backend.dto.DBAtividadesResponse;
+import br.com.ecodogpark.backend.dto.AtividadeDoDiaQueryResponse;
 import br.com.ecodogpark.backend.entity.ParticipacaoDoPetEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ParticipacaoRepository extends JpaRepository<ParticipacaoDoPetEntity, Long> {
     @Query(value = """
-            SELECT NEW br.com.ecodogpark.backend.dto.DBAtividadesResponse(
+            SELECT NEW br.com.ecodogpark.backend.dto.AtividadeDoDiaQueryResponse(
                 ad.idAtividadeDoDia,
                 c.data,
                 a.nome,
@@ -43,7 +43,7 @@ public interface ParticipacaoRepository extends JpaRepository<ParticipacaoDoPetE
             WHERE c.data = :data
             ORDER BY ad.horaInicio, ad.idAtividadeDoDia, pp.grupo, p.nome ASC
             """)
-    List<DBAtividadesResponse> listarAtividadesdoDia(@Param("data") LocalDate data);
+    List<AtividadeDoDiaQueryResponse> listarAtividadesDoDia(@Param("data") LocalDate data);
 
     @Transactional
     @Modifying

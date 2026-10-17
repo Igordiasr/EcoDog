@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.dto;
 
-public record MedicacaoDTO(
+public record MedicacaoDiarioPetResponse(
         String nome,
-        boolean tomou
+        String status
 ) {
 }

@@ -11,7 +11,6 @@ import java.util.List;
 public interface MedicacaoRepository extends JpaRepository<MedicacaoDoDiaEntity, Long> {
 
     // Medicações administradas a um pet numa data exata.
-    // Regra do DTO MedicacaoDTO.tomou: tomou = "CONCLUIDA".equalsIgnoreCase(md.situacao).
     @Query(value = """
             SELECT md.*
             FROM medicacao_do_dia md
@@ -19,11 +18,11 @@ public interface MedicacaoRepository extends JpaRepository<MedicacaoDoDiaEntity,
             JOIN agendamentos ag      ON ag.id_agendamentos     = md.fk_agendamento
             JOIN calendario c         ON c.id_calendario        = ag.fk_calendario
             JOIN medicacoes m         ON m.id_medicacoes        = mp.fk_medicacao
-            WHERE mp.fk_pet = :petId
-              AND ag.fk_pet = :petId
+            WHERE mp.fk_pet = :idPet
+              AND ag.fk_pet = :idPet
               AND c.data = :data
             ORDER BY m.nome, md.id_medicacao_do_dia
             """, nativeQuery = true)
-    List<MedicacaoDoDiaEntity> buscarPorPetEData(@Param("petId") Long petId,
+    List<MedicacaoDoDiaEntity> buscarPorPetEData(@Param("idPet") Long idPet,
                                                  @Param("data") LocalDate data);
 }

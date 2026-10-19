@@ -1,4 +1,4 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

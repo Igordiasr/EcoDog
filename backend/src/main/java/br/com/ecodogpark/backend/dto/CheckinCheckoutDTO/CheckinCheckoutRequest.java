@@ -1,5 +1,5 @@
 
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.CheckinCheckoutDTO;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

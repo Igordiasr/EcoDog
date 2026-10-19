@@ -1,8 +1,8 @@
 
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.CheckinCheckoutRequest;
-import br.com.ecodogpark.backend.dto.CheckinCheckoutResponse;
+import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutRequest;
+import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.service.CheckinCheckoutService;
 
 import jakarta.validation.Valid;

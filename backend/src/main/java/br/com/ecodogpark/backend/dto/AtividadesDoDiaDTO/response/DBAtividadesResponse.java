@@ -1,4 +1,4 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

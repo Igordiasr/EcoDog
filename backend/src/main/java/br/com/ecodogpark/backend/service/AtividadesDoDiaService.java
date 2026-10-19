@@ -1,8 +1,8 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.dto.*;
+import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.*;
 import br.com.ecodogpark.backend.repository.AtividadeDoDiaRepository;
-import br.com.ecodogpark.backend.repository.ParticipacaoRepository;
+import br.com.ecodogpark.backend.repository.ParticipacaoDoPetRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,18 +15,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class AtividadesService {
-    private final ParticipacaoRepository participacaoRepository;
+public class AtividadesDoDiaService {
+    private final ParticipacaoDoPetRepository participacaoDoPetRepository;
     private final AtividadeDoDiaRepository atividadeDoDiaRepository;
 
-    public AtividadesService(ParticipacaoRepository participacaoRepository, AtividadeDoDiaRepository atividadeDoDiaRepository) {
-        this.participacaoRepository = participacaoRepository;
+    public AtividadesDoDiaService(ParticipacaoDoPetRepository participacaoDoPetRepository, AtividadeDoDiaRepository atividadeDoDiaRepository) {
+        this.participacaoDoPetRepository = participacaoDoPetRepository;
         this.atividadeDoDiaRepository = atividadeDoDiaRepository;
     }
 
-    public AtividadesResponse buscarAtividadesDoDia() {
+    public AtividadesDoDiaResponse buscarAtividadesDoDia() {
         LocalDate data = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
-        List<DBAtividadesResponse> atividadesParaFiltrar = participacaoRepository.listarAtividadesdoDia(data);
+        List<DBAtividadesResponse> atividadesParaFiltrar = participacaoDoPetRepository.listarAtividadesdoDia(data);
         List<AtividadeProgramadaResponse> atividadesDoDia = atividadesParaFiltrar.stream()
                 .collect(Collectors.groupingBy(
                         DBAtividadesResponse::idAtividadeDoDia,
@@ -67,7 +67,7 @@ public class AtividadesService {
                     );
                 })
                 .toList();
-        return new AtividadesResponse(data, atividadesDoDia);
+        return new AtividadesDoDiaResponse(data, atividadesDoDia);
     }
 
     public void concluirAtividade(String situacao, Long idAtividade) {
@@ -78,6 +78,6 @@ public class AtividadesService {
     }
 
     public void concluirAtividadeTodosPets(List<Long> idsParticipacoes) {
-        participacaoRepository.concluirAtividadeTodosPets("PARTICIPOU", idsParticipacoes);
+        participacaoDoPetRepository.concluirAtividadeTodosPets("PARTICIPOU", idsParticipacoes);
     }
 }

@@ -1,5 +1,7 @@
 
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.CheckinCheckoutDTO;
+
+import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +11,7 @@ public record CheckinCheckoutResponse(
         String nomePet,
         LocalDateTime dataEntrada,
         LocalDateTime dataSaida,
-        String situacao,
+        SituacaoAgendamento situacao,
         String tutorCheckin,
         String tutorCheckout,
         String pertences,

@@ -1,14 +1,9 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response;
 
 public record PetPoucosDetalhesResponse(
-<<<<<<< HEAD
-        Long id,
-        String nome
-=======
         Long idPet,
         String nome,
         Long idParticipacaoDoPet,
         Long idAgendamento
->>>>>>> dev
 ) {
 }

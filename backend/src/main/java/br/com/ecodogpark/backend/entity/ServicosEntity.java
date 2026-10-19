@@ -13,7 +13,7 @@ public class ServicosEntity {
     private String nome;
     private String categoria;
     private String modalidade;
-    private Character frequencia;
+    private String frequencia;
     private BigDecimal valor;
     private Boolean status;
 
@@ -49,11 +49,11 @@ public class ServicosEntity {
         this.modalidade = modalidade;
     }
 
-    public Character getFrequencia() {
+    public String getFrequencia() {
         return frequencia;
     }
 
-    public void setFrequencia(Character frequencia) {
+    public void setFrequencia(String frequencia) {
         this.frequencia = frequencia;
     }
 

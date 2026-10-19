@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public record VagasDisponiveisResponse(
         LocalDate data,
         String categoriaServico,
-        Integer vagasDisponiveis
+        Integer capacidadeTotal,
+        Long vagasDisponiveis
 ) {
 }

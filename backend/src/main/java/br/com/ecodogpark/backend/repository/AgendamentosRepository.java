@@ -1,6 +1,7 @@
 
 package br.com.ecodogpark.backend.repository;
 
+import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.DiasComAgendamentoResponse;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AgendamentosRepository
@@ -36,5 +38,24 @@ public interface AgendamentosRepository
     """)
     List<CheckinCheckoutResponse> listarPorData(
             @Param("data") LocalDate data
+    );
+
+    @Query(value = """
+        SELECT DATE(a.data_entrada) AS data, COUNT(*) AS quantidade
+        FROM agendamentos a
+        WHERE (
+            (:servico IN('CRECHE', 'DAYUSE') AND a.servico IN ('CRECHE', 'DAYUSE'))
+            OR  
+            (:servico = 'HOTEL' AND a.servico = 'HOTEL')
+        )
+          AND a.data_entrada >= :inicio
+          AND a.data_entrada < :fim
+          AND a.situacao IN ('CONFIRMADO', 'AGENDADO')
+        GROUP BY DATE(a.data_entrada)
+    """, nativeQuery = true)
+    List<DiasComAgendamentoResponse> buscarAgendamentoPorServico(
+            @Param("servico") String servico,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
     );
 }

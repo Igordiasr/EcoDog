@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.repository;
 
-import br.com.ecodogpark.backend.dto.DashboardDTO.MetasServicosResponse;
-import br.com.ecodogpark.backend.dto.DashboardDTO.ValorPorServicoResponse;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.MetasServicosResponse;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.ValorPorServicoResponse;
 import br.com.ecodogpark.backend.entity.MetasEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,9 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface MetasRepository extends JpaRepository<MetasEntity, Long> {
+public interface MetaRepository extends JpaRepository<MetasEntity, Long> {
     @Query("""
-            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.ValorPorServicoResponse(
+            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.ValorPorServicoResponse(
                     s.categoria,
                     SUM(me.valor)
                     )
@@ -24,7 +24,7 @@ public interface MetasRepository extends JpaRepository<MetasEntity, Long> {
     List<ValorPorServicoResponse> buscarMetasPorServico(@Param("inicio") LocalDate inicio, @Param("proximoMes") LocalDate proximoMes);
 
     @Query("""
-    SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.MetasServicosResponse(
+    SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.MetasServicosResponse(
             YEAR(m.mesReferencia),
             MONTH(m.mesReferencia),
             SUM(m.valor)
@@ -43,4 +43,9 @@ public interface MetasRepository extends JpaRepository<MetasEntity, Long> {
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim
     );
+
+    @Query("""
+            SELECT m, s FROM MetasEntity m JOIN m.servico s WHERE m.mesReferencia = :mesReferencia AND s.categoria =:servico
+        """)
+    List<MetasEntity> buscarMetaPorMesEServico(@Param("mesReferencia") LocalDate mesReferencia, @Param("servico") String servico);
 }

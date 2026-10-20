@@ -1,8 +1,8 @@
 package br.com.ecodogpark.backend.repository;
 
-import br.com.ecodogpark.backend.dto.DashboardDTO.GraficoContratosPorServicoResponse;
-import br.com.ecodogpark.backend.dto.DashboardDTO.NovosServicosMensaisResponse;
-import br.com.ecodogpark.backend.dto.DashboardDTO.PlanosAtivosResponse;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.GraficoContratosPorServicoResponse;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.NovosServicosMensaisResponse;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.PlanosAtivosResponse;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,9 +11,9 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface ContratosRepository extends JpaRepository<ContratosEntity, Long> {
+public interface ContratoRepository extends JpaRepository<ContratosEntity, Long> {
     @Query("""
-            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.PlanosAtivosResponse(
+            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.PlanosAtivosResponse(
                 COUNT(c.situacao)
                 )
             FROM ContratosEntity c
@@ -22,7 +22,7 @@ public interface ContratosRepository extends JpaRepository<ContratosEntity, Long
     PlanosAtivosResponse buscarPlanosAtivos();
 
     @Query("""
-    SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.NovosServicosMensaisResponse(
+    SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.NovosServicosMensaisResponse(
         YEAR(c.dataInicio),
         MONTH(c.dataInicio),
         SUM(CASE WHEN LOWER(s.categoria) = 'creche' THEN 1L ELSE 0L END),
@@ -40,7 +40,7 @@ public interface ContratosRepository extends JpaRepository<ContratosEntity, Long
     List<NovosServicosMensaisResponse> buscarNovosServicosPorMes(@Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
 
     @Query("""
-    SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.GraficoContratosPorServicoResponse(
+    SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.GraficoContratosPorServicoResponse(
         s.categoria,
         COUNT(DISTINCT p.idPet)
     )

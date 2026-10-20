@@ -1,4 +1,4 @@
-package br.com.ecodogpark.backend.dto.DashboardDTO;
+package br.com.ecodogpark.backend.dto.DashboardDTO.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

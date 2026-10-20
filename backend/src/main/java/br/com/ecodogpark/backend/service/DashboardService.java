@@ -1,11 +1,15 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.dto.DashboardDTO.*;
-import br.com.ecodogpark.backend.repository.AgendamentoRepository;
-import br.com.ecodogpark.backend.repository.ContratosRepository;
-import br.com.ecodogpark.backend.repository.MetasRepository;
-import br.com.ecodogpark.backend.repository.MovimentacoesRepository;
+import br.com.ecodogpark.backend.dto.DashboardDTO.request.AlterarMovimentacaoRequest;
+import br.com.ecodogpark.backend.dto.DashboardDTO.request.ManipulacaoMetaRequest;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.*;
+import br.com.ecodogpark.backend.entity.MetasEntity;
+import br.com.ecodogpark.backend.entity.MovimentacoesEntity;
+import br.com.ecodogpark.backend.entity.ServicosEntity;
+import br.com.ecodogpark.backend.repository.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,25 +17,30 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
 public class DashboardService {
-    ContratosRepository contratosRepository;
+    ContratoRepository contratoRepository;
     MovimentacoesRepository movimentacoesRepository;
-    MetasRepository metasRepository;
+    MetaRepository metaRepository;
     AgendamentoRepository agendamentoRepository;
+    ServicoRepository servicoRepository;
 
-    public DashboardService(ContratosRepository contratosRepository, MovimentacoesRepository movimentacoesRepository, MetasRepository metasRepository, AgendamentoRepository agendamentoRepository) {
-        this.contratosRepository = contratosRepository;
+    public DashboardService(
+            ContratoRepository contratoRepository,
+            MovimentacoesRepository movimentacoesRepository,
+            MetaRepository metaRepository,
+            AgendamentoRepository agendamentoRepository,
+            ServicoRepository servicoRepository
+    ) {
+        this.contratoRepository = contratoRepository;
         this.movimentacoesRepository = movimentacoesRepository;
-        this.metasRepository = metasRepository;
+        this.metaRepository = metaRepository;
         this.agendamentoRepository = agendamentoRepository;
+        this.servicoRepository = servicoRepository;
     }
 
     public DadosDashboardResponse buscarDados() {
@@ -40,7 +49,7 @@ public class DashboardService {
         LocalDate fim = hoje.withDayOfMonth(1).plusMonths(1);
 
         List<KpiReceitasResponse> kpiReceitas = montarKPIReceitas(hoje);
-        PlanosAtivosResponse planosAtivos = contratosRepository.buscarPlanosAtivos();
+        PlanosAtivosResponse planosAtivos = contratoRepository.buscarPlanosAtivos();
         List<AgendamentosPorServicoResponse> quantidadePetsAgendados = agendamentoRepository.buscarAgendamentosPorServicoParaHoje(hoje);
         List<GraficoReceitaResponse> graficoReceita = buscarReceitaUltimosMeses(inicio, fim);
         List<GraficoNovosServicosResponse> graficoNovosServicos = buscarListaNovosServicos(inicio, fim);
@@ -58,6 +67,41 @@ public class DashboardService {
         );
     }
 
+    public List<ServicoParaListaResponse> buscarServicos() {
+        return servicoRepository.findAll()
+                .stream().map(this::servicoParaServicoParaLista).toList();
+    }
+
+    public List<MetaParaListaResponse> buscarMetas(LocalDate mesReferencia, String servico) {
+        return metaRepository.buscarMetaPorMesEServico(mesReferencia, servico.toUpperCase()).stream().map(this::metaParaMetaParaLista).toList();
+    }
+
+    public ManipulacaoMetaResponse cadastrarMeta(ManipulacaoMetaRequest novaMeta) {
+        return metaParaManipulacaoMetaResponse(metaRepository.save(criarMetaParaEntity(novaMeta)));
+    }
+
+    public ManipulacaoMetaResponse atualizarMeta(ManipulacaoMetaRequest meta, Long id) {
+        if (!metaRepository.existsById(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meta não encontrada");
+        return metaParaManipulacaoMetaResponse(metaRepository.save(incluirIdMeta(meta, id)));
+    }
+
+    public List<MovimentacaoPendenteResponse> buscarMovimentacoesPendentes() {
+        return movimentacoesRepository.buscarMovimentacoesPendentes();
+    }
+
+    public MovimentacoesEntity atualizarMovimentacao(AlterarMovimentacaoRequest movimentacao, Long id) {
+        if (!movimentacoesRepository.existsById(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movimentação não encontrada");
+        Optional<MovimentacoesEntity> movimentacaoParaAlterar = movimentacoesRepository.findById(id);
+        MovimentacoesEntity movimentacaoEntity = movimentacaoParaAlterar.get();
+        movimentacaoEntity.setDataPagamento(movimentacao.dataPagamento());
+        movimentacaoEntity.setFormaPagamento(movimentacao.formaPagamento());
+        movimentacaoEntity.setSituacao("PAGO");
+        movimentacaoEntity.setContrato(movimentacao.contrato());
+        return movimentacoesRepository.save(movimentacaoEntity);
+    }
+
+    // Mappers
+
     private List<KpiReceitasResponse> montarKPIReceitas(LocalDate hoje) {
         LocalDate inicioMes = hoje.withDayOfMonth(1);
 
@@ -65,7 +109,7 @@ public class DashboardService {
                 movimentacoesRepository.buscarTotalRecebidoPorServico(inicioMes, hoje)
         );
         Map<String, BigDecimal> metas = transformarValorPorServicoEmMap(
-                metasRepository.buscarMetasPorServico(inicioMes, inicioMes.plusMonths(1))
+                metaRepository.buscarMetasPorServico(inicioMes, inicioMes.plusMonths(1))
         );
 
         return List.of("CRECHE", "HOTEL", "DAYUSE").stream()
@@ -88,7 +132,7 @@ public class DashboardService {
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MMMM/yyyy", new Locale("pt", "BR"));
 
         Map<YearMonth, BigDecimal> previsao = concatenarMesAno(
-                metasRepository.buscarReceitasPrevistas(inicio, fim)
+                metaRepository.buscarReceitasPrevistas(inicio, fim)
         );
         Map<YearMonth, BigDecimal> totalRecebido = concatenarMesAno(
                 movimentacoesRepository.buscarReceitasRecebidasUltimosMeses(inicio, fim)
@@ -116,7 +160,7 @@ public class DashboardService {
     private List<GraficoNovosServicosResponse> buscarListaNovosServicos(LocalDate inicio, LocalDate fim) {
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MMMM/yyyy", new Locale("pt", "BR"));
 
-        List<NovosServicosMensaisResponse> listaServicos = contratosRepository.buscarNovosServicosPorMes(inicio, fim);
+        List<NovosServicosMensaisResponse> listaServicos = contratoRepository.buscarNovosServicosPorMes(inicio, fim);
 
         Map<YearMonth, NovosServicosMensaisResponse> listaServicosMapeado = listaServicos.stream()
                 .collect(Collectors.toMap(
@@ -142,12 +186,74 @@ public class DashboardService {
     }
 
     private List<GraficoContratosPorServicoResponse> buscarSituacaoServicos() {
-        List<GraficoContratosPorServicoResponse> contratosAtivos = contratosRepository.buscarContratosAtivosPorCategoria();
-        Long contratosInativos = contratosRepository.contarContratosInativos();
+        List<GraficoContratosPorServicoResponse> contratosAtivos = contratoRepository.buscarContratosAtivosPorCategoria();
+        Long contratosInativos = contratoRepository.contarContratosInativos();
 
-        List<GraficoContratosPorServicoResponse> resposta = new ArrayList<>(contratosAtivos);
-        resposta.add(new GraficoContratosPorServicoResponse("Inativos", contratosInativos));
+        List<GraficoContratosPorServicoResponse> listaContratosPorServico = new ArrayList<>(contratosAtivos);
+        listaContratosPorServico.add(new GraficoContratosPorServicoResponse("Inativos", contratosInativos));
 
-        return resposta;
+        return listaContratosPorServico;
+    }
+
+    private MetasEntity incluirIdMeta(ManipulacaoMetaRequest meta, Long id) {
+        MetasEntity novaMeta = new MetasEntity();
+        novaMeta.setIdMeta(id);
+        novaMeta.setMesReferencia(meta.mesReferencia());
+        novaMeta.setValor(meta.valor());
+        novaMeta.setServicos(meta.servico());
+        return novaMeta;
+    }
+
+    private MetasEntity criarMetaParaEntity(ManipulacaoMetaRequest meta) {
+        MetasEntity novaMeta = new MetasEntity();
+        novaMeta.setMesReferencia(meta.mesReferencia());
+        novaMeta.setValor(meta.valor());
+        novaMeta.setServicos(meta.servico());
+        return novaMeta;
+    }
+
+    private ManipulacaoMetaResponse metaParaManipulacaoMetaResponse(MetasEntity meta) {
+        return new ManipulacaoMetaResponse(
+                meta.getMesReferencia(),
+                meta.getValor(),
+                new ServicoParaListaResponse(
+                        meta.getServicos().getIdServico(),
+                        meta.getServicos().getNome(),
+                        meta.getServicos().getCategoria(),
+                        meta.getServicos().getModalidade(),
+                        meta.getServicos().getFrequencia(),
+                        meta.getServicos().getValor(),
+                        meta.getServicos().getStatus()
+                )
+        );
+    }
+
+    private MetaParaListaResponse metaParaMetaParaLista(MetasEntity meta) {
+        return new MetaParaListaResponse(
+                meta.getIdMeta(),
+                meta.getMesReferencia(),
+                meta.getValor(),
+                new ServicoParaListaResponse(
+                        meta.getServicos().getIdServico(),
+                        meta.getServicos().getNome(),
+                        meta.getServicos().getCategoria(),
+                        meta.getServicos().getModalidade(),
+                        meta.getServicos().getFrequencia(),
+                        meta.getServicos().getValor(),
+                        meta.getServicos().getStatus()
+                )
+        );
+    }
+
+    private ServicoParaListaResponse servicoParaServicoParaLista(ServicosEntity servico) {
+        return new ServicoParaListaResponse(
+                servico.getIdServico(),
+                servico.getNome(),
+                servico.getCategoria(),
+                servico.getModalidade(),
+                servico.getFrequencia(),
+                servico.getValor(),
+                servico.getStatus()
+        );
     }
 }

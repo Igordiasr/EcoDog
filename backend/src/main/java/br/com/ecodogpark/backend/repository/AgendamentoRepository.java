@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.repository;
 
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
-import br.com.ecodogpark.backend.dto.DashboardDTO.AgendamentosPorServicoResponse;
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -41,7 +41,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     );
 
     @Query("""
-            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.AgendamentosPorServicoResponse(
+            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse(
                     a.servico,
                     COUNT(a.servico)
                     )

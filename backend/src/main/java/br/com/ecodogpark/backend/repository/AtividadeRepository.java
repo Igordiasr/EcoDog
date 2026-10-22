@@ -17,8 +17,10 @@ public interface AtividadeRepository extends JpaRepository<AtividadesDoDiaEntity
             JOIN participacao_do_pet pp ON pp.fk_atividades_do_dia = ad.id_atividade_do_dia
             JOIN agendamentos ag       ON ag.id_agendamentos       = pp.fk_agendamento
             JOIN calendario c          ON c.id_calendario          = ad.fk_calendario
+            JOIN calendario ca         ON ca.id_calendario         = ag.fk_calendario
             WHERE ag.fk_pet = :idPet
               AND c.data = :data
+              AND ca.data = :data
             ORDER BY ad.hora_inicio, ad.id_atividade_do_dia
             """, nativeQuery = true)
     List<AtividadesDoDiaEntity> buscarPorPetEData(@Param("idPet") Long idPet,

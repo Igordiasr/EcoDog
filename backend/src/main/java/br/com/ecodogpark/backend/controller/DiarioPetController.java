@@ -27,7 +27,20 @@ public class DiarioPetController {
             @PathVariable Long idPet,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
 
+        // O diário do pet sempre representa o dia solicitado; quando nenhuma data
+        // é informada, utiliza-se a data atual (fuso America/Sao_Paulo), de modo
+        // a não retornar dados de dias anteriores.
         LocalDate dataReferencia = data != null ? data : LocalDate.now(FUSO_HORARIO);
         return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, dataReferencia));
+    }
+
+    // Funcionalidade explícita de histórico: permite consultar o diário de um pet
+    // em uma data específica, sem alterar o comportamento do diário do dia.
+    @GetMapping("/{idPet}/historico")
+    public ResponseEntity<DiarioPetResponse> obterHistoricoDoPet(
+            @PathVariable Long idPet,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+
+        return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, data));
     }
 }

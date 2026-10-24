@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface CalendarioRepository extends JpaRepository<CalendarioEntity, Long> {
     @Query("""
@@ -16,4 +17,6 @@ public interface CalendarioRepository extends JpaRepository<CalendarioEntity, Lo
     """)
     List<CalendarioEntity> buscarCalendario(@Param("inicio") LocalDate inicio,
                                             @Param("fim") LocalDate fim);
+
+    Optional<CalendarioEntity> findByData(LocalDate data);
 }

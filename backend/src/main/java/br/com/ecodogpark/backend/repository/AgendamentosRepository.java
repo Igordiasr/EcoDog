@@ -58,4 +58,27 @@ public interface AgendamentosRepository
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim
     );
+
+    @Query("""
+        SELECT COUNT(a) > 0 FROM AgendamentosEntity a
+        WHERE a.fkPet.idPet = :idPet
+          AND a.dataEntrada >= :inicio
+          AND a.dataEntrada < :fim
+          AND a.situacao IN('AGENDADO', 'CONFIRMADO')
+    """)
+    boolean petJaAgendado(@Param("idPet")Long idPet,
+                          @Param("inicio")LocalDateTime inicio,
+                          @Param("fim")LocalDateTime fim);
+
+    @Query("""
+        SELECT COUNT(a) FROM AgendamentosEntity a
+            WHERE a.fkPet.idPet = :idPet
+              AND a.servico = 'CRECHE'
+              AND a.dataEntrada >= :inicio
+              AND a.dataEntrada < :fim
+              AND a.situacao IN('AGENDADO', 'CONFIRMADO', 'RETIRADO')
+    """)
+    long contarCrecheNaSemana(@Param("idPet") Long idPet,
+                              @Param("inicio")LocalDateTime inicio,
+                              @Param("fim") LocalDateTime fim);
 }

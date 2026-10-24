@@ -8,4 +8,6 @@ import java.util.List;
 public interface PetsRepository extends JpaRepository<PetsEntity, Long> {
 //    boolean existsByTutorId(Long tutorId);
     List<PetsEntity> findByFkUsuarioIdUsuario(Long idTutor);
+
+    List<PetsEntity> findByIdPetInAndFkUsuarioIdUsuario(List<Long> ids, Long idUsuario);
 }

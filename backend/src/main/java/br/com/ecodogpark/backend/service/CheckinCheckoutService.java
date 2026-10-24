@@ -42,7 +42,7 @@ public class CheckinCheckoutService {
     ) {
         AgendamentosEntity agendamento = buscarAgendamento(id);
 
-        if (agendamento.getDataEntrada() != null) {
+        if (agendamento.getSituacao() != SituacaoAgendamento.AGENDADO) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "O check-in deste pet já foi realizado."

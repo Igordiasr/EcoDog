@@ -51,4 +51,16 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
             GROUP BY a.servico
         """)
     List<AgendamentosPorServicoResponse> buscarAgendamentosPorServicoParaHoje(@Param("data") LocalDate data);
+
+    @Query("""
+        SELECT a
+        FROM AgendamentosEntity a
+        JOIN FETCH a.fkPet p
+        JOIN FETCH p.fkUsuario u
+        JOIN FETCH a.fkCalendario c
+        WHERE c.data = :data
+        AND a.situacao <> SituacaoAgendamento.CANCELADO
+        ORDER BY p.nome ASC
+    """)
+    List<AgendamentosEntity> listarAgendamentosDoDia(@Param("data") LocalDate data);
 }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/pets")
 @CrossOrigin(origins = "http://localhost:5173")
-public class TutorController {
+public class  TutorController {
     private final TutorService tutorService;
 
     public TutorController(TutorService tutorService) { this.tutorService = tutorService; }

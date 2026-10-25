@@ -66,7 +66,7 @@ public class UsuarioController {
     @PostMapping("/monitores")
     public ResponseEntity<MonitorResponse> cadastrarMonitor(@Valid @RequestBody MonitorRequest monitorRequest) {
         MonitorResponse monitor = usuarioService.cadastrarMonitor(monitorRequest);
-        return ResponseEntity.created(URI.create("/usuarios/monitores" + monitor.id())).body(monitor);
+        return ResponseEntity.created(URI.create("/usuarios/monitores/" + monitor.id())).body(monitor);
     }
 
     @GetMapping("/monitores/{id}")
@@ -82,6 +82,37 @@ public class UsuarioController {
     @DeleteMapping("/monitores/{id}")
     public ResponseEntity<Void> excluirMonitor(@PathVariable Long id) {
         usuarioService.excluirMonitor(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ------------------------------- Endpoints para Gestão de Administradores -----------------------------------
+    @GetMapping("/administradores")
+    public ResponseEntity<List<UsuarioResponse>> listarAdministradores() {
+        List<UsuarioResponse> administradores = usuarioService.listarAdministradores();
+        if (administradores.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(administradores);
+    }
+
+    @PostMapping("/administradores")
+    public ResponseEntity<UsuarioResponse> cadastrarAdministrador(@Valid @RequestBody UsuarioRequest request) {
+        UsuarioResponse administrador = usuarioService.cadastrarAdministrador(request);
+        return ResponseEntity.created(URI.create("/usuarios/administradores/" + administrador.id())).body(administrador);
+    }
+
+    @GetMapping("/administradores/{id}")
+    public ResponseEntity<UsuarioResponse> buscarAdministradorPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarAdministradorPorId(id));
+    }
+
+    @PutMapping("/administradores/{id}")
+    public ResponseEntity<UsuarioResponse> atualizarAdministrador(
+            @PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
+        return ResponseEntity.ok(usuarioService.atualizarAdministrador(id, request));
+    }
+
+    @DeleteMapping("/administradores/{id}")
+    public ResponseEntity<Void> excluirAdministrador(@PathVariable Long id) {
+        usuarioService.excluirAdministrador(id);
         return ResponseEntity.noContent().build();
     }
 }

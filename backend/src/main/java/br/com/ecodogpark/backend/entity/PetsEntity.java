@@ -1,6 +1,8 @@
 package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -10,6 +12,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "pets")
+@SQLDelete(sql = "UPDATE pets SET deletado = true WHERE id_pet = ?")
+@SQLRestriction("deletado = false")
 public class PetsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +40,9 @@ public class PetsEntity {
     private String telefoneVeterinario;
     @NotNull
     private Boolean convenio;
+
+    @Column(nullable = false)
+    private Boolean deletado = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_usuario")
@@ -128,6 +135,10 @@ public class PetsEntity {
     public void setConvenio(Boolean convenio) {
         this.convenio = convenio;
     }
+
+    public Boolean getDeletado() { return deletado; }
+
+    public void setDeletado(Boolean deletado) { this.deletado = deletado; }
 
     public UsuariosEntity getFkUsuario() {
         return fkUsuario;

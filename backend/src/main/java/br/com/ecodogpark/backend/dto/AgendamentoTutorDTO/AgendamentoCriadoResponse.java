@@ -5,6 +5,6 @@ import java.util.List;
 
 public record AgendamentoCriadoResponse(
         BigDecimal valorTotal,
-        boolean aprovacao
+        boolean aguardandoAprovacao
 ) {
 }

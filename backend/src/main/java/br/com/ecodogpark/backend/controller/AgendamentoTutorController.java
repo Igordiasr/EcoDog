@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/agendamentos")
+@RequestMapping("/calendario")
 @CrossOrigin(origins = "http://localhost:5173")
 public class AgendamentoTutorController {
     private final AgendamentoTutorService agendamentoTutorService;
@@ -19,44 +19,55 @@ public class AgendamentoTutorController {
         this.agendamentoTutorService = agendamentoTutorService;
     }
 
-    @GetMapping("/pets-tutor")
+    @GetMapping("/pets")
     public ResponseEntity<List<PetsDoTutorResponse>> buscarPets(@RequestParam Long idUsuario) {
         return ResponseEntity.ok(agendamentoTutorService.buscarPets(idUsuario));
     }
 
-    @GetMapping("/calendario")
+    @GetMapping("/disponibilidade")
     public ResponseEntity<List<VagasDisponiveisResponse>> buscarDisponibilidade(@RequestParam String servico,
                                                                                 @RequestParam Integer ano,
                                                                                 @RequestParam Integer mes) {
-
         List<VagasDisponiveisResponse> disponibilidade = agendamentoTutorService.buscarDisponibilidade(servico, ano, mes);
-
         return ResponseEntity.ok(disponibilidade);
     }
 
-    @GetMapping("/calendario/planos")
+    @GetMapping("/tutor/agendamentos")
+    public ResponseEntity<List<AgendamentosTutorResponse>> buscarAgendamentos(@RequestParam Long idUsuario,
+                                                                              @RequestParam Integer ano,
+                                                                              @RequestParam Integer mes) {
+        return ResponseEntity.ok(agendamentoTutorService.buscarAgendamentosDoTutor(idUsuario, ano, mes));
+    }
+
+    @GetMapping("/servicos")
     public ResponseEntity<List<ServicoAtivoResponse>> buscarServicos(@RequestParam String categoria) {
         List<ServicoAtivoResponse> servicos = agendamentoTutorService.listarServicos(categoria);
         return ResponseEntity.ok(servicos);
     }
 
-    @PostMapping("/calendario/planos/orcamento")
-    public ResponseEntity<OrcamentoResponse> buscarOrcamento(@RequestBody @Valid OrcamentoRequest request,
+    @PostMapping("/orcamentos")
+    public ResponseEntity<OrcamentoResponse> criarOrcamento(@RequestBody @Valid OrcamentoRequest request,
                                                              @RequestParam Long idUsuario) {
         return ResponseEntity.ok(agendamentoTutorService.calcularOrcamento(request, idUsuario));
     }
 
-    @PostMapping("/calendario/planos/orcamento/agendar")
+    @PostMapping("/agendamentos")
     public ResponseEntity<AgendamentoCriadoResponse> agendar(@RequestBody @Valid OrcamentoRequest request,
                                                              @RequestParam Long idUsuario) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(agendamentoTutorService.criarAgendamento(request, idUsuario));
     }
 
-    @PostMapping("/calendario/plano/agendar")
-    public ResponseEntity<AgendamentoCriadoResponse> agendarPeloPlano(@RequestBody @Valid OrcamentoRequest request,
+    @PostMapping("/planos/agendamentos")
+    public ResponseEntity<AgendamentoPlanoResponse> agendarPeloPlano(@RequestBody @Valid OrcamentoRequest request,
                                                                       @RequestParam Long idUsuario) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(agendamentoTutorService.agendarPeloPlano(request, idUsuario));
+    }
+
+    @PatchMapping("/agendamentos/{idAgendamento}/cancelar")
+    public ResponseEntity<CancelamentoResponse> cancelar(@PathVariable Long idAgendamento,
+                                                         @RequestParam Long idUsuario) {
+        return ResponseEntity.ok(agendamentoTutorService.cancelarAgendamento(idAgendamento, idUsuario));
     }
 }

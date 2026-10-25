@@ -181,9 +181,6 @@ public class AgendamentoTutorService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Este agendamento não pode ser cancelado.");
         }
 
-        agendamento.setSituacao(SituacaoAgendamento.CANCELADO);
-        agendamentosRepository.save(agendamento);
-
         Optional<ContratosEntity> contrato = contratosRepository.buscarContratoDoDia(pet.getIdPet(), categoria, data);
 
         if (contrato.isEmpty()) {

@@ -103,7 +103,7 @@ public interface AgendamentosRepository
                                                               @Param("situacoes") List<SituacaoAgendamento> situacoes);
 
     @Query("""
-        SELECT COUNT(a) FROM AgendamentosEntity a
+        SELECT a FROM AgendamentosEntity a
         WHERE a.fkPet.idPet = :idPet
           AND a.servico = :servico
           AND a.dataEntrada >= :inicio

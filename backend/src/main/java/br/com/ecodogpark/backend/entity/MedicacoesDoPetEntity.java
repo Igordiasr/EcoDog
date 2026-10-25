@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "medicacoes_do_pet")
@@ -22,7 +23,7 @@ public class MedicacoesDoPetEntity {
     private String frequencia;
     @NotBlank
     private String dosagem;
-    @NotBlank
+    @NotNull
     private Boolean emUso;
 
     public Long getIdMedicacaoDoPet() {

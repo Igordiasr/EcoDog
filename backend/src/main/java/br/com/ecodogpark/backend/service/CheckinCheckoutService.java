@@ -1,10 +1,11 @@
 
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.dto.CheckinCheckoutRequest;
-import br.com.ecodogpark.backend.dto.CheckinCheckoutResponse;
+import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutRequest;
+import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
-import br.com.ecodogpark.backend.repository.AgendamentosRepository;
+import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.repository.AgendamentoRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,16 +23,16 @@ public class CheckinCheckoutService {
     private static final ZoneId FUSO_HORARIO =
             ZoneId.of("America/Sao_Paulo");
 
-    private final AgendamentosRepository agendamentosRepository;
+    private final AgendamentoRepository agendamentoRepository;
 
     public CheckinCheckoutService(
-            AgendamentosRepository agendamentosRepository
+            AgendamentoRepository agendamentoRepository
     ) {
-        this.agendamentosRepository = agendamentosRepository;
+        this.agendamentoRepository = agendamentoRepository;
     }
 
     public List<CheckinCheckoutResponse> listarPorData(LocalDate data) {
-        return agendamentosRepository.listarPorData(data);
+        return agendamentoRepository.listarPorData(data);
     }
 
     @Transactional
@@ -41,7 +42,7 @@ public class CheckinCheckoutService {
     ) {
         AgendamentosEntity agendamento = buscarAgendamento(id);
 
-        if (agendamento.getDataEntrada() != null) {
+        if (agendamento.getSituacao() != SituacaoAgendamento.AGENDADO) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "O check-in deste pet já foi realizado."
@@ -59,9 +60,9 @@ public class CheckinCheckoutService {
                 LocalDateTime.now(FUSO_HORARIO)
         );
         agendamento.setTutorCheckin(requisicao.responsavel());
-        agendamento.setSituacao("Confirmado");
+        agendamento.setSituacao(SituacaoAgendamento.CONFIRMADO);
 
-        agendamentosRepository.save(agendamento);
+        agendamentoRepository.save(agendamento);
     }
 
     @Transactional
@@ -89,13 +90,13 @@ public class CheckinCheckoutService {
                 LocalDateTime.now(FUSO_HORARIO)
         );
         agendamento.setTutorCheckout(requisicao.responsavel());
-        agendamento.setSituacao("Retirado");
+        agendamento.setSituacao(SituacaoAgendamento.RETIRADO);
 
-        agendamentosRepository.save(agendamento);
+        agendamentoRepository.save(agendamento);
     }
 
     private AgendamentosEntity buscarAgendamento(Long id) {
-        return agendamentosRepository.findById(id)
+        return agendamentoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Agendamento não encontrado."

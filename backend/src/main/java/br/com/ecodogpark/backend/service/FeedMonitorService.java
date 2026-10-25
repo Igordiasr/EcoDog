@@ -2,7 +2,10 @@ package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.*;
 import br.com.ecodogpark.backend.dto.FeedMonitorDTO.*;
+import br.com.ecodogpark.backend.dto.TutorDTO.response.NovoPetResponse;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
+import br.com.ecodogpark.backend.mapper.PetMapper;
 import br.com.ecodogpark.backend.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,26 +23,30 @@ public class FeedMonitorService {
     private final MedicacaoDoDiaRepository medicacaoDoDiaRepository;
     private final ObservacaoDoDiaRepository observacaoDoDiaRepository;
     private final ParticipacaoDoPetRepository participacaoDoPetRepository;
+    private final PetRepository petRepository;
 
-    private final PetService petService;
     private final UsuarioService usuarioService;
 
-    public FeedMonitorService(AgendamentoRepository agendamentoRepository,
-                              MedicacaoDoDiaRepository medicacaoDoDiaRepository,
-                              ObservacaoDoDiaRepository observacaoDoDiaRepository,
-                              ParticipacaoDoPetRepository participacaoDoPetRepository,
-                              PetService petService, UsuarioService usuarioService) {
+    public FeedMonitorService(
+            AgendamentoRepository agendamentoRepository,
+            MedicacaoDoDiaRepository medicacaoDoDiaRepository,
+            ObservacaoDoDiaRepository observacaoDoDiaRepository,
+            ParticipacaoDoPetRepository participacaoDoPetRepository,
+            PetRepository petRepository,
+            UsuarioService usuarioService
+    ) {
         this.agendamentoRepository = agendamentoRepository;
         this.medicacaoDoDiaRepository = medicacaoDoDiaRepository;
         this.observacaoDoDiaRepository = observacaoDoDiaRepository;
         this.participacaoDoPetRepository = participacaoDoPetRepository;
-        this.petService = petService;
+        this.petRepository = petRepository;
         this.usuarioService = usuarioService;
     }
 
     public PetFeedMonitorResponse buscarPetParaMonitor(Long id) {
-        PetResponse pet = petService.buscarPorId(id);
-        UsuarioResponse tutor = usuarioService.buscarTutorPorId(pet.tutorId());
+        if (!petRepository.existsById(id)) throw new PetNaoEncontradoException("Auluno não encontrado");
+        NovoPetResponse pet = PetMapper.entityParaPetResponse(petRepository.findById(id).get());
+        UsuarioResponse tutor = usuarioService.buscarTutorPorId(pet.idTutor());
 
         buscarAgendamentoDoPet(id);
 
@@ -47,7 +54,7 @@ public class FeedMonitorService {
                 pet.nome(),
                 pet.raca(),
                 tutor.nome(),
-                pet.cuidadosEspeciais()
+                pet.observacao()
         );
     }
 
@@ -152,10 +159,10 @@ public class FeedMonitorService {
         );
     }
 
-        private AgendamentosEntity buscarAgendamentoDoPet(Long id) {
-            return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado ou não confirmado"));
-        }
+    private AgendamentosEntity buscarAgendamentoDoPet(Long id) {
+        return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado ou não confirmado"));
+    }
 
     private ParticipacaoDoPetEntity obterAtividade(Long idParticipacao, Long idPet) {
         return participacaoDoPetRepository.buscarAtividadeDoPetNoAgendamento(idParticipacao, idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)

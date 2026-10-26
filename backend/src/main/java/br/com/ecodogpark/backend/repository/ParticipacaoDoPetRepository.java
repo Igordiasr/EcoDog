@@ -4,6 +4,7 @@ import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.DBAtividadesRes
 import br.com.ecodogpark.backend.dto.FeedMonitorDTO.AtividadeDoPetResponse;
 import br.com.ecodogpark.backend.entity.ParticipacaoDoPetEntity;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.entity.SituacaoAtividade;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -73,5 +74,5 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
     @Transactional
     @Modifying
     @Query("UPDATE ParticipacaoDoPetEntity p SET p.situacao = :situacao WHERE p.idParticipacaoDoPet IN :ids AND p.situacao = 'PENDENTE'")
-    void concluirAtividadeTodosPets(@Param("situacao") String situacao, @Param("ids") List<Long> idsParticipacoes);
+    void concluirAtividadeTodosPets(@Param("situacao") SituacaoAtividade situacao, @Param("ids") List<Long> idsParticipacoes);
 }

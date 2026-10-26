@@ -1,11 +1,15 @@
 package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "usuarios")
+@SQLDelete(sql = "UPDATE usuarios SET deletado = true WHERE id_usuario = ?")
+@SQLRestriction("deletado = false")
 public class UsuariosEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +29,10 @@ public class UsuariosEntity {
     @Column(nullable = false)
     private LocalDate dataCadastro = LocalDate.now();
     @Column(nullable = false)
-    private Boolean statusUsuario;
+    private Boolean statusUsuario = true;
+
+    @Column(nullable = false)
+    private Boolean deletado = false;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_endereco")
@@ -101,6 +108,14 @@ public class UsuariosEntity {
 
     public void setStatusUsuario(Boolean statusUsuario) {
         this.statusUsuario = statusUsuario;
+    }
+
+    public Boolean getDeletado() {
+        return deletado;
+    }
+
+    public void setDeletado(Boolean deletado) {
+        this.deletado = deletado;
     }
 
     public EnderecoEntity getEndereco() {

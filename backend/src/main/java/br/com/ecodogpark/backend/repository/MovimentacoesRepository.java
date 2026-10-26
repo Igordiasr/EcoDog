@@ -4,6 +4,7 @@ import br.com.ecodogpark.backend.dto.DashboardDTO.response.MetasServicosResponse
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.MovimentacaoPendenteResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.UltimasMovimentacoesResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.ValorPorServicoResponse;
+import br.com.ecodogpark.backend.entity.ContratosEntity;
 import br.com.ecodogpark.backend.entity.MovimentacoesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface MovimentacoesRepository extends JpaRepository<MovimentacoesEntity, Long> {
     @Query("""
@@ -83,4 +85,6 @@ public interface MovimentacoesRepository extends JpaRepository<MovimentacoesEnti
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim
     );
+
+    Optional<MovimentacoesEntity> findByContrato(ContratosEntity contrato);
 }

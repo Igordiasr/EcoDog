@@ -123,6 +123,19 @@ public class PetMapper {
         );
     }
 
+    public static void AtualizarEntity(PetsEntity pet, CadastroPetRequest request) {
+        pet.setNome(request.nome());
+        pet.setRaca(request.raca());
+        pet.setSexo(request.sexo());
+        pet.setCastrado(request.castrado());
+        pet.setDataNascimento(request.dataNascimento());
+        pet.setObservacao(request.observacao());
+        pet.setRelacaoComOutros(request.relacaoComOutros());
+        pet.setVeterinario(request.veterinario());
+        pet.setTelefoneVeterinario(request.telefoneVeterinario());
+        pet.setConvenio(request.convenio());
+    }
+
     public static AlergiaParaListaResponse entityParaAlergiaParaLista(AlergiasDoPetEntity alergia) {
         return new AlergiaParaListaResponse(
                 alergia.getAlergia()

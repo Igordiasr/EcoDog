@@ -10,4 +10,8 @@ public interface PetRepository extends JpaRepository<PetsEntity, Long> {
     List<PetsEntity> findByFkUsuario(UsuariosEntity idUsuario);
     Boolean existsByFkUsuarioAndNome(UsuariosEntity fkUsuario, String nome);
     Boolean existsByIdPetAndFkUsuario(Long idPet, UsuariosEntity fkUsuario);
+
+    List<PetsEntity> findByFkUsuarioIdUsuario(Long idTutor);
+
+    List<PetsEntity> findByIdPetInAndFkUsuarioIdUsuario(List<Long> ids, Long idUsuario);
 }

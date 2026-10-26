@@ -5,6 +5,7 @@ import br.com.ecodogpark.backend.entity.*;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
 import br.com.ecodogpark.backend.exception.ConflitoAoCadastrarException;
 import br.com.ecodogpark.backend.exception.DadosDivergentesException;
+import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
 import br.com.ecodogpark.backend.exception.UsuarioNaoEncontradoException;
 import br.com.ecodogpark.backend.mapper.PetMapper;
 import br.com.ecodogpark.backend.repository.*;
@@ -42,9 +43,11 @@ public class TutorService {
     public CadastroPetResponse cadastrarNovoPet(CadastroPetRequest cadastroPetRequest, Long idTutor) {
         if (!usuarioRepository.existsById(idTutor)) throw new UsuarioNaoEncontradoException("Tutor não encontrado");
         Optional<UsuariosEntity> tutor = usuarioRepository.findById(idTutor);
+
         if (petRepository.existsByFkUsuarioAndNome(tutor.get(), cadastroPetRequest.nome())) throw new ConflitoAoCadastrarException("Pet já cadastrado");
         PetsEntity pet = PetMapper.requestParaEntity(cadastroPetRequest);
         pet.setFkUsuario(tutor.get());
+
         NovoPetResponse novoPet = PetMapper.entityParaPetResponse(petRepository.save(pet));
         List<AlergiaParaListaResponse> alergiasDoPet = alergiasDoPetRepository.saveAll(PetMapper.alergiaDoPetParaEntity(cadastroPetRequest, pet))
                 .stream().map(PetMapper::entityParaAlergiaParaLista).toList();
@@ -56,19 +59,43 @@ public class TutorService {
     }
 
     public List<PetParaListaResponse> buscarPorIdTutor(Long idTutor) {
-        if (!usuarioRepository.existsById(idTutor)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado");
+        if (!usuarioRepository.existsById(idTutor)) throw new UsuarioNaoEncontradoException("Tutor não encontrado");
         Optional<UsuariosEntity> tutor = usuarioRepository.findById(idTutor);
         return petRepository.findByFkUsuario(tutor.get())
                 .stream().map(PetMapper::entityParaPetParaLista).toList();
     }
 
-    public NovoPetResponse atualizarDadosPet(Long idTutor, Long idPet, CadastroPetRequest cadastroPetRequest) {
-        if (!usuarioRepository.existsById(idTutor)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado");
-        Optional<UsuariosEntity> tutor = usuarioRepository.findById(idTutor);
-        PetsEntity pet = PetMapper.requestParaEntity(cadastroPetRequest);
-        pet.setIdPet(idPet);
-        pet.setFkUsuario(tutor.get());
-        return PetMapper.entityParaPetResponse(petRepository.save(pet));
+    @Transactional
+    public CadastroPetResponse atualizarDadosPet(Long idTutor, Long idPet, CadastroPetRequest cadastroPetRequest) {
+        usuarioRepository.findById(idTutor)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
+
+        PetsEntity pet = petRepository.findById(idPet)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet não encontrado"));
+
+        if (!pet.getFkUsuario().getIdUsuario().equals(idTutor)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este pet não pertence ao tutor informado");
+        }
+
+        PetMapper.AtualizarEntity(pet, cadastroPetRequest);
+
+        NovoPetResponse petAtualizado = PetMapper.entityParaPetResponse(petRepository.save(pet));
+
+        alergiasDoPetRepository.deleteByPet(pet);
+        vacinasDoPetRepository.deleteByPet(pet);
+        medicacoesDoPetRepository.deleteByFkPet(pet);
+
+        List<AlergiaParaListaResponse> alergias = alergiasDoPetRepository
+                .saveAll(PetMapper.alergiaDoPetParaEntity(cadastroPetRequest, pet))
+                .stream().map(PetMapper::entityParaAlergiaParaLista).toList();
+        List<VacinaParaListaResponse> vacinas = vacinasDoPetRepository
+                .saveAll(PetMapper.vacinasDoPetParaEntity(cadastroPetRequest, pet))
+                .stream().map(PetMapper::entityParaVacinaParaLista).toList();
+        List<MedicacaoParaListaResponse> medicacoes = medicacoesDoPetRepository
+                .saveAll(PetMapper.medicacoesDoPetParaEntity(cadastroPetRequest, pet))
+                .stream().map(PetMapper::entityParaMedicacaoParaLista).toList();
+
+        return PetMapper.consolidarCadastroPet(petAtualizado, alergias, medicacoes, vacinas);
     }
 
     @Transactional

@@ -5,6 +5,8 @@ import br.com.ecodogpark.backend.dto.MonitorResponse;
 import br.com.ecodogpark.backend.dto.UsuarioRequest;
 import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
+import br.com.ecodogpark.backend.dto.*;
+import br.com.ecodogpark.backend.enums.TipoUsuario;
 import br.com.ecodogpark.backend.repository.PetRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;

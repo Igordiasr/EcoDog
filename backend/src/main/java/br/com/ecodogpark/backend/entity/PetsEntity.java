@@ -12,8 +12,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "pets")
-@SQLDelete(sql = "UPDATE pets SET status_pet = false WHERE id_pet = ?")
-@SQLRestriction("status_pet = true")
+@SQLDelete(sql = "UPDATE pets SET deletado = true WHERE id_pet = ?")
+@SQLRestriction("deletado = false")
 public class PetsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +42,7 @@ public class PetsEntity {
     private Boolean convenio;
 
     @Column(nullable = false)
-    private Boolean statusPet = false;
+    private Boolean deletado = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_usuario")
@@ -136,9 +136,9 @@ public class PetsEntity {
         this.convenio = convenio;
     }
 
-    public Boolean getStatusPet() { return statusPet; }
+    public Boolean getDeletado() { return deletado; }
 
-    public void setStatusPet(Boolean statusPet) { this.statusPet = statusPet; }
+    public void setDeletado(Boolean deletado) { this.deletado = deletado; }
 
     public UsuariosEntity getFkUsuario() {
         return fkUsuario;

@@ -55,14 +55,15 @@ public class  TutorController {
             @PathVariable Long idTutor
     ) { return tutorService.buscarPorIdTutor(idTutor); }
 
-    @Operation(summary = "Atualizar pet", description = "Requisição para atualizar o pet com base no identificador do tutor e no identificador do pet")
+    @Operation(summary = "Atualizar pet", description = "Requisição para atualizar os dados do pet e substituir suas medicações, vacinas e alergias, com base nos identificadores do tutor e do pet. Retorna o cadastro completo atualizado. O pet deve pertencer ao tutor informado")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pet atualizado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Atualização não permitida pois o pet não pertence ao tutor informado", content = @Content),
             @ApiResponse(responseCode = "404", description = "Tutor/ Pet não encontrado")
     })
     @PutMapping("/{idTutor}/{idPet}")
-    public NovoPetResponse atualizar(
+    public CadastroPetResponse atualizar(
             @Parameter(description = "Identificador do tutor", example = "4")
             @PathVariable Long idTutor,
             @Parameter(description = "Identificador do pet", example = "9")
@@ -79,9 +80,9 @@ public class  TutorController {
     })
     @DeleteMapping("/{idTutor}/{idPet}")
     public ResponseEntity<Void> excluir(
-            @Parameter(description = "Identificador do pet", example = "1")
+            @Parameter(description = "Identificador do pet", example = "4")
             @PathVariable Long idPet,
-            @Parameter(description = "Identificador do tutor", example = "1")
+            @Parameter(description = "Identificador do tutor", example = "9")
             @PathVariable Long idTutor
     ) {
         tutorService.excluir(idTutor ,idPet);

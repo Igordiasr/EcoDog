@@ -5,6 +5,8 @@ import br.com.ecodogpark.backend.dto.MonitorResponse;
 import br.com.ecodogpark.backend.dto.UsuarioRequest;
 import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
+import br.com.ecodogpark.backend.dto.*;
+import br.com.ecodogpark.backend.enums.TipoUsuario;
 import br.com.ecodogpark.backend.repository.PetRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
@@ -56,7 +58,10 @@ public class UsuarioService {
     }
 
     public void excluirTutor(Long id) {
-        buscarTutor(id);
+        UsuariosEntity tutor = buscarTutor(id);
+        tutor.setStatusUsuario(false);
+        usuarioRepository.save(tutor);
+
         usuarioRepository.deleteById(id);
     }
 
@@ -72,7 +77,7 @@ public class UsuarioService {
         usuario.setCpf(usuarioRequest.cpf());
         usuario.setTelefone(usuarioRequest.telefone().trim());
         usuario.setSenha(usuarioRequest.senha());
-        usuario.setTipo("1");
+        usuario.setTipo("TUTOR");
     }
 
     private UsuarioResponse paraUsuarioResponse(UsuariosEntity usuario) {
@@ -127,9 +132,13 @@ public class UsuarioService {
     }
 
     public void excluirMonitor(Long id) {
-        usuarioRepository.findById(id)
+        UsuariosEntity monitor = usuarioRepository.findById(id)
                 .filter(usuario -> "MONITOR".equals(usuario.getTipo()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
+
+        monitor.setStatusUsuario(false);
+        usuarioRepository.save(monitor);
+
         usuarioRepository.deleteById(id);
     }
 
@@ -159,7 +168,11 @@ public class UsuarioService {
     }
 
     public void excluirAdministrador(Long id) {
-        buscarPorTipo(id, "ADMINISTRADOR", "Administrador não encontrado");
+        UsuariosEntity administrador = buscarPorTipo(id, "ADMINISTRADOR", "Administrador não encontrado");
+
+        administrador.setStatusUsuario(false);
+        usuarioRepository.save(administrador);
+
         usuarioRepository.deleteById(id);
     }
 
@@ -205,6 +218,6 @@ public class UsuarioService {
         usuario.setCpf(monitorRequest.cpf());
         usuario.setTelefone(monitorRequest.telefone().trim());
         usuario.setSenha(monitorRequest.senha());
-        usuario.setTipo("2");
+        usuario.setTipo("MONITOR");
     }
 }

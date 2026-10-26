@@ -14,7 +14,7 @@ public record ServicoParaListaResponse(
         String categoria,
         @Schema(description = "Modalidade do serviço")
         String modalidade,
-        @Schema(description = "Frequência", example = "A cada 12 horas")
+        @Schema(description = "Frequência", example = "2x")
         String frequencia,
         @Schema(description = "Valor em reais", example = "1500.00")
         BigDecimal valor,

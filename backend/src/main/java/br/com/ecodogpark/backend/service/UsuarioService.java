@@ -56,7 +56,10 @@ public class UsuarioService {
     }
 
     public void excluirTutor(Long id) {
-        buscarTutor(id);
+        UsuariosEntity tutor = buscarTutor(id);
+        tutor.setStatusUsuario(false);
+        usuarioRepository.save(tutor);
+
         usuarioRepository.deleteById(id);
     }
 
@@ -127,9 +130,13 @@ public class UsuarioService {
     }
 
     public void excluirMonitor(Long id) {
-        usuarioRepository.findById(id)
+        UsuariosEntity monitor = usuarioRepository.findById(id)
                 .filter(usuario -> "MONITOR".equals(usuario.getTipo()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
+
+        monitor.setStatusUsuario(false);
+        usuarioRepository.save(monitor);
+
         usuarioRepository.deleteById(id);
     }
 
@@ -159,7 +166,11 @@ public class UsuarioService {
     }
 
     public void excluirAdministrador(Long id) {
-        buscarPorTipo(id, "ADMINISTRADOR", "Administrador não encontrado");
+        UsuariosEntity administrador = buscarPorTipo(id, "ADMINISTRADOR", "Administrador não encontrado");
+
+        administrador.setStatusUsuario(false);
+        usuarioRepository.save(administrador);
+
         usuarioRepository.deleteById(id);
     }
 

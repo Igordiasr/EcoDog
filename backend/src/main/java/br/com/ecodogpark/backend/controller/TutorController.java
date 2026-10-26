@@ -30,7 +30,7 @@ public class  TutorController {
     public List<PetParaListaResponse> buscarPorId(@PathVariable Long idTutor) { return tutorService.buscarPorIdTutor(idTutor); }
 
     @PutMapping("/{idTutor}/{idPet}")
-    public NovoPetResponse atualizar(@PathVariable Long idTutor, @PathVariable Long idPet, @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
+    public CadastroPetResponse atualizar(@PathVariable Long idTutor, @PathVariable Long idPet, @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
         return tutorService.atualizarDadosPet(idTutor, idPet, cadastroPetRequest);
     }
 

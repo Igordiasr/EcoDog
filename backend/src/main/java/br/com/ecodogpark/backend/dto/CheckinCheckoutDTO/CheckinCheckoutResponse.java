@@ -3,6 +3,8 @@ package br.com.ecodogpark.backend.dto.CheckinCheckoutDTO;
 
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 
+import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+
 import java.time.LocalDateTime;
 
 public record CheckinCheckoutResponse(

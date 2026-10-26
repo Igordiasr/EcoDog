@@ -1,12 +1,12 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.AtividadesDoDiaResponse;
-import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.request.AtualizarAtividadeRequest;
-import br.com.ecodogpark.backend.service.AtividadesDoDiaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.AtividadesDoDiaResponse;
+import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.request.AtualizarAtividadeRequest;
+import br.com.ecodogpark.backend.service.AtividadesDoDiaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +31,10 @@ public class AtividadesDoDiaController {
         return ResponseEntity.ok(atividadesDoDiaService.buscarAtividadesDoDia());
     }
 
-    @Operation(summary = "Concluir atividade", description = "Requisição que altera a situação de uma atividade para 'CONCLUIDA'. A requisição é realizada através do identificador da atividade do dia")
+    @Operation(summary = "Concluir atividade", description = "Atualiza a situação da atividade do dia para PENDENTE, CONCLUIDA ou NAO_CONCLUIDA, conforme o identificador informado")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Alteração realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Situação ou identificador inválido"),
             @ApiResponse(responseCode = "404", description = "Atividade do dia não encontrada")
     })
     @PutMapping

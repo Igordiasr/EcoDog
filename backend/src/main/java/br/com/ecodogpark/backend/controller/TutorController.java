@@ -1,16 +1,16 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
-import br.com.ecodogpark.backend.dto.TutorDTO.response.CadastroPetResponse;
-import br.com.ecodogpark.backend.dto.TutorDTO.response.NovoPetResponse;
-import br.com.ecodogpark.backend.dto.TutorDTO.response.PetParaListaResponse;
-import br.com.ecodogpark.backend.service.TutorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
+import br.com.ecodogpark.backend.dto.TutorDTO.response.CadastroPetResponse;
+import br.com.ecodogpark.backend.dto.TutorDTO.response.NovoPetResponse;
+import br.com.ecodogpark.backend.dto.TutorDTO.response.PetParaListaResponse;
+import br.com.ecodogpark.backend.service.TutorService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -79,7 +79,9 @@ public class  TutorController {
     })
     @DeleteMapping("/{idTutor}/{idPet}")
     public ResponseEntity<Void> excluir(
+            @Parameter(description = "Identificador do pet", example = "1")
             @PathVariable Long idPet,
+            @Parameter(description = "Identificador do tutor", example = "1")
             @PathVariable Long idTutor
     ) {
         tutorService.excluir(idTutor ,idPet);

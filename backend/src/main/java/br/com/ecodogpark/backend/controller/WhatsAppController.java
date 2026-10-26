@@ -1,14 +1,14 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.TwilioDTO.AtendimentoPendenteRequest;
-import br.com.ecodogpark.backend.service.AtendimentosPendentesService;
-import br.com.ecodogpark.backend.service.ChatbotService;
-import br.com.ecodogpark.backend.service.TwilioService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import br.com.ecodogpark.backend.dto.TwilioDTO.AtendimentoPendenteRequest;
+import br.com.ecodogpark.backend.service.AtendimentosPendentesService;
+import br.com.ecodogpark.backend.service.ChatbotService;
+import br.com.ecodogpark.backend.service.TwilioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +36,8 @@ public class WhatsAppController {
     }
 
     @Operation(summary = "Receber e responder mensagens", description = "Requisição responsável por receber as mensagens recebidas através do WhatsApp cadastrado na Twilio e mapear a melhor resposta para aquela mensagem")
+    @ApiResponse(responseCode = "200", description = "Resposta do chatbot ou confirmação da solicitação de atendimento humano")
+    @ApiResponse(responseCode = "400", description = "Parâmetro From ou Body ausente")
     @PostMapping("/webhook")
     public ResponseEntity<String> receberMensagem(
             @Parameter(description = "Número de telefone do remetente", example = "whatsapp:+5511912345678")

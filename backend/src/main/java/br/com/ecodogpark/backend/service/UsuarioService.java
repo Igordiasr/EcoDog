@@ -5,6 +5,8 @@ import br.com.ecodogpark.backend.dto.MonitorResponse;
 import br.com.ecodogpark.backend.dto.UsuarioRequest;
 import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
+import br.com.ecodogpark.backend.dto.*;
+import br.com.ecodogpark.backend.enums.TipoUsuario;
 import br.com.ecodogpark.backend.repository.PetRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
@@ -27,12 +29,12 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
         UsuariosEntity usuario = new UsuariosEntity();
-        preencher(usuario, usuarioRequest);
+        preencherTutor(usuario, usuarioRequest);
         return paraUsuarioResponse(usuarioRepository.save(usuario));
     }
 
     public List<UsuarioResponse> listarTutores() {
-        return usuarioRepository.findByTipo("1").stream().map(this::paraUsuarioResponse).toList();
+        return usuarioRepository.findByTipo(TipoUsuario.TUTOR.getValor()).stream().map(this::paraUsuarioResponse).toList();
     }
 
     public UsuarioResponse buscarTutorPorId(Long id) {
@@ -44,7 +46,7 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
         UsuariosEntity usuario = buscarTutor(id);
-        preencher(usuario, usuarioRequest);
+        preencherTutor(usuario, usuarioRequest);
         return paraUsuarioResponse(usuarioRepository.save(usuario));
     }
 
@@ -63,13 +65,13 @@ public class UsuarioService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
-    private void preencher(UsuariosEntity usuario, UsuarioRequest usuarioRequest) {
+    private void preencherTutor(UsuariosEntity usuario, UsuarioRequest usuarioRequest) {
         usuario.setNome(usuarioRequest.nome());
         usuario.setEmail(usuarioRequest.email());
         usuario.setCpf(usuarioRequest.cpf());
         usuario.setTelefone(usuarioRequest.telefone().trim());
         usuario.setSenha(usuarioRequest.senha());
-        usuario.setTipo("1");
+        usuario.setTipo(TipoUsuario.TUTOR.getValor());
     }
 
     private UsuarioResponse paraUsuarioResponse(UsuariosEntity usuario) {
@@ -79,7 +81,7 @@ public class UsuarioService {
     // -------------------------- Regras de negócio para Gestão de Usuários --------------------------------------
 
     public List<MonitorResponse> listarMonitores() {
-        return usuarioRepository.findByTipo("2")
+        return usuarioRepository.findByTipo(TipoUsuario.MONITOR.getValor())
                 .stream()
                 .map(this::paraMonitorResponse)
                 .toList();
@@ -93,7 +95,7 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
         }
         UsuariosEntity usuario = new UsuariosEntity();
-        paraUsuarioEntity(usuario, request);
+        preencherMonitor(usuario, request);
         return paraMonitorResponse(usuarioRepository.save(usuario));
     }
 
@@ -110,7 +112,7 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado");
         }
         UsuariosEntity monitorParaAtualizar = new UsuariosEntity();
-        paraUsuarioEntity(monitorParaAtualizar, request);
+        preencherMonitor(monitorParaAtualizar, request);
         monitorParaAtualizar.setIdUsuario(id);
         return paraMonitorResponse(usuarioRepository.save(monitorParaAtualizar));
     }
@@ -132,12 +134,12 @@ public class UsuarioService {
         );
     }
 
-    private void paraUsuarioEntity(UsuariosEntity usuario, MonitorRequest monitorRequest) {
+    private void preencherMonitor(UsuariosEntity usuario, MonitorRequest monitorRequest) {
         usuario.setNome(monitorRequest.nome());
         usuario.setEmail(monitorRequest.email());
         usuario.setCpf(monitorRequest.cpf());
         usuario.setTelefone(monitorRequest.telefone().trim());
         usuario.setSenha(monitorRequest.senha());
-        usuario.setTipo("2");
+        usuario.setTipo(TipoUsuario.MONITOR.getValor());
     }
 }

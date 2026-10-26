@@ -1,6 +1,7 @@
 package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.*;
+import br.com.ecodogpark.backend.entity.SituacaoAtividade;
 import br.com.ecodogpark.backend.repository.AtividadeDoDiaRepository;
 import br.com.ecodogpark.backend.repository.ParticipacaoDoPetRepository;
 import org.springframework.http.HttpStatus;
@@ -78,6 +79,6 @@ public class AtividadesDoDiaService {
     }
 
     public void concluirAtividadeTodosPets(List<Long> idsParticipacoes) {
-        participacaoDoPetRepository.concluirAtividadeTodosPets("PARTICIPOU", idsParticipacoes);
+        participacaoDoPetRepository.concluirAtividadeTodosPets(SituacaoAtividade.PARTICIPOU, idsParticipacoes);
     }
 }

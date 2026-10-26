@@ -1,9 +1,12 @@
 package br.com.ecodogpark.backend.dto.FeedMonitorDTO;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.constraints.Size;
 
-public record ObservacaoDoDiaRequest (
+@Schema(description = "Dados de entrada para observacao do dia")
+public record ObservacaoDoDiaRequest(
         @Size(max = 200)
-        String observacao
-){
+        @Schema(description = "Observação sobre o pet ou o registro")
+        String observacao){
 }

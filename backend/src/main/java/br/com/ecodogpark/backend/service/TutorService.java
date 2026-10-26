@@ -5,6 +5,7 @@ import br.com.ecodogpark.backend.entity.*;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
 import br.com.ecodogpark.backend.exception.ConflitoAoCadastrarException;
 import br.com.ecodogpark.backend.exception.DadosDivergentesException;
+import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
 import br.com.ecodogpark.backend.exception.UsuarioNaoEncontradoException;
 import br.com.ecodogpark.backend.mapper.PetMapper;
 import br.com.ecodogpark.backend.repository.*;
@@ -58,7 +59,7 @@ public class TutorService {
     }
 
     public List<PetParaListaResponse> buscarPorIdTutor(Long idTutor) {
-        if (!usuarioRepository.existsById(idTutor)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado");
+        if (!usuarioRepository.existsById(idTutor)) throw new UsuarioNaoEncontradoException("Tutor não encontrado");
         Optional<UsuariosEntity> tutor = usuarioRepository.findById(idTutor);
         return petRepository.findByFkUsuario(tutor.get())
                 .stream().map(PetMapper::entityParaPetParaLista).toList();

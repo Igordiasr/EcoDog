@@ -4,11 +4,17 @@ import br.com.ecodogpark.backend.dto.TwilioDTO.AtendimentoPendenteRequest;
 import br.com.ecodogpark.backend.service.AtendimentosPendentesService;
 import br.com.ecodogpark.backend.service.ChatbotService;
 import br.com.ecodogpark.backend.service.TwilioService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Requisições API externa", description = "Endpoints para realizar a integração da API Twilio ao back-end da aplicação")
 @RestController
 @RequestMapping("/api/whatsapp")
 public class WhatsAppController {
@@ -22,18 +28,19 @@ public class WhatsAppController {
         this.atendimentosPendentesService = atendimentosPendentesService;
     }
 
-    @PostMapping("/enviar")
-    public String enviarMensagem(
-            @RequestParam String numero,
-            @RequestParam String mensagem
-    ) {
-        twilioService.enviarMensagem(numero, mensagem);
-        return "Mensagem enviada";
+    @Operation(summary = "Listar atendimentos pendentes", description = "Requisição que retorna uma lista com as solicitações de atendimentos humano")
+    @ApiResponse(responseCode = "200", description = "Busca concluída")
+    @GetMapping("/atendimentos-pendentes")
+    public ResponseEntity<List<AtendimentoPendenteRequest>> listarAtendimentosPendentes() {
+        return ResponseEntity.ok(atendimentosPendentesService.listar());
     }
 
+    @Operation(summary = "Receber e responder mensagens", description = "Requisição responsável por receber as mensagens recebidas através do WhatsApp cadastrado na Twilio e mapear a melhor resposta para aquela mensagem")
     @PostMapping("/webhook")
     public ResponseEntity<String> receberMensagem(
+            @Parameter(description = "Número de telefone do remetente", example = "whatsapp:+5511912345678")
             @RequestParam("From") String remetente,
+            @Parameter(description = "Mensagem enviada pelo remetente", example = "Qual o horário de funcionamento?")
             @RequestParam("Body") String mensagem
     ) {
         System.out.println("================================");
@@ -66,6 +73,7 @@ public class WhatsAppController {
                 .ok(resposta);
     }
 
+    @Hidden
     @PostMapping("/simular")
     public ResponseEntity<String> simularResposta(
             @RequestParam("From") String remetente,
@@ -77,8 +85,13 @@ public class WhatsAppController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/atendimentos-pendentes")
-    public List<AtendimentoPendenteRequest> listarAtendimentosPendentes() {
-        return atendimentosPendentesService.listar();
+    @Hidden
+    @PostMapping("/enviar")
+    public String enviarMensagem(
+            @RequestParam String numero,
+            @RequestParam String mensagem
+    ) {
+        twilioService.enviarMensagem(numero, mensagem);
+        return "Mensagem enviada";
     }
 }

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/pets")
 @CrossOrigin(origins = "http://localhost:5173")
-public class TutorController {
+public class  TutorController {
     private final TutorService tutorService;
 
     public TutorController(TutorService tutorService) { this.tutorService = tutorService; }
@@ -30,6 +30,7 @@ public class TutorController {
     @Operation(summary = "Cadastra um novo pet", description = "Requisição para criar o cadastro de um novo pet através do identificador do tutor")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Pet cadastrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content),
             @ApiResponse(responseCode = "409", description = "Pet já cadastrado", content = @Content)
     })
@@ -49,21 +50,38 @@ public class TutorController {
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado")
     })
     @GetMapping("/{idTutor}")
-    public List<PetParaListaResponse> buscarPorId(@PathVariable Long idTutor) { return tutorService.buscarPorIdTutor(idTutor); }
+    public List<PetParaListaResponse> buscarPorId(
+            @Parameter(description = "Identificador do tutor", example = "4")
+            @PathVariable Long idTutor
+    ) { return tutorService.buscarPorIdTutor(idTutor); }
 
     @Operation(summary = "Atualizar pet", description = "Requisição para atualizar o pet com base no identificador do tutor e no identificador do pet")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pet atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Tutor não encontrado"),
-            @ApiResponse(responseCode = "404", description = "Pet não encontrado")
+            @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Tutor/ Pet não encontrado")
     })
     @PutMapping("/{idTutor}/{idPet}")
-    public NovoPetResponse atualizar(@PathVariable Long idTutor, @PathVariable Long idPet, @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
+    public NovoPetResponse atualizar(
+            @Parameter(description = "Identificador do tutor", example = "4")
+            @PathVariable Long idTutor,
+            @Parameter(description = "Identificador do pet", example = "9")
+            @PathVariable Long idPet,
+            @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
         return tutorService.atualizarDadosPet(idTutor, idPet, cadastroPetRequest);
     }
 
+    @Operation(summary = "Excluir pet", description = "Requisição para excluir o pet, como há muitas entidades relacionadas que dependem do registro do pet, essa exclusão é feita através de um soft delete para que as outras entidades não sejam afetadas")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Pet excluido com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Exclusão não permitida pois o identificador do pet não pertence ao identificador do tutor"),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado")
+    })
     @DeleteMapping("/{idTutor}/{idPet}")
-    public ResponseEntity<Void> excluir(@PathVariable Long idPet, @PathVariable Long idTutor) {
+    public ResponseEntity<Void> excluir(
+            @PathVariable Long idPet,
+            @PathVariable Long idTutor
+    ) {
         tutorService.excluir(idTutor ,idPet);
         return ResponseEntity.noContent().build();
     }

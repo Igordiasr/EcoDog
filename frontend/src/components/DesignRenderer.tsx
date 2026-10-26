@@ -1,4 +1,5 @@
 import { createElement, useContext, createContext, type ReactNode } from 'react';
+import lastStudentPhoto from '../../images/foto 9.jpeg';
 import { content, nodes, fieldKey, type DesignNode } from '../design/types';
 import { Field } from './Field';
 import { ArrowIcon, arrowText, type ArrowDirection } from './ArrowIcon';
@@ -82,7 +83,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
    if (isHeader) className += ' design-header';
    if (parentIsHeader && value === 'EcoDog Park') className += ' header-brand';
    if (parentIsHeader && childNodes.some(n => n.name === 'Botão Cadastrar') && childNodes.some(n => n.name === 'Botão Entrar')) className += ' header-actions';
-   const props: Record<string, unknown> = { className, 'data-design-id': node.id, 'data-design-name': name };
+    const props: Record<string, unknown> = { className, 'data-design-id': node.id, 'data-design-name': name };
+    if (ctx.screen === 'TL08' && ['Od5Hs', 'CHLdU'].includes(node.id || '')) props.style = { backgroundImage: `url("${lastStudentPhoto}")` };
    if (['TL01', 'TL08', 'TL09'].includes(ctx.screen) && isLeaf(node) && value && ancestors.some(ancestor => /Footer|Rodapé|rodapé|Assinatura/.test(ancestor.name || ''))) props['data-footer-text'] = 'true';
   const flowGroup = /^Group \d+$/.test(name) && ancestors.length <= 2;
   const rootGroup = root && /^Group/.test(name);

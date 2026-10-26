@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { EcoDogApi } from './api';
 import { IntegrationPending } from './api';
+import { blockedCalendarSource } from './calendar-api';
 import { dateKey, validISODate } from './dashboard-model';
 import { applyCalendarCommand, dayConfiguration, parseCapacity, shiftCalendarMonth, validateActivity, validateCalendarCommand, type CalendarActivity, type CalendarCommand, type CalendarData, type CalendarService, type CalendarSource } from './calendar-model';
 
 export interface CalendarConfirmation { title: string; message: string; run(): void | Promise<void> }
 export function useManagementCalendar(enabled: boolean, preview: boolean, api: EcoDogApi, source?: CalendarSource) {
   if (preview) source = undefined;
+  else source ??= blockedCalendarSource;
   const [selectedDate, setSelectedDate] = useState(() => dateKey(new Date()));
   const period = selectedDate.slice(0, 7);
   const [data, setData] = useState<CalendarData | null>(null);
@@ -17,6 +19,7 @@ export function useManagementCalendar(enabled: boolean, preview: boolean, api: E
   const inFlight = useRef(false);
   const leaving = useRef(false);
   const sequence = useRef(0);
+  const loadSequence = useRef(0);
   const cache = useRef(new Map<string, CalendarData>());
   const [editing, setEditing] = useState<Partial<Record<CalendarService, boolean>>>({});
   const [drafts, setDrafts] = useState<Record<CalendarService, string>>({ Creche: '', Hotel: '' });
@@ -29,12 +32,14 @@ export function useManagementCalendar(enabled: boolean, preview: boolean, api: E
   useEffect(() => {
     if (!enabled) return;
     let active = true;
+    const request = ++loadSequence.current;
     const controller = new AbortController();
     setLoading(true); setLoadError(''); setData(null);
-    const load = source ? source.loadMonth(period, controller.signal) : example ? import('./calendar-examples').then(module => cache.current.get(period) || module.calendarExamples(period)) : Promise.reject(new IntegrationPending());
-    load.then(result => { if (active) setData(result); }).catch(error => { if (active) setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o calendário.'); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; controller.abort(); };
-  }, [enabled, period, source, example]);
+    const load = source ? source.loadMonth(period, controller.signal, selectedDate) : example ? import('./calendar-examples').then(module => cache.current.get(period) || module.calendarExamples(period)) : Promise.reject(new IntegrationPending());
+    load.then(result => { if (active && request === loadSequence.current) setData(result); }).catch(error => { if (active && request === loadSequence.current) setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o calendário.'); }).finally(() => { if (active && request === loadSequence.current) setLoading(false); });
+    return () => { active = false; ++loadSequence.current; controller.abort(); };
+  }, [enabled, period, source, example, selectedDate]);
+  const can = (kind: CalendarCommand['kind'] | 'editActivity') => !!data && !loading && !loadError && (example || source?.capabilities?.[kind] !== false);
   const configuration = dayConfiguration(data, selectedDate);
   const previousDate = useRef(selectedDate);
   useEffect(() => {
@@ -87,6 +92,7 @@ export function useManagementCalendar(enabled: boolean, preview: boolean, api: E
   };
   const commit = async (command: CalendarCommand) => {
     if (inFlight.current || !data) return false;
+    if (!can(command.kind) || command.kind === 'activity' && data.activities.some(row => row.id === command.activity.id) && !can('editActivity')) { setMessage('Operação indisponível: contrato, autorização ou concorrência pendente.'); return false; }
     const validation = validateCalendarCommand(command, data, source);
     if (validation.length) { setMessage(validation.join('\n')); return false; }
     inFlight.current = true; setSaving(true); setMessage('');
@@ -101,7 +107,7 @@ export function useManagementCalendar(enabled: boolean, preview: boolean, api: E
         else if (command.kind === 'activity') await api.execute('saveActivity', { target: command.activity.id, date: command.activity.date, nome: command.activity.name, inicio: command.activity.start, fim: command.activity.end });
         else throw new IntegrationPending();
         if (source) {
-          try { setData(await source.loadMonth(period)); }
+          try { setData(await source.loadMonth(period, undefined, selectedDate)); }
           catch (error) {
             setData(null);
             setLoadError(`Operação confirmada, mas não foi possível recarregar o calendário: ${error instanceof Error ? error.message : 'falha de carregamento'}`);
@@ -154,15 +160,16 @@ export function useManagementCalendar(enabled: boolean, preview: boolean, api: E
   };
   const reload = async () => {
     if (inFlight.current) return;
-    setLoading(true); setLoadError('');
+    const request = ++loadSequence.current;
+    setLoading(true); setLoadError(''); setData(null);
     try {
-      if (source) setData(await source.loadMonth(period));
+       if (source) { const result = await source.loadMonth(period, undefined, selectedDate); if (request === loadSequence.current) setData(result); }
       else if (import.meta.env.DEV && example) { const module = await import('./calendar-examples'); setData(cache.current.get(period) || module.calendarExamples(period)); }
       else throw new IntegrationPending();
     }
-    catch (error) { setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o calendário.'); }
-    finally { setLoading(false); }
+    catch (error) { if (request === loadSequence.current) setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o calendário.'); }
+    finally { if (request === loadSequence.current) setLoading(false); }
   };
-  return { selectedDate, period, data, loading, loadError, message, setMessage, saving, example, configuration, editing, setEditing, drafts, setDrafts, errors, setErrors, confirmation, setConfirmation, activity, setActivity, bookingId, setBookingId, bulk, setBulk, dirty, requestLeave, selectDate, navigateMonth: (offset: number) => selectDate(shiftCalendarMonth(selectedDate, offset)), commit, reload, saveCapacity, saveActivity, confirmBulk, changeAvailability, removeActivity, cancelBooking, addActivity: () => { setErrors({}); setActivity({ id: `frontend-activity-${sequence.current++}`, date: selectedDate, name: '', start: '', end: '' }); } };
+   return { can, selectedDate, period, data, loading, loadError, message, setMessage, saving, example, configuration, editing, setEditing, drafts, setDrafts, errors, setErrors, confirmation, setConfirmation, activity, setActivity, bookingId, setBookingId, bulk, setBulk, dirty, requestLeave, selectDate, navigateMonth: (offset: number) => selectDate(shiftCalendarMonth(selectedDate, offset)), commit, reload, saveCapacity, saveActivity, confirmBulk, changeAvailability, removeActivity, cancelBooking, addActivity: () => { if (!can('activity')) { setMessage('Programação indisponível: autorização e concorrência pendentes.'); return; } setErrors({}); setActivity({ id: `frontend-activity-${sequence.current++}`, date: selectedDate, name: '', start: '', end: '' }); } };
 }
 export type ManagementCalendarController = ReturnType<typeof useManagementCalendar>;

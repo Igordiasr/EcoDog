@@ -10,6 +10,42 @@ async function openCalendar(page: Page, width = 1440, params = '') {
 const capacity = (page: Page, service: string) => page.locator('.management-capacity').filter({ has: page.getByLabel(`Quantidade de vagas ${service}`, { exact: true }) });
 async function calls(page: Page) { return page.evaluate(() => JSON.parse(sessionStorage.getItem('fixture:calendar-calls') || '[]')); }
 
+test('TL14: leitura sem serviço preserva estados e impede ações sem gates', async ({ page }) => {
+  await openCalendar(page, 1440, 'contract');
+  await expect(page.getByRole('article')).toHaveCount(4);
+  for (const status of ['Agendado', 'Confirmado', 'Retirado', 'Cancelado']) await expect(page.getByText(`Serviço não informado • ${status}`, { exact: true })).toBeVisible();
+  await expect(page.getByText('Atual: não configurada • Ocupadas: não informadas por serviço')).toHaveCount(2);
+  await expect(page.getByRole('button', { name: 'Adicionar atividade', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Todos os dias do mês', exact: true })).toBeDisabled();
+  await expect(page.getByLabel('Disponibilidade do dia')).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Alterar', exact: true }).first()).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Cancelar agendamento de Aluno 2026-10-25 0', exact: true })).toBeDisabled();
+  expect(await calls(page)).toHaveLength(0);
+});
+
+test('TL14: seleção rápida descarta alunos de resposta antiga', async ({ page }) => {
+  await openCalendar(page, 1440, 'contract');
+  await page.getByRole('button', { name: '26/10/2026, sem configuração', exact: true }).click();
+  await page.getByRole('button', { name: '27/10/2026, sem configuração', exact: true }).click();
+  await expect(page.getByRole('article', { name: 'Agendamento de Aluno 2026-10-27 0', exact: true })).toBeVisible();
+  await page.waitForTimeout(250);
+  await expect(page.getByRole('article')).toHaveCount(4);
+  await expect(page.getByRole('article', { name: /Aluno 2026-10-26/ })).toHaveCount(0);
+});
+
+test('TL14: gravação confirmada com recarga falha nunca repete escrita', async ({ page }) => {
+  await openCalendar(page, 1440, 'reloadFailure');
+  const creche = capacity(page, 'creche');
+  await creche.getByRole('button', { name: 'Alterar', exact: true }).click();
+  await creche.locator('input').fill('8');
+  await creche.getByRole('button', { name: 'Salvar', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Operação confirmada');
+  await expect(page.getByText('Não repita a gravação. Utilize Recarregar dados para consultar o resultado.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Recarregar dados', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Falha de teste após gravação.');
+  expect(await calls(page)).toHaveLength(1);
+});
+
 for (const width of [1440, 410]) {
   test(`TL14: calendário, datas completas e listas sem limite de cinco (${width}px)`, async ({ page }) => {
     await openCalendar(page, width);

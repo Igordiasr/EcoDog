@@ -2,14 +2,15 @@ import { dateKey, validISODate, validPeriod } from './dashboard-model';
 
 // Frontend presentation model. These are not database fields or HTTP responses.
 export type CalendarService = 'Creche' | 'Hotel';
-export interface CalendarConfiguration { date: string; available?: boolean; capacity: Partial<Record<CalendarService, number>> }
-export interface CalendarActivity { id: string; date: string; name: string; start?: string; end?: string }
+export interface CalendarConfiguration { date: string; configured?: boolean; calendarId?: string | null; available?: boolean; capacity: Partial<Record<CalendarService, number>> }
+export interface CalendarActivity { id: string; catalogId?: string; date: string; name: string; start?: string; end?: string }
 export interface CalendarBooking {
-  id: string; date: string; service: CalendarService; petId: string; petName: string;
-  breed?: string; birthDate?: string; tutor?: string; start?: string; end?: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
+  id: string; date: string; service?: CalendarService; petId: string; petName: string;
+  breed?: string; birthDate?: string; age?: number; tutor?: string; start?: string; end?: string;
+  status: 'confirmed' | 'pending' | 'cancelled' | 'withdrawn';
 }
-export interface CalendarData { days: CalendarConfiguration[]; activities: CalendarActivity[]; bookings: CalendarBooking[] }
+export interface CalendarCatalogItem { id: string; name: string }
+export interface CalendarData { days: CalendarConfiguration[]; activities: CalendarActivity[]; bookings: CalendarBooking[]; catalog?: CalendarCatalogItem[]; occupancyKnown?: boolean }
 export type CalendarCommand =
   | { kind: 'capacity'; date: string; service: CalendarService; quantity: number }
   | { kind: 'monthCapacity'; period: string; service: CalendarService; quantity: number }
@@ -22,7 +23,8 @@ export interface CalendarPolicy {
   cancellationError?(booking: CalendarBooking): string | null;
 }
 export interface CalendarSource extends CalendarPolicy {
-  loadMonth(period: string, signal?: AbortSignal): Promise<CalendarData>;
+  capabilities?: Partial<Record<CalendarCommand['kind'] | 'editActivity', boolean>>;
+  loadMonth(period: string, signal?: AbortSignal, selectedDate?: string): Promise<CalendarData>;
   // Adapter-level frontend command; map only to confirmed backend contracts.
   // Month operations must be atomic, not a loop of independent HTTP saves.
   apply?(command: CalendarCommand): Promise<void>;
@@ -95,6 +97,7 @@ export function validateBookingRequest(booking: CalendarBooking, data: CalendarD
   const errors: string[] = [];
   const day = dayConfiguration(data, booking.date);
   if (day.available !== true) errors.push('Esta data não está disponível para novos agendamentos.');
+  if (!booking.service) return [...errors, 'Serviço não informado.'];
   const limit = day.capacity[booking.service];
   if (limit === undefined || occupiedPlaces(data, booking.date, booking.service) >= limit) errors.push(`Não há vagas disponíveis para ${booking.service}.`);
   const timing = timeRangeError(booking.start, booking.end);

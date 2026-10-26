@@ -17,7 +17,7 @@ export function managementCalendarDesign(node: DesignNode, calendar: ManagementC
   const bookingTemplate = children.find(child => child.name === 'Auluno agendado');
   if (activityTemplate || bookingTemplate) {
     const activities = !!activityTemplate;
-    const rows = activities ? calendar.data?.activities.filter(row => row.date === calendar.selectedDate) || [] : calendar.data?.bookings.filter(row => row.date === calendar.selectedDate && row.status !== 'cancelled') || [];
+    const rows = activities ? calendar.data?.activities.filter(row => row.date === calendar.selectedDate) || [] : calendar.data?.bookings.filter(row => row.date === calendar.selectedDate && (calendar.data?.occupancyKnown === false || row.status !== 'cancelled')) || [];
     const template = activityTemplate || bookingTemplate!;
     let inserted = false;
     const updated = node.children?.flatMap(child => {

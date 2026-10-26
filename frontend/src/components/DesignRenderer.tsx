@@ -107,7 +107,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
    props.className = className;
    if (ctx.screen === 'TL05' && ['dRpD5', 'AwXSp'].includes(node.id || '') && ctx.tutorSchedule) return <div {...props}><ScheduledPetDays records={ctx.tutorSchedule.data} error={ctx.tutorSchedule.error} example={ctx.tutorSchedule.example} /></div>;
    if (ctx.screen === 'TL14' && ctx.managementCalendar) {
-     const calendar = ctx.managementCalendar;
+      const calendar = ctx.managementCalendar;
      if (name === 'Management state') return <div className="management-message"><p role={calendar.loadError ? 'alert' : 'status'}>{calendar.loading ? 'Carregando calendário…' : calendar.loadError || (calendar.example ? 'Prévia com dados mock. Alterações somente em memória.' : 'Dados carregados pelo adaptador do calendário.')}</p>{calendar.loadError && <button type="button" className="management-button" onClick={() => void calendar.reload()}>Recarregar dados</button>}{calendar.message && <p role="status">{calendar.message}</p>}</div>;
      if (name === 'Management calendar') return <ManagementCalendar calendar={calendar} className={className} />;
      if (name === 'Management availability') return <ManagementAvailability calendar={calendar} />;
@@ -304,7 +304,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
      const record = ctx.screen === 'TL10' ? ancestors.findLast(isMonitorRecord) : undefined;
      const alreadySaved = /Entrada registrada|Saída registrada/.test(label) || label === 'Salvar' && !!record && monitorRecordLocked(record, ctx.monitorSaved?.[monitorRecordKey(record)]);
      const missingCheckInEvidence = ctx.screen === 'TL11' && label === 'Registrar saída';
-     return <button {...props} type="button" className={`${className} design-button`} disabled={ctx.busy || alreadySaved || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
+      return <button {...props} type="button" className={`${className} design-button`} disabled={ctx.busy || alreadySaved || missingCheckInEvidence || ctx.screen === 'TL14' && label === 'Adicionar atividade' && !ctx.managementCalendar?.can('activity')} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
   }
     if (!inert && ctx.screen === 'TL09' && bookingContext && isLeaf(node) && name === 'Mês') {
      const label = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(2026, 7 + ctx.monthOffset, 1));

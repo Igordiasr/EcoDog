@@ -5,6 +5,7 @@ import type { EcoDogApi } from '../../src/services/api';
 import { calendarExamples } from '../../src/services/calendar-examples';
 import { applyCalendarCommand, emptyCalendarData, type CalendarData, type CalendarSource } from '../../src/services/calendar-model';
 import { dateKey } from '../../src/services/dashboard-model';
+import { parseCalendarDay, blockedCalendarSource } from '../../src/services/calendar-api';
 import '../../src/styles.css';
 
 // Test-only normalized adapters; no production endpoints or responses are defined.
@@ -23,11 +24,17 @@ function initial(period: string): CalendarData {
   return data;
 }
 const source: CalendarSource = {
+  capabilities: params.has('contract') ? blockedCalendarSource.capabilities : undefined,
   activityConflict() { return true; },
   cancellationError() { return params.has('denyCancel') ? 'Cancelamento bloqueado pela política de teste.' : null; },
-  async loadMonth(period) {
-    await new Promise(resolve => setTimeout(resolve, 25));
-    if (params.has('loadFailure')) throw new Error('Falha de teste no carregamento do calendário.');
+   async loadMonth(period, _signal, selectedDate) {
+     await new Promise(resolve => setTimeout(resolve, params.has('contract') && selectedDate?.endsWith('26') ? 200 : 25));
+     if (params.has('loadFailure')) throw new Error('Falha de teste no carregamento do calendário.');
+     if (params.has('reloadFailure') && calls.length) throw new Error('Falha de teste após gravação.');
+     if (params.has('contract')) {
+       const date = selectedDate || `${period}-25`;
+       return parseCalendarDay({ data: date, idCalendario: null, vagasCreche: 0, vagasHotel: 0, atividades: [], alunosAgendados: ['AGENDADO', 'CONFIRMADO', 'RETIRADO', 'CANCELADO'].map((situacao, i) => ({ idAgendamento: i + 1, idPet: i + 1, nome: `Aluno ${date} ${i}`, idade: 3, raca: null, tutor: 'Ana', situacao })) }, date);
+     }
     if (!cache.has(period)) cache.set(period, initial(period));
     return structuredClone(cache.get(period)!);
   },

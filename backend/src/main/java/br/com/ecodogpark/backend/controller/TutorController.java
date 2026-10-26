@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/pets")
 @CrossOrigin(origins = "http://localhost:5173")
-public class TutorController {
+public class  TutorController {
     private final TutorService tutorService;
 
     public TutorController(TutorService tutorService) { this.tutorService = tutorService; }
@@ -30,7 +30,7 @@ public class TutorController {
     public List<PetParaListaResponse> buscarPorId(@PathVariable Long idTutor) { return tutorService.buscarPorIdTutor(idTutor); }
 
     @PutMapping("/{idTutor}/{idPet}")
-    public NovoPetResponse atualizar(@PathVariable Long idTutor, @PathVariable Long idPet, @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
+    public CadastroPetResponse atualizar(@PathVariable Long idTutor, @PathVariable Long idPet, @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
         return tutorService.atualizarDadosPet(idTutor, idPet, cadastroPetRequest);
     }
 

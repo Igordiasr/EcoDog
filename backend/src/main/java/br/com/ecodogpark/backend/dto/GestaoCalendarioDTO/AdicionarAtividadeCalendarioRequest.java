@@ -1,4 +1,4 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.GestaoCalendarioDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

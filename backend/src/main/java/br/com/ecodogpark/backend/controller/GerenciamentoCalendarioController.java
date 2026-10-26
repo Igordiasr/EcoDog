@@ -1,12 +1,15 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.AdicionarAtividadeCalendarioRequest;
+import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.AtividadeCalendarioResponse;
+import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.CalendarioDiaResponse;
+import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.VagasCalendarioRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import br.com.ecodogpark.backend.dto.*;
 import br.com.ecodogpark.backend.service.GerenciamentoCalendarioService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;

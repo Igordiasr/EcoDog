@@ -25,6 +25,11 @@ const api: EcoDogApi = {
 };
 // Providing the existing monthly calendar source must not imply that booking or
 // presence has acquired domain identity, occupancy rules or a check-in source.
-const calendarSource: CalendarSource = { async loadMonth() { return emptyCalendarData(); } };
-history.replaceState(null, '', screen.path);
-createRoot(document.getElementById('root')!).render(<BrowserRouter><App api={api} calendarSource={calendarSource} /></BrowserRouter>);
+const rejectRealSource = async (): Promise<never> => {
+  sessionStorage.setItem('fixture:real-source-called', 'true');
+  throw new Error('Fonte real não deve ser chamada na prévia.');
+};
+const calendarSource: CalendarSource = { async loadMonth() { return params.has('preview') ? rejectRealSource() : emptyCalendarData(); } };
+history.replaceState(null, '', params.has('preview') ? `/prototipo/${screen.id}` : screen.path);
+createRoot(document.getElementById('root')!).render(<BrowserRouter><App api={api} calendarSource={calendarSource}
+  dashboardSource={{ load: rejectRealSource }} petHealthCatalogSource={{ load: rejectRealSource }} tutorScheduleSource={{ load: rejectRealSource }} /></BrowserRouter>);

@@ -15,6 +15,8 @@ import { clearBookingDraft, draftDatesForCalendar, markBookingDraftReady, readBo
 import { structureBookingDesign } from '../design/structure-booking';
 import { structureActivities, structureActivityDesign } from '../design/structure-activities';
 import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
+import { PublicBookingAvailability } from '../components/PublicBookingAvailability';
+import { bookingIntegrationNotice } from '../services/booking-api';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions, type MonitorSavedRecord } from '../design/monitor-records';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
 import { useDashboard } from '../services/use-dashboard';
@@ -76,6 +78,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
   const [pets, setPets] = useState(['Thor', 'Mel', 'Luke']);
   const [monthOffset, setMonthOffset] = useState(0);
   const [busy, setBusy] = useState(false);
+  const writeInFlight = useRef(false);
   const [message, setMessage] = useState('');
   const [activityIndex, setActivityIndex] = useState(0);
   const [monitorSaved, setMonitorSaved] = useState<Record<string, MonitorSavedRecord>>({});
@@ -130,8 +133,9 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     if (id !== 'TL03' || !design || !draft || service !== draft.service || monthOffset !== draft.monthOffset) return;
     const expected = draftDatesForCalendar(draft, design.desktop);
     if (JSON.stringify(selectedDates) !== JSON.stringify(expected) || JSON.stringify(crecheWeekdays) !== JSON.stringify(draft.service === 'Creche' ? draft.weekdays : [])) return;
-    // Clear only after the destination has committed the restored selection.
-    clearBookingDraft(draft.token); applyingDraft.current = null;
+    // Restoring a visual draft is not a confirmed reservation. Keep it until
+    // server success (or expiry), and require revalidation before any future send.
+    applyingDraft.current = null;
   }, [id, design, service, monthOffset, selectedDates, crecheWeekdays]);
   const cart = buildBookingCart({ service, dates: bookingDates, frequency: crecheWeekdays.length, month: bookingMonth(monthOffset), petCount: pets.length, holidays: holidayCalendar });
   const selectWeekday = (weekday: number) => {
@@ -214,10 +218,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const run = async (operation: Operation, needsValidation = false) => {
       const block = prototypeOperationBlock(operation, dialog);
       if (block) { setMessage(block); return; }
-     if (busy || needsValidation && !validate(operation === 'savePet')) return;
+      if (writeInFlight.current || busy || needsValidation && !validate(operation === 'savePet')) return;
      if (operation === 'book' && (!validBookingSelection(design?.desktop, bookingDates, service) || service === 'Creche' && (!crecheWeekdays.length || crecheWeekdays.length > 6))) { setMessage('Selecione uma data disponível.'); return; }
      if (operation === 'book' && (!service || !bookingDates.length || !pets.length)) { setMessage('Selecione o serviço, a data e os pets.'); return; }
-    setBusy(true); setMessage('');
+     writeInFlight.current = true; setBusy(true); setMessage('');
     try {
         const petDraft = operation === 'savePet' ? createPetDraft(dialog ? dialogFields : fields, allergies, id === 'TL06' && !dialog ? petRecords : undefined) : null;
         if (petDraft && id === 'TL06' && !dialog && petPhoto) petDraft.photo = petPhoto;
@@ -230,7 +234,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       else if (operation === 'savePet') go('TL05');
       else close();
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Não foi possível concluir. Tente novamente.'); }
-    finally { setBusy(false); }
+     finally { writeInFlight.current = false; setBusy(false); }
   };
     const action = (label: string, node: DesignNode, ancestors: DesignNode[]) => {
       if (id === 'TL11' && label === 'Feed do Monitor') {
@@ -511,7 +515,9 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
     </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
-      {id === 'TL09' && !preview && import.meta.env.VITE_API_BASE_URL && <button type="button" className="management-button" onClick={() => void openDialog('details')}>Consultar catálogo de atividades</button>}
+      {id === 'TL09' && !preview && <button type="button" className="management-button" onClick={() => void openDialog('details')}>Consultar catálogo de atividades</button>}
+      {id === 'TL09' && preview && <p role="status">Atividades ilustrativas da prévia DEV; não são registros consultados no sistema. Fotografias institucionais, sem associação a IDs do catálogo.</p>}
+      {id === 'TL03' && !preview && <p role="status">{bookingIntegrationNotice} Pets, preços e datas do formulário são exemplos, não seleção autorizada.</p>}
       {id === 'TL10' && <p className="loading-message" role="status">{monitorDataUnavailable} {preview ? 'Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.' : 'Registros apresentados são exemplos, não histórico consultado do sistema.'}</p>}
       {id === 'TL11' && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
@@ -524,6 +530,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         </form>
       </DesignContext.Provider>}
       {menu && <Menu current={id} profile={info.profile || 'public'} go={go} close={closeMenu} />}
+      {['TL03', 'TL09'].includes(id) && !preview && <PublicBookingAvailability />}
     </main>
     <input ref={fileRef} type="file" className="sr-only" tabIndex={-1} aria-label="Foto do pet" accept="image/*" onChange={e => {
        const file = e.target.files?.[0];

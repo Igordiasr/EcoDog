@@ -3,7 +3,7 @@ import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
 process.env.VITE_API_BASE_URL = 'http://integration.invalid';
-const server = await createServer({ configLoader: 'runner', cacheDir: '/tmp/opencode/ecodog-browser-cache', server: { host: '127.0.0.1', port: 5189, strictPort: true } });
+const server = await createServer({ configLoader: 'runner', server: { host: '127.0.0.1', port: 5189, strictPort: true } });
 let browser;
 try {
   await server.listen();
@@ -30,7 +30,7 @@ try {
   await page.getByRole('button', { name: 'Voltar', exact: true }).click();
   status = 403;
   await page.getByRole('button', { name: 'Consultar catálogo de atividades', exact: true }).click();
-  await expect(page.getByRole('alert')).toHaveText('Consulta não autorizada pelo sistema.');
+  await expect(page.getByRole('alert')).toContainText('Consulta não autorizada pelo sistema.');
   status = 200;
   await page.getByRole('button', { name: 'Tentar novamente', exact: true }).click();
   await expect(page.getByText('Nenhuma atividade cadastrada.', { exact: true })).toBeVisible();

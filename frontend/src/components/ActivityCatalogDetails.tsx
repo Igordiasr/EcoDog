@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { createActivityCatalogSource, type ActivityCatalogItem } from '../services/activity-catalog';
 
 export function ActivityCatalogDetails({ close, baseUrl = import.meta.env.VITE_API_BASE_URL }: { close(): void; baseUrl?: string }) {
+  // Remount immediately on configuration changes; never render the old base's data.
+  return <CatalogQuery key={baseUrl || ''} close={close} baseUrl={baseUrl} />;
+}
+
+function CatalogQuery({ close, baseUrl }: { close(): void; baseUrl?: string }) {
   const [items, setItems] = useState<ActivityCatalogItem[] | null>(null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
@@ -23,7 +28,7 @@ export function ActivityCatalogDetails({ close, baseUrl = import.meta.env.VITE_A
   return <div className="dialog-content"><h2>Catálogo de atividades</h2>
     <p>Consulta ao catálogo do sistema. As fotografias da página são institucionais e não identificam registros deste catálogo.</p>
     {!baseUrl ? <p role="status">Consulta não configurada. Os detalhes dependem da integração com o sistema.</p>
-      : error ? <><p role="alert">{error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button></>
+      : error ? <><p role="alert">{error}</p><button type="button" onClick={() => { setItems(null); setError(''); setAttempt(value => value + 1); }}>Tentar novamente</button></>
       : items === null ? <p role="status">Carregando atividades…</p>
       : items.length === 0 ? <p role="status">Nenhuma atividade cadastrada.</p>
       : <ul>{items.map(item => <li key={item.id}><h3>{item.name}</h3>{item.category && <p>{item.category}</p>}{item.description && <p>{item.description}</p>}</li>)}</ul>}

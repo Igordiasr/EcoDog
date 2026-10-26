@@ -6,7 +6,7 @@ export interface PetCatalogItem { id: string; name: string }
 export type PetHealthCatalog = Record<PetCatalogKind, PetCatalogItem[]>;
 // Normalized frontend catalog, NOT a database schema or HTTP response contract.
 export interface PetHealthCatalogSource {
-  load(): Promise<PetHealthCatalog>;
+  load(signal?: AbortSignal): Promise<PetHealthCatalog>;
   createItem?(kind: PetCatalogKind, name: string): Promise<PetCatalogItem>;
 }
 const empty = (): PetHealthCatalog => ({ vacinas: [], medicamentos: [], alergias: [] });
@@ -16,6 +16,7 @@ export function catalogNameError(name: string, items: PetCatalogItem[]) {
   return items.some(item => catalogNameKey(item.name) === catalogNameKey(name)) ? 'Este item já está cadastrado.' : '';
 }
 export function usePetHealthCatalog(enabled: boolean, preview: boolean, source?: PetHealthCatalogSource) {
+  if (preview) source = undefined;
   const [data, setData] = useState<PetHealthCatalog>(empty);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -28,10 +29,11 @@ export function usePetHealthCatalog(enabled: boolean, preview: boolean, source?:
   useEffect(() => {
     if (!enabled) return;
     let active = true;
-    setLoading(true); setMessage('');
-    const load = source ? source.load() : example ? import('./pet-health-examples').then(module => module.petHealthExamples()) : Promise.reject(new IntegrationPending());
+    const controller = new AbortController();
+    setData(empty()); setLoading(true); setMessage('');
+    const load = source ? source.load(controller.signal) : example ? import('./pet-health-examples').then(module => module.petHealthExamples()) : Promise.reject(new IntegrationPending());
     load.then(data => { if (active) setData(data); }).catch(error => { if (active) { setData(empty()); setMessage(error instanceof Error ? error.message : 'Não foi possível carregar o catálogo.'); } }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+    return () => { active = false; controller.abort(); };
   }, [enabled, example, source]);
   const open = (kind: PetCatalogKind, callback?: (item: PetCatalogItem) => void) => { onCreated.current = callback; setError(''); setEditor({ kind, name: '' }); };
   const save = async () => {

@@ -18,6 +18,7 @@ export function BookingCartItems({ cart, removeDate }: { cart: Cart; removeDate(
 export function BookingCartSummary({ cart, service, frequency, removeDate }: { cart: Cart; service: string; frequency: number; removeDate?(date: string): void }) {
   const dates = cart.items.flatMap(item => item.kind === 'daily' ? [item.date] : []);
   return <div className="booking-cart-summary" aria-live="polite">
+    <p className="sr-only">Estimativa ilustrativa, não é orçamento nem cobrança confirmada pelo servidor. Frequência de Creche não contrata plano.</p>
     <dl className="booking-summary-field booking-summary-total"><dt>Valor Total</dt><dd data-booking-total data-design-name="Montante">{formatMoney(cart.totalCents)}</dd></dl>
     <div className="booking-summary-information-scroll" role="region" aria-label="Informações do agendamento" tabIndex={0} onKeyDown={horizontalScrollKeys}>
       <dl className="booking-summary-information">

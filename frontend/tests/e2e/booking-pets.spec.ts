@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+test.beforeEach(async ({ page }) => { await page.clock.setFixedTime(new Date(2026, 7, 1, 12)); });
 
 for (const [service, subtotal, total] of [['Hotel', '120', '360'], ['DayUse', '90', '270'], ['Creche', '360', '1.080']]) {
   test(`${service} mostra subtotal por pet e recalcula a seleção atual`, async ({ page }) => {

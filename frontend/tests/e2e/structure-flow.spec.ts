@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+test.beforeEach(async ({ page }) => { await page.clock.setFixedTime(new Date(2026, 7, 1, 12)); });
 
 const draftKey = 'ecodog:structure-booking:v1';
 async function openStructure(page: Page, mobile = false, authenticated = false) {
@@ -70,7 +71,7 @@ for (const service of ['Hotel', 'DayUse']) {
     await expect(page.getByRole('button', { name: '14, selecionado', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '15, selecionado', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '13, disponível', exact: true })).toBeVisible();
-    await expect.poll(() => page.evaluate(key => sessionStorage.getItem(key), draftKey)).toBeNull();
+    expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)!).phase, draftKey)).toBe('ready');
   });
 }
 
@@ -82,14 +83,14 @@ test('Estrutura permite seguir sem datas e não restaura a data padrão após lo
   await expect(page.getByRole('alert')).toHaveCount(0);
   await login(page);
   await expect(page.locator('.calendar-day[aria-pressed="true"]')).toHaveCount(0);
-  await expect.poll(() => page.evaluate(key => sessionStorage.getItem(key), draftKey)).toBeNull();
-  // A weekday selected directly after an empty handoff must allow booking.
+  expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)!).phase, draftKey)).toBe('ready');
+  // Selection is a draft only; a resolving fixture must not bypass booking gates.
   await page.getByRole('button', { name: 'Creche', exact: true }).click();
   await page.getByRole('button', { name: 'Selecionar Terça-feira', exact: true }).click();
   await page.getByRole('button', { name: 'Agendar', exact: true }).click();
-  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('fixture:booking-payload'))).not.toBeNull();
-  const payload = await page.evaluate(() => JSON.parse(sessionStorage.getItem('fixture:booking-payload')!));
-  expect(payload.dates).toEqual(['2026-08-04', '2026-08-11', '2026-08-18', '2026-08-25']);
+  await expect(page.getByRole('alert')).toContainText('Nenhuma reserva foi criada');
+  expect(await page.evaluate(() => sessionStorage.getItem('fixture:booking-payload'))).toBeNull();
+  await expect(page.getByRole('button', { name: 'Selecionar Terça-feira', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('Cadastro seguido de Login mantém a seleção feita na Estrutura', async ({ page }) => {

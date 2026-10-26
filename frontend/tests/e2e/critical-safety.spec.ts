@@ -2,6 +2,16 @@ import { expect, test } from '@playwright/test';
 
 const calls = async (page: import('@playwright/test').Page) => page.evaluate(() => JSON.parse(sessionStorage.getItem('fixture:critical-calls') || '[]'));
 
+for (const screen of ['TL13', 'TL14', 'TL06', 'TL05']) {
+  test(`prévia ${screen} ignora fontes reais injetadas`, async ({ page }) => {
+    await page.goto(`/tests/fixtures/critical-safety-flow.html?screen=${screen}&preview`);
+    await expect(page.locator('main')).toBeVisible();
+    await expect(page.getByText('Fonte real não deve ser chamada na prévia.')).toHaveCount(0);
+    expect(await page.evaluate(() => sessionStorage.getItem('fixture:real-source-called'))).toBeNull();
+    expect(await calls(page)).toEqual([]);
+  });
+}
+
 for (const width of [1440, 410]) {
   for (const [screen, rowName, name] of [['TL05', 'Pet cadastrado', 'Mel'], ['TL17', 'Plano', 'Creche'], ['TL16', 'Vínculo de cliente', 'Bob']] as const) {
     test(`sem identidade: edição ${screen} não abre outro registro (${width}px)`, async ({ page }) => {

@@ -14,7 +14,7 @@ export interface DashboardData {
   forecasts: { period: string; cents: number }[];
   capacities: { date: string; service: DashboardService; total: number }[];
 }
-export interface DashboardSource { load(): Promise<DashboardData> }
+export interface DashboardSource { load(signal?: AbortSignal): Promise<DashboardData> }
 export const emptyDashboardData = (): DashboardData => ({ goals: [], clients: [], pets: [], contracts: [], reservations: [], revenues: [], forecasts: [], capacities: [] });
 export function dateKey(now: Date) { return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; }
 export function validISODate(value: string) {

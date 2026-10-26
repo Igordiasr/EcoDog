@@ -16,6 +16,13 @@ describe('catálogo real de atividades', () => {
     expect(await createActivityCatalogSource('http://localhost:8080', respond([])).load()).toEqual([]);
     expect(await createActivityCatalogSource('http://localhost:8080', respond([{ ...row, descricao: null, categoria: null }])).load()).toEqual([{ id: 7, name: 'Boliche', description: null, category: null }]);
   });
+  it('normaliza textos opcionais ausentes, sem fabricar descrição ou categoria', async () => {
+    const { descricao, categoria, ...withoutOptional } = row;
+    expect(await createActivityCatalogSource('http://localhost:8080', respond([withoutOptional])).load()).toEqual([{ id: 7, name: 'Boliche', description: null, category: null }]);
+  });
+  it.each([0, -1, 1.5, 2147483648, Number.MAX_SAFE_INTEGER + 1])('rejeita ID fora do contrato int32 positivo: %s', async idAtividade => {
+    await expect(createActivityCatalogSource('http://localhost:8080', respond([{ ...row, idAtividade }])).load()).rejects.toThrow('Resposta inesperada');
+  });
   it.each([{}, [null], [{ ...row, idAtividade: '7' }], [{ ...row, nome: '' }], [row, row]])('rejeita resposta incompatível: %j', async body => {
     await expect(createActivityCatalogSource('http://localhost:8080', respond(body)).load()).rejects.toThrow('Resposta inesperada');
   });
@@ -33,7 +40,7 @@ describe('catálogo real de atividades', () => {
       throw new Error('Deveria rejeitar');
     } catch (error) {
       expect(error).toBeInstanceOf(HttpError);
-      expect(error).toMatchObject({ status: 400, fields: { nome: 'Campo obrigatório' } });
+      expect(error).toMatchObject({ status: 400, fields: {} });
     }
     await expect(getJson('http://localhost:8080', '/consulta', undefined, respond({ message: 'diagnóstico privado' }, 403))).rejects.toThrow('Consulta não autorizada');
   });

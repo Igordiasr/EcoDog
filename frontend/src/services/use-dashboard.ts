@@ -5,6 +5,7 @@ import { selectedGoal, validateDashboardForm, type DashboardFormMode } from './d
 import { petDateISO } from './pet-validation';
 
 export function useDashboard(enabled: boolean, preview: boolean, api: EcoDogApi, source?: DashboardSource) {
+  if (preview) source = undefined;
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState('');
@@ -18,10 +19,11 @@ export function useDashboard(enabled: boolean, preview: boolean, api: EcoDogApi,
   useEffect(() => {
     if (!enabled) return;
     let active = true;
+    const controller = new AbortController();
     setLoading(true); setData(null); setLoadError('');
-    const load = source ? source.load() : example ? import('./dashboard-examples').then(module => module.dashboardExamples()) : Promise.reject(new Error('A integração com os dados do dashboard ainda não está disponível.'));
+    const load = source ? source.load(controller.signal) : example ? import('./dashboard-examples').then(module => module.dashboardExamples()) : Promise.reject(new Error('A integração com os dados do dashboard ainda não está disponível.'));
     load.then(result => { if (active) setData(result); }).catch(error => { if (active) setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o dashboard.'); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+    return () => { active = false; controller.abort(); };
   }, [enabled, source, example]);
   const begin = (formMode: DashboardFormMode) => { setMode(formMode); setValues({}); setErrors({}); };
   const change = (key: string, value: string) => {

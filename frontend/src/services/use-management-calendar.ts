@@ -6,6 +6,7 @@ import { applyCalendarCommand, dayConfiguration, parseCapacity, shiftCalendarMon
 
 export interface CalendarConfirmation { title: string; message: string; run(): void | Promise<void> }
 export function useManagementCalendar(enabled: boolean, preview: boolean, api: EcoDogApi, source?: CalendarSource) {
+  if (preview) source = undefined;
   const [selectedDate, setSelectedDate] = useState(() => dateKey(new Date()));
   const period = selectedDate.slice(0, 7);
   const [data, setData] = useState<CalendarData | null>(null);
@@ -28,10 +29,11 @@ export function useManagementCalendar(enabled: boolean, preview: boolean, api: E
   useEffect(() => {
     if (!enabled) return;
     let active = true;
+    const controller = new AbortController();
     setLoading(true); setLoadError(''); setData(null);
-    const load = source ? source.loadMonth(period) : example ? import('./calendar-examples').then(module => cache.current.get(period) || module.calendarExamples(period)) : Promise.reject(new IntegrationPending());
+    const load = source ? source.loadMonth(period, controller.signal) : example ? import('./calendar-examples').then(module => cache.current.get(period) || module.calendarExamples(period)) : Promise.reject(new IntegrationPending());
     load.then(result => { if (active) setData(result); }).catch(error => { if (active) setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o calendário.'); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+    return () => { active = false; controller.abort(); };
   }, [enabled, period, source, example]);
   const configuration = dayConfiguration(data, selectedDate);
   const previousDate = useRef(selectedDate);

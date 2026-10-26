@@ -22,7 +22,7 @@ export interface CalendarPolicy {
   cancellationError?(booking: CalendarBooking): string | null;
 }
 export interface CalendarSource extends CalendarPolicy {
-  loadMonth(period: string): Promise<CalendarData>;
+  loadMonth(period: string, signal?: AbortSignal): Promise<CalendarData>;
   // Adapter-level frontend command; map only to confirmed backend contracts.
   // Month operations must be atomic, not a loop of independent HTTP saves.
   apply?(command: CalendarCommand): Promise<void>;

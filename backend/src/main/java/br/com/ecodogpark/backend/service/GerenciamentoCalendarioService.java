@@ -1,6 +1,6 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.dto.*;
+import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.*;
 import br.com.ecodogpark.backend.entity.*;
 import br.com.ecodogpark.backend.repository.*;
 import org.springframework.http.HttpStatus;

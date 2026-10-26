@@ -1,5 +1,8 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.config.TokenConfig;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginRequest;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,13 +11,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import br.com.ecodogpark.backend.dto.MonitorRequest;
 import br.com.ecodogpark.backend.dto.MonitorResponse;
-import br.com.ecodogpark.backend.dto.UsuarioRequest;
-import br.com.ecodogpark.backend.dto.UsuarioResponse;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioRequest;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioResponse;
 import br.com.ecodogpark.backend.service.UsuarioService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Requisições usuários", description = "Endpoints para cadastro e gestão de tutores, monitores e administradores")
@@ -26,6 +30,16 @@ public class UsuarioController {
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+    }
+
+    @Operation(summary = "Autenticar usuário", description = "Autentica o usuário por e-mail e senha e retorna um token JWT com validade de 10 minutos. Nas requisições seguintes, envie o token no cabeçalho Authorization no formato Bearer <token>")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário autenticado; retorna o token de acesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de login inválidos", content = @Content)
+    })
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> entrar(@Valid @RequestBody LoginRequest dadosLogin) {
+        return ResponseEntity.ok(usuarioService.entrar(dadosLogin));
     }
 
     @Operation(summary = "Cadastrar tutor", description = "Cadastrar os dados do tutor.")

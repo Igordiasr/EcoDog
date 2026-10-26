@@ -4,6 +4,7 @@ import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<UsuariosEntity, Long> {
     boolean existsByEmail(String email);
@@ -11,4 +12,5 @@ public interface UsuarioRepository extends JpaRepository<UsuariosEntity, Long> {
     boolean existsByEmailAndIdUsuarioNot(String email, Long id);
     boolean existsByCpfAndIdUsuarioNot(String cpf, Long id);
     List<UsuariosEntity> findByTipo(String tipo);
+    Optional<UsuariosEntity> findByEmail(String email);
 }

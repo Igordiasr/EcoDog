@@ -1,27 +1,44 @@
 package br.com.ecodogpark.backend.service;
 
+import br.com.ecodogpark.backend.config.TokenConfig;
 import br.com.ecodogpark.backend.dto.MonitorRequest;
 import br.com.ecodogpark.backend.dto.MonitorResponse;
-import br.com.ecodogpark.backend.dto.UsuarioRequest;
-import br.com.ecodogpark.backend.dto.UsuarioResponse;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginRequest;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginResponse;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioRequest;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
-import br.com.ecodogpark.backend.dto.*;
-import br.com.ecodogpark.backend.enums.TipoUsuario;
-import br.com.ecodogpark.backend.repository.PetRepository;
+import br.com.ecodogpark.backend.exception.CredenciaisIncorretasException;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
-    private final PetRepository petRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final TokenConfig tokenConfig;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PetRepository petRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenConfig tokenConfig) {
         this.usuarioRepository = usuarioRepository;
-        this.petRepository = petRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenConfig = tokenConfig;
+    }
+
+    public LoginResponse entrar(LoginRequest dadosLogin) {
+        UsernamePasswordAuthenticationToken usuarioESenha = new UsernamePasswordAuthenticationToken(dadosLogin.email(), dadosLogin.senha());
+        Authentication authentication = authenticationManager.authenticate(usuarioESenha);
+        UsuariosEntity usuario = usuarioRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new CredenciaisIncorretasException("Email ou senha inválidos"));
+        return new LoginResponse(tokenConfig.gerarToken(usuario));
     }
 
     public UsuarioResponse cadastrarTutor(UsuarioRequest usuarioRequest) {
@@ -76,7 +93,7 @@ public class UsuarioService {
         usuario.setEmail(usuarioRequest.email());
         usuario.setCpf(usuarioRequest.cpf());
         usuario.setTelefone(usuarioRequest.telefone().trim());
-        usuario.setSenha(usuarioRequest.senha());
+        usuario.setSenha(passwordEncoder.encode(usuarioRequest.senha()));
         usuario.setTipo("TUTOR");
     }
 
@@ -198,7 +215,7 @@ public class UsuarioService {
         usuario.setEmail(request.email());
         usuario.setCpf(request.cpf());
         usuario.setTelefone(request.telefone().trim());
-        usuario.setSenha(request.senha());
+        usuario.setSenha(passwordEncoder.encode(request.senha()));
         usuario.setTipo(tipo);
     }
 
@@ -217,7 +234,7 @@ public class UsuarioService {
         usuario.setEmail(monitorRequest.email());
         usuario.setCpf(monitorRequest.cpf());
         usuario.setTelefone(monitorRequest.telefone().trim());
-        usuario.setSenha(monitorRequest.senha());
+        usuario.setSenha(passwordEncoder.encode(monitorRequest.senha()));
         usuario.setTipo("MONITOR");
     }
 }

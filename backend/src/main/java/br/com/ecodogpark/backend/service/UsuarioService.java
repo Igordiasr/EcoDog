@@ -1,5 +1,9 @@
 package br.com.ecodogpark.backend.service;
 
+import br.com.ecodogpark.backend.dto.MonitorRequest;
+import br.com.ecodogpark.backend.dto.MonitorResponse;
+import br.com.ecodogpark.backend.dto.UsuarioRequest;
+import br.com.ecodogpark.backend.dto.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import br.com.ecodogpark.backend.dto.*;
 import br.com.ecodogpark.backend.enums.TipoUsuario;

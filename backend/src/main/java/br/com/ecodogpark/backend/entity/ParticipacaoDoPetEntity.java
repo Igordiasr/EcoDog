@@ -2,7 +2,7 @@ package br.com.ecodogpark.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @Entity
@@ -20,9 +20,10 @@ public class ParticipacaoDoPetEntity {
     @JoinColumn(name = "fk_atividades_do_dia")
     private AtividadesDoDiaEntity fkAtividadesDoDia;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private SituacaoAtividade situacao;
     @NotBlank
-    @Pattern(regexp = "PENDENTE|PARTICIPOU|NAO_PARTICIPOU")
-    private String situacao;
     private String observacao;
     @Positive
     private Integer grupo;
@@ -51,11 +52,11 @@ public class ParticipacaoDoPetEntity {
         this.fkAtividadesDoDia = fkAtividadesDoDia;
     }
 
-    public String getSituacao() {
+    public SituacaoAtividade getSituacao() {
         return situacao;
     }
 
-    public void setSituacao(String situacao) {
+    public void setSituacao(SituacaoAtividade situacao) {
         this.situacao = situacao;
     }
 

@@ -1,4 +1,4 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response;
 
 public record PetResumoResponse(
         Long idPet,

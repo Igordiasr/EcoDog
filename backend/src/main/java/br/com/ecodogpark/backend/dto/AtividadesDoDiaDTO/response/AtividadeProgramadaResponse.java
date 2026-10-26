@@ -1,6 +1,4 @@
-package br.com.ecodogpark.backend.dto;
-
-import jakarta.validation.constraints.Pattern;
+package br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response;
 
 import java.time.LocalTime;
 import java.util.List;

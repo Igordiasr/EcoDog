@@ -14,6 +14,7 @@ import { unconfiguredHolidayCalendar, type HolidayCalendar } from '../services/h
 import { clearBookingDraft, draftDatesForCalendar, markBookingDraftReady, readBookingDraft, saveBookingDraft, type BookingDraft } from '../services/booking-draft';
 import { structureBookingDesign } from '../design/structure-booking';
 import { structureActivities, structureActivityDesign } from '../design/structure-activities';
+import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions, type MonitorSavedRecord } from '../design/monitor-records';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
 import { useDashboard } from '../services/use-dashboard';
@@ -510,6 +511,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
     </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
+      {id === 'TL09' && !preview && import.meta.env.VITE_API_BASE_URL && <button type="button" className="management-button" onClick={() => void openDialog('details')}>Consultar catálogo de atividades</button>}
       {id === 'TL10' && <p className="loading-message" role="status">{monitorDataUnavailable} {preview ? 'Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.' : 'Registros apresentados são exemplos, não histórico consultado do sistema.'}</p>}
       {id === 'TL11' && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
@@ -549,7 +551,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
            setAllergies([...new Set([...allergyDraft.filter(a => a !== 'Outros'), ...(allergyDraft.includes('Outros') ? [description] : [])])]);
            close();
          }}><h2>Alergias</h2><p>Selecione uma ou mais alergias previamente cadastradas. Quando “Outros” for selecionado, o campo de descrição personalizada será exibido.</p>{[...new Set(['Alergia a frango', ...allergies, 'Outros'])].map(a => <label key={a} className="allergy-option"><input type="checkbox" checked={allergyDraft.includes(a)} onChange={e => setAllergyDraft(v => e.target.checked ? [...v, a] : v.filter(x => x !== a))} />{a}</label>)}{allergyDraft.includes('Outros') && <label className="allergy-description">Descrição da alergia *<input required value={allergyDescription} onChange={e => setAllergyDescription(e.target.value)} /></label>}<div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={allergyDraft.includes('Outros') && !allergyDescription.trim()}>Salvar alergia</button></div></form>
-        : dialog === 'details' ? <div className="dialog-content"><h2>Detalhes</h2><p>Os detalhes desta atividade dependem dos dados do sistema.</p><button type="button" onClick={close}>Voltar</button></div>
+         : dialog === 'details' && id === 'TL09' && !preview ? <ActivityCatalogDetails close={close} />
+         : dialog === 'details' ? <div className="dialog-content"><h2>Detalhes</h2><p>Os detalhes desta atividade dependem dos dados do sistema.</p><button type="button" onClick={close}>Voltar</button></div>
         : dialog === 'profile' ? <div className="dialog-content"><h2>Meus Dados</h2><p>Os dados da conta dependem da autenticação no sistema.</p><button type="button" onClick={close}>Voltar</button></div>
         : <p role="status" className="loading-message">Carregando…</p>}
     </Modal>}

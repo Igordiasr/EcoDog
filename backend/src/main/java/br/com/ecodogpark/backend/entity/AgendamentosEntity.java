@@ -21,6 +21,7 @@ public class AgendamentosEntity {
 
     private LocalDateTime dataEntrada;
     private LocalDateTime dataSaida;
+    private String servico;
     @Enumerated(EnumType.STRING)
     private SituacaoAgendamento situacao;
     private String servico;
@@ -68,6 +69,14 @@ public class AgendamentosEntity {
 
     public void setDataSaida(LocalDateTime dataSaida) {
         this.dataSaida = dataSaida;
+    }
+
+    public String getServico() {
+        return servico;
+    }
+
+    public void setServico(String servico) {
+        this.servico = servico;
     }
 
     public SituacaoAgendamento getSituacao() {

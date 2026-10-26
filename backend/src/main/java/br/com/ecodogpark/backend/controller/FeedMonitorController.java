@@ -23,7 +23,6 @@ public class FeedMonitorController {
     @GetMapping("/pet/{id}")
     public ResponseEntity<PetFeedMonitorResponse> buscarPetParaMonitor(@PathVariable Long id) {
         PetFeedMonitorResponse pet = feedMonitorService.buscarPetParaMonitor(id);
-
         return ResponseEntity.ok(pet);
     }
 

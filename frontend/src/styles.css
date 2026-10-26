@@ -1,0 +1,390 @@
+@import "tailwindcss";
+@import "./design/sources.css";
+
+@theme {
+  --font-body: "Roboto", sans-serif;
+  --font-heading: "Luckiest Guy", sans-serif;
+  --font-interface: "Lilita One", sans-serif;
+}
+:root {
+  --brand: #247346;
+  --primary-accessible: #1f653d;
+  --background: #add9cc;
+  --surface: #fefefe;
+  --text: #000;
+  --attention: #cb8335;
+  --accent: #f25835;
+  --error: #cd492b;
+  font-family: Roboto, sans-serif;
+  color: var(--text);
+  background: var(--background);
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+h1, h2, h3, h4, p { margin: 0; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid #8b420f; outline-offset: 3px; }
+ .design-desktop [data-design-id="Nqmkv"] { align-self: center; }
+ .design-page :is([data-design-id="Nqmkv"], [data-design-id="QDETf"]) { background-position: center top; }
+ .design-desktop [data-design-id="Nqmkv"] { background-position: center 10%; }
+ .design-mobile [data-design-id="QDETf"] { position: relative; top: -8px; }
+  .institutional-page :is([data-design-id="Nqmkv"], [data-design-id="QDETf"]) { position: relative; overflow: hidden; background-size: cover; background-position: 35% 33%; }
+  /* Crop only the first About photo, without changing its frame. The small
+     proportional zoom also provides vertical cropping at mobile aspect ratios. */
+  .institutional-page :is([data-design-id="Nqmkv"], [data-design-id="QDETf"])::before { content: ""; position: absolute; inset: 0; background-image: inherit; background-repeat: no-repeat; background-size: cover; background-position: 35% 33%; transform: scale(1.10); transform-origin: 35% 33%; }
+ .institutional-page [data-design-id="R9s0y5"] { width: 480px; height: 330px; max-width: 100%; object-fit: contain; }
+ .institutional-page [data-design-id="u9GNY"] { height: 300px; object-fit: contain; }
+ .institutional-page .booking-calendar [data-design-name="Mês"] { min-width: 0; flex: 1; white-space: normal; text-align: center; }
+ .diary-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; }
+ .diary-actions > * { width: fit-content; flex-shrink: 0; }
+ .design-desktop .scheduling-page [data-design-id="CKErY"] { align-items: stretch; }
+ .design-desktop .scheduling-page :is([data-design-id="pR7Qr"], [data-design-id="UO9qg"]) { height: auto; }
+ .design-desktop .scheduling-page :is([data-design-id="pR7Qr"], [data-design-id="UO9qg"]) > :is(.booking-calendar, [data-design-id="D87LCS"]) { height: 100%; flex: 1; }
+ @media (max-width: 767px) {
+   .institutional-page [data-footer-text="true"] { display: none; }
+   .institutional-page .page-footer { gap: 16px; }
+ }
+ .design-page :is([data-design-id="Od5Hs"], [data-design-id="CHLdU"]) { background-size: contain; background-position: center; }
+ #root { display: flex; flex-direction: column; min-height: 100svh; }
+ #root > .preview-bar { flex-shrink: 0; }
+ .design-page { width: 100%; min-width: 0; flex: 1; display: flex; flex-direction: column; }
+ .design-page > form { width: 100%; flex: 1; display: flex; flex-direction: column; }
+ .page-layout, .page-layout-group { display: flex; flex-direction: column; flex: 1; }
+ .page-layout > *, .page-layout-group > * { flex-shrink: 0; }
+ .page-layout > .page-layout-group { flex: 1; }
+ .page-footer { width: 100%; flex-shrink: 0; margin-top: auto; }
+ .page-footer[data-design-name="Footer"] > [data-design-name="Rectangle 6"] { width: 100%; }
+ /* Keep a 96px location/contact gutter, a 64px contact/social gutter and an 80px right margin. */
+ .design-desktop .page-footer[data-design-name="Footer"] > [data-design-name="Localização"] { left: calc(100% - 1062px); }
+ .design-desktop .page-footer[data-design-name="Footer"] > [data-design-name="Contatos"] { left: calc(100% - 705px); }
+ .design-desktop .page-footer[data-design-name="Footer"] > [data-design-name="Redes"] { left: auto; right: 80px; }
+ .design-desktop .page-footer[data-design-name="Footer"] > [data-design-name="Contatos"] > [data-design-name="Contatos"] { text-align: left; }
+.design-flow { position: relative; width: 100%; height: auto; min-width: 0; overflow: visible; }
+.static-canvas { min-height: 1024px; }
+.login-screen { min-height: 1024px; }
+.design-mobile .login-screen { min-height: 596px; }
+.design-button { min-height: 44px; border-style: solid; text-decoration: none; }
+.design-button:hover:not(:disabled) { filter: brightness(.96); }
+.design-input { min-height: 44px; min-width: 0; font-family: Roboto, sans-serif; font-size: 16px; line-height: 22px; color: var(--text); background: var(--surface); }
+input.design-input, select.design-input, textarea.design-input { display: block; width: 100%; }
+.design-input::placeholder { color: #42544a; opacity: 1; }
+ .design-input:disabled { color: #304e3e; opacity: 1; }
+ .project-arrow { display: block; width: 18px; height: 18px; flex-shrink: 0; }
+ .project-arrow-right { transform: rotate(180deg); }
+ .project-arrow-up { transform: rotate(90deg); }
+ .project-arrow-down { transform: rotate(-90deg); }
+ .arrow-icon-slot { display: inline-flex; align-items: center; justify-content: center; overflow: visible; }
+ .arrow-text-slot { display: inline-block; position: relative; }
+ .arrow-text-footprint { visibility: hidden; }
+ .arrow-text-slot > .project-arrow { position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
+ .select-arrow-slot { display: block; position: relative; width: 100%; min-width: 0; }
+ .select-arrow-slot > select { appearance: none; padding-right: 36px; }
+ .select-arrow-slot > .project-arrow { position: absolute; right: 12px; top: 50%; translate: 0 -50%; pointer-events: none; }
+ /* Align home carousel indicators and the central image on the same axis. */
+ [data-design-name="carrosel-apresentacao"] [data-design-name="navegacao-carrosel"],
+ [data-design-name="carrosel-servicos"] [data-design-name="navegacao-carrosel"],
+ .design-mobile [data-design-name="Navegação do carrossel"] { position: relative; }
+ [data-design-name="carrosel-apresentacao"] [data-design-name="indicador"],
+ [data-design-name="carrosel-servicos"] [data-design-name="indicador"],
+ .design-mobile [data-design-name="Navegação do carrossel"] [data-design-name="Indicadores"] { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); align-items: center; }
+ [data-design-name="carrosel-apresentacao"] [data-design-name="imagens-carrosel"],
+ [data-design-name="carrosel-servicos"] [data-design-name="imagens-servicos"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.273fr) minmax(0, 1fr); align-items: center; }
+ [data-design-name="carrosel-apresentacao"] [data-design-name="imagens-carrosel"] > *,
+ [data-design-name="carrosel-servicos"] [data-design-name="imagens-servicos"] > * { width: 100%; min-width: 0; }
+ [data-design-name="carrosel-apresentacao"] [data-design-name="imagens-carrosel"] { margin-top: 12px; }
+ [data-design-name="carrosel-apresentacao"] [data-design-name="foto-central"] { height: 440px; }
+ [data-design-name="carrosel-apresentacao"] :is([data-design-name="foto-esq"], [data-design-name="foto-dir"]) { height: 340px; }
+ .design-mobile [data-design-id="y5t2pO"] > [data-design-name="Imagem em destaque"] { height: 472px; }
+ [data-design-name="carrosel-apresentacao"] [class*="bg-[url"],
+ .design-mobile [data-design-id="y5t2pO"] [class*="bg-[url"] { background-position: center bottom; }
+ /* Follow this photograph through every slot without moving the photo containers. */
+ [data-design-name="carrosel-apresentacao"] [class*="image-import-46.jpg"],
+ .design-mobile [data-design-id="y5t2pO"] [class*="image-import-46.jpg"] { background-position: center -10px; }
+ /* Intermediate framing belongs to this photo, not to the carousel slot. */
+ [data-design-name="carrosel-servicos"] [class*="image-import-28.jpg"],
+ .design-mobile [data-design-id="hSvYP"] [class*="image-import-28.jpg"] { background-position: center 75%; }
+ [data-design-name="Home - Institucional"] [data-design-name="foto-equipe-ecodog"] { height: 420px; background-position: center 40%; }
+ .design-mobile [data-design-id="jVHfJ"] > [data-design-name="Equipe EcoDog Park"] { height: 260px; background-position: center 40%; }
+ [data-design-name="Home - Institucional"] [data-design-name="texto-sobre"] { background: var(--surface); border-radius: 24px; box-shadow: 0 5px 14px #17472a14; }
+ /* Fill the borderless viewport; retain the top crop and the photo's original 3:4 ratio. */
+ .design-page [data-design-id="JSJFS"] [data-design-name="painel-imagem"] { height: 560px; overflow: hidden; border: 0; }
+ .design-page [data-design-id="JSJFS"] [data-design-name="painel-imagem"] > div { height: 660px; top: -100px; }
+ .design-page [data-design-id="JSJFS"] [class*="image-import-25.jpg"] { width: 606px; height: 808px; left: -29px; transform: none; background-size: cover; }
+ /* Let the login card follow its content rather than the old 660/1024px canvas heights. */
+ .design-page [data-design-id="JSJFS"] { min-height: 0; }
+ .design-page [data-design-id="JSJFS"] > [data-design-name="conteudo"] { padding: 24px 80px 32px; justify-content: flex-start; }
+ .design-page [data-design-id="JSJFS"] [data-design-name="painel-formulario"] { height: auto; min-height: 560px; padding-bottom: 39px; }
+ /* Registration uses the available window space, not absolute canvas coordinates. */
+ .design-page [data-design-id="wgE1w"] { min-height: 0; display: grid; grid-template-rows: 88px 1fr; }
+ .design-page [data-design-id="wgE1w"] > [data-design-name="header"] { position: relative; left: auto; top: auto; }
+ .design-page [data-design-id="wgE1w"] > [data-design-name="textura-fundo"] { width: 100%; height: 100%; pointer-events: none; }
+ .design-page [data-design-id="wgE1w"] > [data-design-name="Conteúdo"] { position: relative; left: auto; top: auto; justify-self: center; align-self: center; margin-block: 16px; gap: 24px; }
+ .design-page [data-design-id="wgE1w"] [data-design-name="Formulário"] { padding: 20px; gap: 12px; }
+ .design-page [data-design-id="wgE1w"] [data-design-name="Formulário"] > [data-design-name="Título"] { padding: 0; }
+ .design-page [data-design-id="wgE1w"] [data-design-name="Campos"] { gap: 12px; }
+ .design-page [data-design-id="wgE1w"] [data-design-name="Ações"] { gap: 8px; }
+ .design-page [data-design-id="wgE1w"] [data-design-name="foto-aumigo"] { height: auto; align-self: stretch; border: 0; }
+ .design-page [data-design-id="wgE1w"] [data-design-name="foto-aumigo"] > div { height: calc(100% + 20px); top: -20px; }
+ .design-page [data-design-id="wgE1w"] [class*="image-import-26.jpg"] { transform: none; background-size: cover; }
+ .design-page [data-design-id="S6MuSC"] [data-design-id="D87LCS"] { min-height: 490px; gap: 28px; }
+ .design-mobile [data-design-name="Card · Pets"] > [data-design-name$=" · selecionado"] { min-height: 72px; align-items: center; }
+ .scheduling-page .pets-all-checkbox { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; font-size: 28px; line-height: 1; }
+ .booking-dates-frame { width: 100%; max-width: 100%; min-width: 0; }
+ .scheduling-page [data-design-id="ptT8C"] { width: 100%; min-width: 0; }
+ .booking-dates-scroll { display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; height: 44px; overflow-x: auto; overflow-y: hidden; white-space: nowrap; overscroll-behavior: contain; font-size: 18px; line-height: 22px; }
+ .booking-date { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0; }
+ .booking-dates-editable { height: 64px; }
+ .booking-cart-items { display: flex; align-items: stretch; gap: 12px; width: 100%; height: 112px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; font: 16px/1.35 Roboto, sans-serif; }
+ .booking-cart-row { display: flex; flex: 0 0 320px; align-items: center; gap: 8px; min-height: 88px; padding-block: 4px; border-bottom: 1px solid #6b8f7d; }
+ .booking-cart-details { display: flex; flex: 1; min-width: 0; flex-direction: column; }
+ .booking-cart-row:not(:has(.booking-cart-remove)) { flex-basis: max(320px, 100%); }
+ .booking-cart-details span { font-size: 18px; line-height: 24px; }
+ .booking-cart-prices { display: flex; flex-shrink: 0; flex-direction: column; font-size: 14px; }
+ .booking-cart-summary { display: flex; flex-direction: column; gap: 16px; width: 100%; margin: 0; font: 18px/24px Roboto, sans-serif; }
+ .booking-summary-information-scroll { width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior: contain; }
+ .booking-summary-information { display: flex; flex-direction: column; gap: 16px; width: 100%; min-width: 0; margin: 0; }
+ .booking-summary-field { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: center; gap: 12px; width: 100%; min-width: 0; margin: 0; border-bottom: 1px solid #6b8f7d; padding-bottom: 16px; }
+ .booking-summary-field dt { width: 100%; font: normal 16px/22px "Lilita One", sans-serif; color: var(--brand); text-align: left; }
+ .booking-summary-field dd { width: 100%; min-width: 0; margin: 0; text-align: right; }
+ .booking-summary-information .booking-summary-field dt { font-size: 18px; line-height: 24px; overflow-wrap: anywhere; }
+ .booking-summary-information .booking-summary-field dd { font-size: 20px; line-height: 26px; }
+ .booking-summary-information .booking-dates-scroll { font-size: 20px; line-height: 26px; }
+ .booking-summary-information .booking-date:first-of-type { margin-inline-start: auto; }
+ .booking-summary-total dt { font-size: 22px; line-height: 28px; }
+ .booking-summary-total dd { font: normal 28px/34px "Lilita One", sans-serif; color: var(--brand); }
+ .booking-cart-details strong, .booking-cart-price { font-family: "Lilita One", sans-serif; font-weight: normal; }
+ .booking-cart-price { flex-shrink: 0; color: var(--brand); font-size: 18px; line-height: 22px; }
+ .scheduling-page [data-design-id="IjVwX"] [data-design-name="Descrição"] { font-size: 18px; line-height: 26px; }
+ .scheduling-page [data-design-name="Montante"] { font-size: 28px; line-height: 34px; }
+ .scheduling-page .booking-section-title { font-size: 24px; line-height: 28px; font-weight: normal; }
+ .scheduling-page h1, .scheduling-page .booking-section-title { font-family: "Lilita One", sans-serif; font-weight: normal; font-style: normal; letter-spacing: normal; }
+ .scheduling-page [data-design-name="Dia da semana"], .scheduling-page [data-design-name="Dia da semana"] > * { color: var(--surface); }
+ .booking-cart-remove { width: 44px; height: 44px; flex-shrink: 0; color: var(--brand); font-size: 24px; border: 1px solid var(--brand); border-radius: 10px; }
+ .calendar-weekday { font: 14px Roboto, sans-serif; }
+ .calendar-weekday:disabled { cursor: not-allowed; text-decoration: line-through; }
+ .creche-weekday-selected { outline: 2px solid var(--attention); outline-offset: -2px; }
+ .booking-calendar { gap: 16px; }
+ .booking-calendar :is([data-design-name="Dias da semana"], [data-design-name="Semana"]) { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; align-items: center; }
+ .booking-calendar :is([data-design-name="Dias da semana"], [data-design-name="Semana"]) > * { min-width: 0; width: 100%; }
+ .booking-calendar .calendar-day { padding: 0; font-size: 16px; line-height: 1.25; }
+ .booking-calendar .calendar-day:disabled { background: #ffe8e0; color: #8a321e; border-color: var(--accent); cursor: not-allowed; }
+ .design-mobile .booking-calendar { padding: 16px; gap: 12px; }
+ .design-mobile .booking-calendar :is([data-design-name="Dias da semana"], [data-design-name="Semana"]) { gap: 4px; }
+ .booking-calendar .booking-section-title, .booking-controls .booking-section-title { font: normal 24px/28px "Lilita One", sans-serif; }
+ .booking-calendar [data-design-name="Dia da semana"], .booking-calendar [data-design-name="Dia da semana"] > * { color: var(--surface); }
+ .structure-booking-calendar > :is(.booking-calendar, .booking-controls) { width: 100%; max-width: 100%; align-self: stretch; }
+  .structure-booking-calendar .booking-calendar > [data-design-name="botao-quero-agendar"] { align-self: flex-end; }
+  .structure-booking-calendar .calendar-weekday { font-weight: 700; }
+ .scheduling-page > [data-design-name="Respiro"] { flex: 1; height: auto; min-height: 216px; }
+ .paw-background { width: 100%; height: 100%; pointer-events: none; background-image: url('/design-assets/scheduling-paws-spaced.svg'); background-repeat: repeat; background-size: 1440px 216px; background-position: center; }
+ .paw-background-mobile { background-size: 410px 61.5px; }
+  .design-page [data-design-name="Meus Planos • Card"] { min-height: 240px; gap: 20px; }
+  .design-desktop [data-design-name="Meus Planos • Card"] [data-design-name="Plano contratado"] > :is([data-design-name="Cabeçalho da tabela"], [data-design-name="Plano"]) { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+   .design-desktop [data-design-name="Meus Planos • Card"] :is([data-design-name="Cabeçalho da tabela"], [data-design-name="Plano"]) > * { width: 100%; min-width: 0; text-align: center; overflow-wrap: anywhere; }
+   .design-mobile [data-design-name="Meus Planos • Card"] [data-design-name="Plano contratado"] { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+   .design-mobile [data-design-name="Meus Planos • Card"] [data-design-name="Informação do plano"] { width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+   .design-mobile [data-design-name="Meus Planos • Card"] [data-design-name="Informação do plano"] > * { width: 100%; min-width: 0; text-align: center; white-space: normal; overflow-wrap: anywhere; }
+   @media (min-width: 480px) {
+     .design-mobile [data-design-name="Meus Planos • Card"] [data-design-name="Plano contratado"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+   }
+ .design-desktop .scheduling-page [data-design-id="IjVwX"] { width: 100%; max-width: 100%; align-self: center; margin-inline: auto; }
+ .design-desktop .scheduling-page [data-design-id="PyCgJ"] { display: flex; flex-direction: column; gap: 24px; align-items: stretch; }
+ .design-desktop .scheduling-page [data-design-id="PyCgJ"] > * { min-width: 0; }
+  .design-desktop .scheduling-page [data-design-id="PyCgJ"] > [data-design-id="CKErY"] { flex-direction: row; align-items: stretch; gap: 24px; }
+ .design-desktop .scheduling-page [data-design-id="pR7Qr"] { width: 736px; min-width: 0; }
+ .design-desktop .scheduling-page [data-design-id="UO9qg"] { min-width: 0; }
+ .design-mobile .scheduling-page > [data-design-name="Respiro"] { min-height: 61.5px; }
+ @media (max-height: 800px) {
+   .design-page [data-design-id="wgE1w"] [data-design-name="Formulário"] { padding: 16px; }
+   .design-page [data-design-id="wgE1w"] [data-design-name="Campos"] { gap: 8px; }
+ }
+ @media (max-height: 740px) {
+   .design-page [data-design-id="wgE1w"] [data-design-name="Formulário"] { padding: 12px; gap: 8px; }
+   .design-page [data-design-id="wgE1w"] [data-design-name="Campos"] { gap: 4px; }
+   .design-page [data-design-id="wgE1w"] [data-design-name="Ações"] { gap: 4px; }
+ }
+.radio-option { min-height: 44px; align-items: center; cursor: pointer; }
+.radio-option input { width: 20px; height: 20px; accent-color: var(--brand); }
+  .scheduled-pet-days { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; font: 14px/1.4 Roboto, sans-serif; }
+  .scheduled-days-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; }
+  .scheduled-day-card { flex: 0 0 auto; max-width: 100%; padding: 8px 12px; border: 1px solid var(--brand); border-radius: 10px; background: var(--background); color: var(--primary-accessible); box-shadow: 0 5px 14px #17472a14; }
+  .scheduled-day-card time { white-space: nowrap; font: 16px/1.2 "Lilita One", sans-serif; }
+ .pet-allergies select, .pet-catalog-dialog .design-input { width: 100%; min-height: 44px; border: 1px solid #6b8f7d; border-radius: 10px; padding: 12px; background: var(--surface); color: #182d21; font: 16px Roboto, sans-serif; }
+ .pet-catalog-dialog h2 { color: var(--brand); font-family: "Lilita One", sans-serif; }
+ .pet-catalog-dialog label { display: flex; flex-direction: column; gap: 8px; }
+ .management-month-navigation, .management-actions, .management-record-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; }
+ .management-month-navigation h2 { font: 24px/1.2 "Lilita One", sans-serif; color: var(--brand); text-align: center; }
+ .management-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--brand); border-radius: 10px; background: var(--surface); color: var(--brand); font: 16px/1.2 "Lilita One", sans-serif; }
+ .management-button:disabled { opacity: .6; cursor: not-allowed; }
+ .management-primary { background: var(--brand); color: var(--surface); }
+ .management-danger { border-color: #a73320; color: #a73320; }
+ .management-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; width: 100%; }
+ .management-weekday { padding: 10px 0; border-radius: 8px; background: var(--brand); color: var(--surface); text-align: center; font: 14px "Lilita One", sans-serif; }
+ .management-day { min-height: 44px; border: 1px solid #6b8f7d; border-radius: 8px; background: #eef7f2; color: #182d21; font: 16px Roboto, sans-serif; }
+ .management-day-unavailable { background: #ffe8e0; border-color: var(--accent); }
+ .management-day-unknown { background: var(--surface); border-style: dashed; }
+ .management-day-selected { background: #67b344; border: 2px solid #182d21; font-weight: bold; }
+ .management-calendar-legend { font: 14px/1.5 Roboto, sans-serif; }
+ .management-capacity, .management-field { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; }
+ .management-capacity > label, .management-field { color: var(--brand); font: 14px/1.4 "Lilita One", sans-serif; }
+ .management-capacity p { font: 14px/1.5 Roboto, sans-serif; }
+ .management-capacity .design-input, .management-field .design-input { width: 100%; min-height: 44px; padding: 12px; border: 1px solid #6b8f7d; border-radius: 10px; background: var(--surface); color: #182d21; font: 16px Roboto, sans-serif; }
+ .management-list { display: flex; flex-direction: column; gap: 16px; width: 100%; max-height: 640px; overflow: auto; }
+ .management-record h3 { color: var(--brand); font: 20px/1.2 "Lilita One", sans-serif; }
+ .management-record p { font: 16px/1.5 Roboto, sans-serif; }
+ .management-booking-identification { display: flex; align-items: center; gap: 12px; width: 100%; }
+ .management-booking-text { flex: 1; min-width: 0; }
+ .management-error { color: #a73320; white-space: pre-line; font: 14px/1.5 Roboto, sans-serif; }
+ .management-dialog h2 { color: var(--brand); font-family: "Lilita One", sans-serif; }
+ .management-message { padding: 12px 20px; white-space: pre-line; color: #182d21; font: 14px/1.5 Roboto, sans-serif; }
+ .management-calendar-page .management-month-navigation .management-button { flex-shrink: 0; }
+ .dashboard-page [data-design-name="Painel"], .dashboard-page [data-design-name="Indicador"] { min-width: 0; }
+ .dashboard-chart { display: grid; grid-template-rows: 244px minmax(96px, auto); height: auto; min-height: 340px; width: 100%; min-width: 0; }
+ .dashboard-chart-scroll { width: 100%; min-width: 0; overflow: auto; }
+ .dashboard-chart-scroll svg { display: block; width: 100%; height: 220px; }
+ .dashboard-page [data-design-name="Dashboard contracts chart"] { height: auto; min-height: 340px; }
+ .dashboard-page .dashboard-revenue-panel { width: 100%; flex: none; }
+ .dashboard-page [data-design-name="Dashboard revenue chart"] { height: auto; min-height: 420px; }
+ .dashboard-chart-revenue { grid-template-rows: 324px minmax(96px, auto); height: auto; min-height: 420px; }
+ .dashboard-chart-revenue .dashboard-chart-scroll svg { height: 300px; }
+ .dashboard-secondary-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+ .dashboard-secondary-charts > [data-design-name="Painel"] { width: 100%; height: 100%; }
+ .dashboard-page.design-mobile .dashboard-secondary-charts { grid-template-columns: minmax(0, 1fr); }
+ .dashboard-page.design-mobile [data-design-name="Dashboard revenue chart"] { height: auto; min-height: 452px; }
+ .dashboard-page.design-mobile .dashboard-chart-revenue { grid-template-rows: 324px minmax(128px, auto); height: auto; min-height: 452px; }
+ .dashboard-page.design-mobile [data-design-name="Dashboard contracts chart"] { height: auto; min-height: 372px; }
+ .dashboard-page.design-mobile .dashboard-chart:not(.dashboard-chart-revenue) { grid-template-rows: 244px minmax(128px, auto); height: auto; min-height: 372px; }
+ .dashboard-movements-scroll { max-height: 480px; overflow: auto; min-width: 0; }
+ .dashboard-movements-scroll [data-design-name="Cabeçalho da tabela"] { position: sticky; top: 0; z-index: 1; }
+ .dashboard-axis { font: 20px Roboto, sans-serif; fill: #000; }
+ .dashboard-page { --dashboard-forecast: #de8f3b; }
+ .dashboard-page :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) [data-design-name="Símbolo"] { border-radius: 50%; }
+ .dashboard-revenue-panel [data-design-name="Legenda"] [data-design-name="Série"]:first-child [data-design-name="Símbolo"] { background: var(--dashboard-forecast); }
+ .dashboard-chart-tooltip { margin: 0; overflow-wrap: anywhere; font: 20px/28px Roboto, sans-serif; color: #000; }
+ .dashboard-chart-empty { display: grid; place-items: center; width: 100%; height: 100%; font: 20px Roboto, sans-serif; color: #000; }
+ .dashboard-page [data-design-name="Dashboard distribution chart"] { height: 224px; }
+ .dashboard-donut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 224px; }
+ .dashboard-donut svg { flex-shrink: 0; }
+ .dashboard-donut-total { font: 36px "Lilita One", sans-serif; fill: #000; }
+ .dashboard-donut-tooltip { min-height: 28px; font: 20px/28px Roboto, sans-serif; color: #000; }
+ .dashboard-page :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) > [data-design-name="Título"] { font-size: 30px; line-height: 1.25; color: #000; }
+ .dashboard-page.design-mobile :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) > [data-design-name="Título"] { font-size: 28px; }
+ .dashboard-page :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) > [data-design-name="Legenda"] { flex-wrap: wrap; overflow: visible; }
+ .dashboard-page :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) :is([data-design-name="Nome"], .dashboard-distribution-legend) { font-size: 20px; line-height: 1.4; color: #000; }
+ .dashboard-page :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) > :is([data-design-name="Descrição"], [data-design-name="Pendência de classificação"]) { font-size: 20px; line-height: 1.4; color: #000; }
+ .dashboard-page .kpi-meta-label, .dashboard-page .kpi-service-label { font-size: 18px; line-height: 1; }
+ .dashboard-page .kpi-meta-line { font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+ .dashboard-page .kpi-meta-line .kpi-meta-label { font-size: inherit; line-height: inherit; }
+ .dashboard-page [data-design-name="Indicador"]:has(.kpi-meta-line) { gap: 14px; }
+ .dashboard-page .dashboard-distribution-legend.dashboard-category-0 { color: #000; }
+ .dashboard-page .dashboard-distribution-legend.dashboard-category-1 { color: #000; }
+ .dashboard-page .dashboard-distribution-legend.dashboard-category-2 { color: #000; }
+ .dashboard-page .dashboard-distribution-legend.dashboard-category-3 { color: #000; }
+ .dashboard-distribution-legend::before { content: ''; display: inline-block; width: 10px; height: 10px; border: 1px solid #364d40; margin-right: 6px; border-radius: 50%; }
+ .dashboard-category-0::before { background: #67b344; }
+ .dashboard-category-1::before { background: #247346; }
+ .dashboard-category-2::before { background: #45937f; }
+ .dashboard-category-3::before { background: #add9cc; }
+ .dashboard-finance-field { width: 100%; min-width: 0; }
+ .dashboard-finance-field .design-input, .dashboard-finance-field .select-arrow-slot { width: 100%; min-height: 44px; }
+ .dashboard-finance-field .design-input { padding: 12px 14px; font: 16px/23px Roboto, sans-serif; }
+ .dashboard-finance-field .design-input:disabled { cursor: not-allowed; background-color: #eef7f2; color: #364d40; }
+ .dashboard-form .design-input:focus { outline: none; box-shadow: none; }
+ .dashboard-form [data-design-name="Dashboard geral"] { background: transparent; border: 0; border-radius: 0; }
+ .dashboard-finance-field:has(.design-input:focus-visible) > label { text-decoration: underline; text-underline-offset: 4px; }
+ .dashboard-field-error { color: #a73320; font: 14px/20px Roboto, sans-serif; margin: 4px 0 0; }
+ .monitor-feed-page [data-design-name="Registro e ações"] { display: grid; grid-template-columns: minmax(0, 1fr) 240px auto; align-items: end; gap: 20px; }
+ .monitor-feed-page [data-design-name="Registro e ações"] > * { min-width: 0; }
+ .monitor-feed-page [data-design-name="Registro e ações"] > [data-design-name="Botão"] { align-self: end; }
+ .monitor-feed-page [data-design-name="Seleção atual"] { width: 100%; min-width: 0; }
+ .monitor-feed-page :is(textarea.design-input, input.design-input):focus { outline: none; box-shadow: none; }
+ .monitor-feed-page .field-container:has(:is(textarea, input):focus-visible) > label { text-decoration: underline; text-underline-offset: 4px; }
+ .monitor-feed-page.design-mobile [data-design-name="Registro e ações"] { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+ .monitor-feed-page.design-mobile [data-design-name="Identificação do registro"] { grid-column: 1 / -1; }
+ .pet-registration-page .pet-choice { cursor: pointer; min-height: 44px; align-items: center; gap: 8px; }
+ .pet-registration-page .pet-choice input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--brand); }
+ .pet-registration-page .pet-choice-selected { background-color: #eef7f2; }
+ .pet-field-control { width: 100%; min-width: 0; }
+ .pet-field-control .design-input { width: 100%; }
+ .pet-field-error { color: #a73320; font: 14px/1.4 Roboto, sans-serif; margin-top: 6px; }
+ .pet-records { display: flex; flex-direction: column; width: 100%; gap: 20px; }
+ .pet-record { display: flex; flex-direction: column; width: 100%; gap: 12px; }
+ .pet-record-remove { align-self: flex-start; min-height: 44px; padding: 8px 12px; color: var(--brand); font-family: "Lilita One", sans-serif; }
+ .pet-allergies { display: flex; flex-direction: column; width: 100%; gap: 12px; }
+ .pet-allergy-list { display: flex; flex-wrap: wrap; gap: 12px; }
+ .pet-allergy-list li { display: flex; align-items: center; gap: 8px; padding-left: 12px; border-radius: 10px; background: #eef7f2; }
+ .pet-allergy-list button { width: 44px; height: 44px; color: var(--brand); }
+ .pet-registration-page :is(.design-input, .pet-choice input):focus { outline: none; box-shadow: none; }
+ .pet-registration-page .design-input:focus-visible,
+ .pet-registration-page .pet-choice:has(input:focus-visible) { background-color: #eef7f2; }
+.service-option { min-height: 44px; border: 2px solid var(--brand); border-radius: 10px; color: var(--primary-accessible); background: var(--surface); font-family: "Lilita One", sans-serif; }
+.service-selected { background: var(--brand); color: var(--surface); }
+.calendar-day { min-height: 44px; background: var(--surface); color: var(--text); font-family: Roboto, sans-serif; }
+.calendar-day:disabled { background: #ddd; color: #555; text-decoration: line-through; }
+.calendar-selected { background: var(--brand); color: var(--surface); }
+.assistant-trigger { position: fixed !important; left: auto !important; top: auto !important; right: 24px; bottom: 24px; z-index: 20; border: 0; padding: 0; }
+/* Enlarge only EcoMigo's vector artwork inside its existing circular frame.
+   Keep button hit areas, fixed offsets, avatar spacing and other icons intact. */
+.assistant-trigger [data-design-name="Cachorro e balão • vetores originais"],
+[data-design-name="Avatar do assistente"] > [data-design-name="Cachorro e balão • vetores originais"] { transform: scale(1.22); transform-origin: center; }
+.navigation-menu { position: absolute; z-index: 50; left: 64px; top: 100px; width: 248px; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--surface); border-radius: 16px; box-shadow: 0 5px 14px #17472a26; }
+.navigation-menu button { display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; color: var(--primary-accessible); font-family: "Lilita One", sans-serif; }
+.navigation-menu button[aria-current] { background: var(--brand); color: var(--surface); }
+.modal { position: fixed; inset: 0; margin: auto; padding: 0; width: min(800px, calc(100% - 40px)); max-width: calc(100% - 40px); max-height: calc(100svh - 40px); border: 0; border-radius: 24px; background: var(--surface); overflow: auto; box-shadow: 0 5px 14px #17472a26; }
+.modal::backdrop { background: #0008; }
+.modal-wide { width: min(1280px, calc(100% - 40px)); }
+.modal-close { position: absolute; z-index: 100; right: 8px; top: 8px; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface); color: var(--primary-accessible); font-size: 28px; }
+.modal .design-flow { min-height: 0; }
+.modal .static-canvas { min-height: 0; }
+.modal [data-design-name="Cabeçalho"], .modal [data-design-name="Rodapé"], .modal [data-design-name="Cabeçalho e navegação"], .modal [data-design-name="Assinatura e rodapé"], .modal .assistant-trigger { display: none; }
+.modal [data-design-name="Janela de formulário"], .modal [data-design-name="Janela de edição de meta"] { width: 100%; }
+.dialog-content { padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+.dialog-content h2 { font: 32px "Luckiest Guy", sans-serif; color: var(--primary-accessible); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
+.dialog-content button { min-height: 44px; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 24px; font-family: "Lilita One", sans-serif; color: var(--primary-accessible); }
+.dialog-actions button:last-child { background: var(--brand); color: var(--surface); }
+.allergy-option { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.allergy-option input { width: 20px; height: 20px; accent-color: var(--brand); }
+.allergy-description { display: grid; gap: 8px; font-family: "Lilita One", sans-serif; }
+.allergy-description input { min-height: 44px; border: 1px solid #6b8f7d; border-radius: 10px; padding: 12px; font-family: Roboto, sans-serif; }
+.status-message { position: fixed; bottom: 24px; left: 24px; max-width: calc(100% - 110px); z-index: 200; display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--surface); border: 2px solid var(--primary-accessible); border-radius: 12px; box-shadow: 0 5px 14px #17472a26; }
+.status-message button { width: 44px; height: 44px; border: 0; font-size: 24px; }
+.preview-bar { display: flex; justify-content: center; align-items: center; gap: 16px; min-height: 44px; padding: 6px 16px; background: #fefefe; color: #1f653d; font-size: 13px; }
+.preview-bar select { max-width: 260px; border: 1px solid #6b8f7d; border-radius: 6px; padding: 6px; }
+.preview-bar button { text-decoration: underline; }
+.loading-message { padding: 40px; text-align: center; }
+.skip-link { position: fixed; z-index: 300; top: -100px; left: 12px; padding: 12px; background: white; color: #1f653d; }
+.skip-link:focus { top: 12px; }
+/* Absolute brand positioning comes from the desktop prototype's centered logo. */
+[data-design-name="EcoDog Park"][class*="absolute"] { left: 50%; transform: translateX(-50%); }
+ .design-header { width: 100%; }
+ .design-header > .header-brand { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+ .design-header > .header-actions { position: absolute; left: auto; right: 80px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 16px; width: auto; height: 44px; }
+ .header-actions > :is([data-design-name="Botão Entrar"], [data-design-name="Botão Cadastrar"]) { position: relative; left: auto; top: auto; display: flex; align-items: center; justify-content: center; height: 44px; padding: 0 16px; flex-shrink: 0; }
+ .header-actions > [data-design-name="Botão Entrar"] { width: 104px; order: 0; }
+ .header-actions > [data-design-name="Botão Cadastrar"] { width: 120px; order: 1; }
+ .header-actions > [data-design-name="Botão Cadastrar"] > * { position: static; }
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .design-desktop [data-design-name="conteudo"], .design-desktop [data-design-name="Conteúdo"] { padding-left: 40px; padding-right: 40px; }
+  .design-desktop [data-design-name="painel-formulario"] { width: 58%; }
+  .design-desktop [data-design-name="card"] { max-width: 100%; }
+  .design-desktop [data-design-name="texto-sobre"], .design-desktop [data-design-name="card-estrutura"] { width: 45%; }
+}
+@media (max-width: 1439px) {
+   .design-mobile .page-layout > :is([data-design-name="Conteúdo"], [data-design-name="Conteúdo da etapa"], [data-design-name="Conteúdo institucional"], [data-design-name="Área administrativa"], [data-design-name="Acesso"]) { width: 100%; max-width: 600px; margin-inline: auto; }
+  .design-mobile [class*="w-[410px]"] { width: 100%; }
+  .design-mobile [class*="w-[370px]"], .design-mobile [class*="w-[366px]"] { width: 100%; max-width: 100%; }
+  .design-mobile [data-design-name="Conteúdo"], .design-mobile [data-design-name="Conteúdo da etapa"], .design-mobile [data-design-name="Conteúdo institucional"] { max-width: 100%; }
+  .design-mobile [data-design-name="Área administrativa"] { max-width: 100%; }
+  .design-mobile [data-design-name="Área administrativa"] > * { min-width: 0; }
+  .navigation-menu { left: 20px; top: 92px; }
+  .modal { width: calc(100% - 24px); max-width: calc(100% - 24px); max-height: calc(100svh - 24px); }
+  .modal .design-mobile { width: 100%; }
+  .assistant-trigger { right: 16px; bottom: 16px; }
+  .preview-bar { flex-wrap: wrap; gap: 6px 12px; }
+  .preview-bar span { font-size: 11px; }
+}
+@media (max-width: 600px) { .design-mobile { max-width: 100%; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }

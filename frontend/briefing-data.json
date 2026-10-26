@@ -1,0 +1,2056 @@
+{
+  "Instruções": [
+    [
+      "BRIEFING DE FRONT-END — BASE PARA GERAÇÃO DE UI COM IA GENERATIVA"
+    ],
+    [
+      "Objetivo",
+      "Reunir, de forma estruturada, todas as informações do projeto de software. A planilha preenchida será enviada a uma IA Generativa junto com as imagens do wireframe, para que ela produza um arquivo .md (design brief) a ser importado no Figma ou no Google Stitch e gerar o front-end do projeto."
+    ],
+    [
+      "Como preencher",
+      "Preencha uma aba por vez, sempre a partir da linha 4. As células amarelas são os campos editáveis. A linha 3 (cinza, em itálico) é um EXEMPLO: apague-a ou sobrescreva-a antes da entrega."
+    ],
+    [
+      "Regra de ouro",
+      "A IA só entrega o que você descreveu. Evite termos vagos como 'moderno', 'bonito' ou 'intuitivo'; prefira descrições concretas, mensuráveis e verificáveis."
+    ],
+    [
+      "Colunas com seta",
+      "Algumas colunas têm lista suspensa (prioridade, tipo, status). Clique na célula e escolha um valor."
+    ],
+    [
+      "Não apague",
+      "Não renomeie as abas nem altere os cabeçalhos: o prompt de geração do .md espera exatamente esta estrutura."
+    ],
+    [
+      "Entrega",
+      "1) Esta planilha preenchida (.xlsx)  |  2) As imagens do wireframe (PNG/JPG, uma por tela)  |  3) O prompt da aba 'Prompt p IA' colado no chat da IA Generativa."
+    ],
+    [
+      "LEGENDA DE CORES"
+    ],
+    [
+      "Célula editável — é aqui que você escreve."
+    ],
+    [
+      "Linha de exemplo — apague antes de entregar."
+    ],
+    [
+      "Cabeçalho fixo — não altere."
+    ],
+    [
+      "CHECKLIST DE ENTREGA"
+    ],
+    [
+      "[  ]",
+      "Aba Identificação do Projeto preenchida"
+    ],
+    [
+      "[  ]",
+      "Mínimo de 8 requisitos funcionais"
+    ],
+    [
+      "[  ]",
+      "Mínimo de 5 requisitos não funcionais"
+    ],
+    [
+      "[  ]",
+      "Uma user story para cada requisito funcional principal"
+    ],
+    [
+      "[  ]",
+      "Ao menos 1 persona completa"
+    ],
+    [
+      "[  ]",
+      "Paleta com contraste verificado (WCAG AA — mínimo 4.5:1 em texto)"
+    ],
+    [
+      "[  ]",
+      "Tom de voz com exemplos de 'faça' e 'não faça'"
+    ],
+    [
+      "[  ]",
+      "Conteúdo textual de todas as páginas"
+    ],
+    [
+      "[  ]",
+      "Todas as telas listadas e com wireframe correspondente"
+    ],
+    [
+      "[  ]",
+      "Linhas de exemplo (cinza) removidas"
+    ]
+  ],
+  "Identificação do Projeto": [
+    [
+      "IDENTIFICAÇÃO DO PROJETO"
+    ],
+    [
+      "Nome do projeto / produto",
+      "Agenda de aula de pets"
+    ],
+    [
+      "Grupo / integrantes",
+      "Ana Jardim, Daner Gary, Igor Dias, Murilo Marinho, Larissa Rocha, Victor Silva"
+    ],
+    [
+      "Turma / semestre",
+      "3ADSB"
+    ],
+    [
+      "Cliente ou contexto de negócio",
+      "EcoDog Park"
+    ],
+    [
+      "Problema que o software resolve",
+      "Agendamento das aulas de pets em ficha de cartão desacelerando produtividade e causando erros manuais"
+    ],
+    [
+      "Proposta de valor (1 frase)",
+      "Gerir agendamento mais facil e agil"
+    ],
+    [
+      "Público-alvo",
+      "Donos de pet e os funcionarios que zelam pelos pets"
+    ],
+    [
+      "Plataforma principal",
+      "Web Responsivo / Mobilo (Android) / Desktop"
+    ],
+    [
+      "Dispositivo de referência do layout",
+      "Mobile-First"
+    ],
+    [
+      "Tecnologias previstas no front-end",
+      "React, javascript, html e css"
+    ],
+    [
+      "Referências visuais (benchmark)",
+      "Ative Dog, Petz"
+    ],
+    [
+      "Ferramenta de destino do .md",
+      "Figma Make"
+    ],
+    [
+      "Passe o mouse sobre as células amarelas para ver um exemplo de preenchimento."
+    ]
+  ],
+  "Requisitos Funcionais": [
+    [
+      "REQUISITOS FUNCIONAIS"
+    ],
+    [
+      "ID",
+      "Nome do requisito",
+      "Descrição (o que o sistema deve fazer)",
+      "Ator / usuário",
+      "Prioridade",
+      "Regra de negócio associada",
+      "Critério de aceitação",
+      "Tela(s) relacionada(s)"
+    ],
+    [
+      "RF-001",
+      "Apresentar proposta institucional",
+      "O site deverá apresentar a EcoDog Park, sua proposta e os serviços de creche e hotel.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O conteúdo deverá corresponder aos serviços realmente oferecidos pela EcoDog.",
+      "Dado que o visitante acesse a página inicial, quando visualizar a seção de apresentação, então deverá encontrar uma explicação clara sobre a proposta da EcoDog Park.",
+      "TL01 - Início"
+    ],
+    [
+      "RF-002",
+      "Navegar entre páginas institucionais",
+      "O site deverá permitir que o visitante navegue entre as páginas Início, Sobre e Estrutura por meio do menu ou dos links disponibilizados.",
+      "Responsável pelo animal",
+      "Não definida",
+      "Os links institucionais deverão direcionar às páginas correspondentes e permanecer disponíveis nas páginas públicas.",
+      "Dado que o visitante esteja em uma página institucional, quando selecionar um item do menu, então deverá ser direcionado à página correspondente.",
+      "TL01 - Início"
+    ],
+    [
+      "RF-003",
+      "Direcionar para cadastro ou acesso",
+      "O site deverá disponibilizar links ou botões que direcionem o visitante aos fluxos de cadastro e entrada no sistema.",
+      "Responsável pelo animal",
+      "Não definida",
+      "Os botões deverão levar às telas TL04 - Cadastro e TL02 - Entrar, conforme a ação escolhida.",
+      "Dado que o visitante queira utilizar o sistema, quando selecionar Cadastrar ou Entrar, então deverá ser direcionado à tela correspondente.",
+      "TL01 - Início; TL02 - Entrar; TL04 - Cadastro"
+    ],
+    [
+      "RF-004",
+      "Autenticação de usuários",
+      "O sistema deverá permitir que os usuários acessem a aplicação por meio de credenciais válidas.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "Cada colaborador deverá utilizar sua própria conta; o acesso dependerá de credenciais válidas; cada operação deverá ficar associada ao usuário responsável.",
+      "Dado que o usuário possui credenciais válidas, quando realizar o acesso, então conseguirá acessar as funcionalidades permitidas. Caso as credenciais sejam inválidas, o acesso à área restrita será impedido.",
+      "TL02 - Entrar"
+    ],
+    [
+      "RF-005",
+      "Controle de permissões",
+      "O sistema deverá controlar o acesso às funcionalidades e informações conforme o perfil do usuário.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "O responsável acessa somente os próprios animais; a monitora acessa as informações necessárias às suas atividades; funcionalidades administrativas dependem de permissão.",
+      "Dado um usuário sem permissão, quando tentar acessar uma funcionalidade restrita, então o sistema deverá impedir o acesso.",
+      "TL02 - Entrar; TL05 - Meus Pets; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-006",
+      "Cadastro do responsável pelo animal",
+      "O sistema deverá permitir o cadastro das informações necessárias do responsável pelo animal.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O cadastro deverá possuir os campos obrigatórios definidos pela EcoDog; o responsável deverá possuir uma conta; os dados deverão permitir vincular os cães ao responsável.",
+      "Dado um novo responsável, quando preencher os campos obrigatórios e concluir o cadastro, então sua conta deverá ser criada para utilização das funcionalidades destinadas a ele.",
+      "TL04 - Cadastro"
+    ],
+    [
+      "RF-007",
+      "Cadastro do cão",
+      "O sistema deverá permitir que o responsável cadastre seus cães.",
+      "Responsável pelo animal",
+      "Não definida",
+      "Cada cão deverá possuir cadastro próprio e estar vinculado a um responsável; o sistema deverá exigir as informações obrigatórias; cada reserva estará associada a um único cão.",
+      "Dado um responsável autenticado, quando cadastrar um cão com as informações obrigatórias, então o cão deverá ser criado e vinculado ao responsável.",
+      "TL06 - Cadastro e edição de pet; TL05 - Meus Pets"
+    ],
+    [
+      "RF-008",
+      "Perfil do cão",
+      "O sistema deverá disponibilizar um perfil centralizado do cão.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "O perfil deverá armazenar identificação, saúde fornecida, vacinação, necessidades específicas, medicamentos, características comportamentais e relacionamento com outros cães.",
+      "Dado um cão cadastrado, quando seu perfil for consultado por usuário autorizado, então as informações registradas deverão ser apresentadas.",
+      "TL06 - Cadastro e edição de pet; TL05 - Meus Pets"
+    ],
+    [
+      "RF-009",
+      "Cadastro de necessidades específicas",
+      "O sistema deverá permitir o registro de necessidades específicas do cão.",
+      "Responsável pelo animal; Monitora recreativa",
+      "Não definida",
+      "As informações são fornecidas pelo responsável; a monitora visualiza o necessário; o sistema não transforma a informação em diagnóstico nem gera decisão veterinária.",
+      "Dado um cão, quando uma necessidade específica for registrada, então ela deverá ficar disponível no perfil para consulta da monitora autorizada.",
+      "TL06 - Cadastro e edição de pet; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-010",
+      "Cadastro de medicamentos e orientações",
+      "O sistema deverá permitir o registro de medicamentos e orientações previamente fornecidos pelo responsável e aceitos pela equipe da EcoDog.",
+      "Responsável pelo animal; Monitora recreativa",
+      "Não definida",
+      "O sistema apenas registra a informação; não decide medicamento nem realiza administração automática; o registro da monitora compõe o histórico.",
+      "Dado um medicamento e orientação previamente fornecidos e aceitos, quando forem registrados, então deverão permanecer disponíveis para consulta e histórico.",
+      "TL06 - Cadastro e edição de pet; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-011",
+      "Editar dados do pet",
+      "O sistema deverá permitir que  o responsável  altere os dados cadastrais e de cuidado de um pet que esteja vinculado à sua conta.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O responsável não poderá editar dados de pets pertencentes a outras contas; os campos obrigatórios deverão ser validados antes de salvar.",
+      "Dado que o responsável selecione um de seus pets para edição, quando alterar os dados obrigatórios e salvar, então o sistema deverá registrar as alterações e apresentar uma confirmação.",
+      "TL05 - Meus Pets; TL06 - Cadastro e edição de pet"
+    ],
+    [
+      "RF-012",
+      "Validar formulário de pet",
+      "O sistema deverá validar os campos obrigatórios e os formatos dos dados informados durante o cadastro ou a edição de um pet.",
+      "Responsável pelo animal",
+      "Não definida",
+      "Campos obrigatórios e formatos aceitos deverão seguir as definições do formulário; dados inválidos não deverão ser salvos.",
+      "Dado que  o responsável  preencha o formulário, quando houver campo obrigatório vazio ou dado inválido, então o sistema deverá indicar o campo que precisa ser corrigido e não concluir o salvamento.",
+      "TL06 - Cadastro e edição de pet"
+    ],
+    [
+      "RF-013",
+      "Consulta de informações pela monitora",
+      "A monitora deverá conseguir consultar rapidamente as informações dos cães necessárias para sua atividade.",
+      "Monitora recreativa",
+      "Não definida",
+      "A consulta deverá permitir identificar necessidades específicas, medicamentos/orientações, saúde fornecida, comportamento, convivência, reservas/presença e tarefas/cuidados previstos.",
+      "Dado um cão sob atendimento, quando a monitora consultar seu perfil, então deverá conseguir localizar rapidamente as informações necessárias à atividade.",
+      "TL10 - Feed do Monitor; TL05 - Meus Pets"
+    ],
+    [
+      "RF-014",
+      "Agenda de reservas",
+      "O sistema deverá disponibilizar uma agenda com as datas e horários disponíveis para os serviços contemplados.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "A disponibilidade será configurada pela equipe; a agenda deverá considerar a capacidade; datas/horários indisponíveis não poderão ser reservados.",
+      "Dado um período configurado, quando o usuário consultar a agenda, então somente datas/horários disponíveis deverão permitir reserva.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-015",
+      "Selecionar pets para agendamento",
+      "O sistema deverá permitir que  o responsável  selecione um ou mais pets de sua conta para incluir no agendamento, conforme as opções do wireframe.",
+      "Responsável pelo animal",
+      "Não definida",
+      "Somente pets vinculados  ao responsável  poderão ser selecionados.",
+      "Dado que  o responsável  esteja montando um agendamento, quando selecionar os pets participantes, então o resumo deverá refletir a seleção realizada e não deverá permitir confirmação sem pet selecionado.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-016",
+      "Criar reserva",
+      "O responsável pelo animal deverá poder realizar uma reserva para um cão.",
+      "Responsável pelo animal",
+      "Não definida",
+      "A reserva será vinculada a um único cão e responsável; dependerá de data e vaga; não poderá ocorrer em período indisponível ou conflitante para o mesmo cão.",
+      "Dado que existe vaga, quando o responsável confirmar uma reserva para um cão, então a reserva deverá ser criada para a data/período selecionado.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-017",
+      "Cancelar reserva",
+      "O responsável pelo animal deverá poder cancelar uma reserva, conforme as regras estabelecidas pela EcoDog.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O cancelamento deverá respeitar as regras estabelecidas pela EcoDog.",
+      "Dado que existe uma reserva do próprio cão, quando o responsável solicitar o cancelamento conforme as regras da EcoDog, então a reserva deverá assumir estado de cancelada.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-018",
+      "Alterar reserva",
+      "O sistema deverá permitir a alteração de uma reserva somente dentro das regras estabelecidas.",
+      "Responsável pelo animal",
+      "Não definida",
+      "Alterações somente poderão ocorrer até 24 horas antes da data agendada; a nova data/horário deverá possuir disponibilidade.",
+      "Dado que faltam mais de 24 horas para a reserva e existe disponibilidade, quando o responsável solicitar alteração, então a nova data/horário poderá ser registrada.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-019",
+      "Exibir detalhes de cuidados no diário",
+      "O sistema deverá apresentar os detalhes dos registros de medicamentos e observações que tenham sido disponibilizados no diário do pet.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O sistema deverá apresentar os registros existentes sem permitir que o responsável altere os registros realizados pela equipe da EcoDog.",
+      "Dado que existam registros de medicamentos ou observações no diário, quando a tutora acessar a seção correspondente, então deverá visualizar o conteúdo registrado para o seu pet.",
+      "TL07 - Diário do Pet"
+    ],
+    [
+      "RF-020",
+      "Diário/feed do cão",
+      "O sistema deverá apresentar ao responsável pelo animal os registros disponibilizados sobre seu próprio cão.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O feed poderá apresentar atividades, alimentação, medicamentos registrados, comportamento, intercorrências e demais observações pertinentes.",
+      "Dado que existem registros disponibilizados, quando o responsável acessar o diário do próprio cão, então deverá visualizar as informações permitidas.",
+      "TL07 - Diário do Pet"
+    ],
+    [
+      "RF-021",
+      "Restrição do feed",
+      "O responsável pelo animal não poderá visualizar informações de outros cães ou outros responsáveis.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O acesso ao feed deverá ficar restrito aos próprios animais.",
+      "Dado que o usuário tenta consultar o feed de outro cão, quando o sistema validar a permissão, então o acesso deverá ser impedido.",
+      "TL07 - Diário do Pet; TL05 - Meus Pets"
+    ],
+    [
+      "RF-022",
+      "Consultar planos vinculados",
+      "O sistema deverá apresentar à tutora os planos vinculados aos seus pets ou à sua conta, conforme as informações previstas na seção Meus Planos.",
+      "Responsável pelo animal",
+      "Não definida",
+      "O responsável deverá visualizar somente os planos vinculados à sua conta; informações de outros clientes não poderão ser exibidas.",
+      "Dado que  o responsável  acesse Meus Pets, quando consultar a seção Meus Planos, então deverá visualizar os planos vinculados à sua conta com as informações apresentadas pela interface.",
+      "TL05 - Meus Pets"
+    ],
+    [
+      "RF-023",
+      "Informar resultado das ações",
+      "O sistema deverá informar ao responsável se ações como salvar dados do pet ou concluir um agendamento foram realizadas com sucesso ou se ocorreu algum erro.",
+      "Responsável pelo animal",
+      "Não definida",
+      "A mensagem deverá corresponder ao resultado real da operação; em caso de falha, os dados não poderão ser apresentados como salvos ou confirmados.",
+      "Dado que a o responsável conclua uma ação, quando o sistema processar a solicitação, então deverá apresentar uma mensagem coerente com o resultado obtido.",
+      "TL03 - Agendamento de serviços (tutora); TL05 - Meus Pets; TL06 - Cadastro e edição de pet"
+    ],
+    [
+      "RF-024",
+      "Controle de capacidade",
+      "O sistema deverá impedir reservas quando a capacidade máxima definida pela EcoDog tiver sido atingida.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "Ao atingir a capacidade, a data/horário deverá ser apresentada como indisponível para novas reservas.",
+      "Dado que a capacidade máxima foi atingida, quando o usuário tentar reservar, então a data/horário deverá ser apresentada como indisponível.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-025",
+      "Prevenção de reserva conflitante",
+      "O sistema deverá impedir que o mesmo cão possua duas reservas conflitantes no mesmo período.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "Não permitir reserva simultânea para hotel e creche no mesmo período.",
+      "Dado que o cão já possui uma reserva em determinado período, quando o responsável tentar criar outra reserva conflitante, então a nova reserva deverá ser impedida.",
+      "TL03 - Agendamento"
+    ],
+    [
+      "RF-026",
+      "Check-in",
+      "A equipe da EcoDog deverá registrar a entrada do cão na creche/hotel.",
+      "Monitora recreativa",
+      "Não definida",
+      "O responsável não poderá realizar o próprio check-in; o sistema apenas registra a entrada e não controla fisicamente o acesso.",
+      "Dado um cão com entrada a registrar, quando a equipe realizar o check-in, então a entrada deverá ser registrada no sistema.",
+      "TL11 - Check-in e check-out dos Pets"
+    ],
+    [
+      "RF-027",
+      "Check-out",
+      "A equipe da EcoDog deverá registrar a saída do cão.",
+      "Monitora recreativa",
+      "Não definida",
+      "O responsável não poderá realizar o próprio check-out; o sistema apenas registra a saída e não controla fisicamente o acesso.",
+      "Dado um cão em permanência, quando a equipe realizar o check-out, então a saída deverá ser registrada no sistema.",
+      "TL11 - Check-in e check-out dos Pets"
+    ],
+    [
+      "RF-028",
+      "Visualização dos cães presentes",
+      "A monitora deverá conseguir identificar quais cães estão presentes em determinado momento, utilizando os registros de check-in e check-out.",
+      "Monitora recreativa",
+      "Não definida",
+      "A visualização deverá apoiar a organização da rotina, capacidade e atividades.",
+      "Dado que existem registros de check-in e check-out, quando a monitora consultar os presentes, então deverá identificar os cães atualmente em permanência.",
+      "TL11 - Check-in e check-out dos Pets"
+    ],
+    [
+      "RF-029",
+      "Consultar atividades do dia",
+      "O sistema deverá apresentar ao monitor as atividades previstas para o dia, incluindo os dados necessários para identificar o pet e a atividade a realizar.",
+      "Monitora recreativa",
+      "Não definida",
+      "A lista deve considerar a data selecionada ou o dia atual, conforme definido pela interface.",
+      "Dado que existam atividades previstas, quando o monitor abrir a tela de atividades do dia, então deverá visualizar a lista correspondente e as informações necessárias para executá-las.",
+      "TL12 - Atividades do dia"
+    ],
+    [
+      "RF-030",
+      "Gestão de tarefas diárias",
+      "O sistema deverá permitir organizar as tarefas de cuidado e acompanhamento dos cães durante a permanência.",
+      "Monitora recreativa",
+      "Não definida",
+      "As tarefas deverão apoiar a rotina da monitora e poderão estar relacionadas às necessidades registradas para cada cão.",
+      "Dado um cão em permanência, quando houver cuidados previstos, então as tarefas correspondentes deverão estar organizadas para execução pela monitora.",
+      "TL12 - Atividades do dia; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-031",
+      "Visualização das tarefas pendentes",
+      "A monitora deverá conseguir visualizar as tarefas que ainda precisam ser realizadas.",
+      "Monitora recreativa",
+      "Não definida",
+      "A visualização poderá identificar cão, tipo de cuidado, orientação, situação e período de execução.",
+      "Dado que existem tarefas ainda não realizadas, quando a monitora consultar as tarefas, então deverá conseguir identificar as tarefas pendentes e seus dados relevantes.",
+      "TL12 - Atividades do dia"
+    ],
+    [
+      "RF-032",
+      "Concluir tarefa",
+      "A monitora deverá poder registrar que uma tarefa foi realizada.",
+      "Monitora recreativa",
+      "Não definida",
+      "A conclusão deverá ficar associada à conta da colaboradora que realizou o registro.",
+      "Dado que uma tarefa está pendente, quando a monitora registrar sua realização, então a tarefa deverá passar para concluída e manter a identificação da colaboradora.",
+      "TL12 - Atividades do dia; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-033",
+      "Registro de alimentação",
+      "A monitora deverá registrar informações sobre a alimentação realizada durante a permanência do cão.",
+      "Monitora recreativa",
+      "Não definida",
+      "O registro deverá fazer parte do histórico da rotina.",
+      "Dado que a alimentação foi realizada, quando a monitora registrar a ocorrência, então o registro deverá ser armazenado no histórico do cão.",
+      "TL10 - Feed do Monitor; TL12 - Atividades do dia"
+    ],
+    [
+      "RF-034",
+      "Registro de medicamentos",
+      "A monitora deverá registrar a administração de medicamentos conforme orientações previamente fornecidas e aceitas pela equipe.",
+      "Monitora recreativa",
+      "Não definida",
+      "O sistema apenas registra a ação e não decide ou prescreve medicamentos.",
+      "Dado que existe orientação previamente fornecida e aceita, quando a monitora registrar a administração, então o registro deverá ser armazenado sem que o sistema decida o medicamento.",
+      "TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-035",
+      "Registro de atividades",
+      "A monitora deverá registrar as atividades realizadas com o cão.",
+      "Monitora recreativa",
+      "Não definida",
+      "Poderão ser registradas brincadeiras, atividades recreativas e outras atividades previstas na rotina.",
+      "Dado que uma atividade foi realizada, quando a monitora registrá-la, então ela deverá ficar disponível no histórico/diário do cão.",
+      "TL12 - Atividades do dia; TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-036",
+      "Registro de sono",
+      "O sistema deverá permitir o registro de informações relacionadas ao sono/descanso do cão durante a permanência.",
+      "Monitora recreativa",
+      "Não definida",
+      "O registro deverá compor a rotina do cão.",
+      "Dado que houve um período de sono/descanso, quando a monitora registrar a informação, então ela deverá ser armazenada para consulta posterior.",
+      "TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-037",
+      "Registro de comportamento",
+      "A monitora deverá poder registrar informações observadas sobre o comportamento do cão.",
+      "Monitora recreativa",
+      "Não definida",
+      "O registro deverá ser descritivo e não deverá representar diagnóstico ou avaliação veterinária.",
+      "Dado que um comportamento foi observado, quando a monitora registrar uma descrição, então ela deverá ser armazenada como registro de rotina, sem diagnóstico.",
+      "TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-038",
+      "Registro de interações",
+      "A monitora deverá poder registrar informações relevantes sobre as interações do cão com outros animais.",
+      "Monitora recreativa",
+      "Não definida",
+      "As informações deverão compor os registros da rotina do cão.",
+      "Dado que ocorreu uma interação relevante, quando a monitora registrá-la, então a informação deverá ser armazenada no histórico do cão.",
+      "TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-039",
+      "Registro de intercorrências",
+      "A monitora deverá poder registrar intercorrências ocorridas durante a permanência do cão.",
+      "Monitora recreativa",
+      "Não definida",
+      "O registro ficará associado ao cão e à colaboradora, comporá o histórico e não será tratado como diagnóstico veterinário.",
+      "Dado que ocorreu uma intercorrência, quando a monitora registrá-la, então o registro deverá ficar associado ao cão e à colaboradora e permanecer no histórico.",
+      "TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-040",
+      "Registro de observações",
+      "O sistema deverá permitir o registro de observações pertinentes à rotina e aos cuidados do cão.",
+      "Monitora recreativa",
+      "Não definida",
+      "As observações deverão ser armazenadas como parte dos registros da rotina.",
+      "Dado que existe uma observação pertinente, quando a monitora registrá-la, então a observação deverá ser armazenada para consulta posterior.",
+      "TL10 - Feed do Monitor; TL07 - Diário do Pet"
+    ],
+    [
+      "RF-041",
+      "Histórico da rotina do cão",
+      "O sistema deverá manter os registros realizados durante as permanências do cão.",
+      "Monitora recreativa; Responsável pelo animal",
+      "Não definida",
+      "O histórico poderá contemplar alimentação, medicamentos, atividades, sono, comportamento, interações, intercorrências, observações e check-in/check-out.",
+      "Dado que existem registros de permanências anteriores, quando um usuário autorizado consultar o histórico, então os registros disponíveis deverão ser apresentados.",
+      "TL07 - Diário do Pet; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-042",
+      "Proteção dos registros históricos",
+      "Informações consideradas essenciais para o histórico do cão não deverão ser excluídas por usuários.",
+      "Monitora recreativa",
+      "Não definida",
+      "Registros de alimentação, medicamentos, comportamento, atividades e intercorrências não poderão ser alterados posteriormente.",
+      "Dado um registro operacional protegido, quando um usuário tentar alterá-lo ou excluí-lo, então a operação não deverá ser permitida.",
+      "TL07 - Diário do Pet; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-043",
+      "Receber confirmação do registro",
+      "O sistema deverá informar se o registro de uma atividade ou observação foi salvo com sucesso ou se ocorreu uma falha.",
+      "Monitora recreativa",
+      "Não definida",
+      "A mensagem deve corresponder ao resultado real da operação; o sistema não deverá indicar sucesso quando o registro não for salvo.",
+      "Dado que o monitor envie um registro, quando o sistema terminar o processamento, então deverá apresentar uma mensagem compatível com o resultado obtido.",
+      "TL07 - Diário do Pet; TL10 - Feed do Monitor"
+    ],
+    [
+      "RF-044",
+      "Identificação do responsável pelo registro",
+      "O sistema deverá identificar o usuário responsável pelas operações e registros realizados.",
+      "Monitora recreativa; usuários autorizados",
+      "Não definida",
+      "As operações realizadas por colaboradores deverão ficar associadas ao usuário responsável.",
+      "Dado que uma colaboradora realiza um registro, quando o sistema o armazenar, então o registro deverá identificar a conta responsável pela operação.",
+      "TL10 - Feed do Monitor; TL12 - Atividades do dia"
+    ],
+    [
+      "RF-045",
+      "Gerenciamento administrativo previsto no projeto",
+      "O sistema deverá permitir, para usuários autorizados, o gerenciamento dos dados administrativos previstos na documentação do projeto.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "O acesso deverá respeitar as permissões definidas para cada perfil.",
+      "Dado um usuário autorizado, quando acessar recursos administrativos previstos no projeto, então poderá realizar as operações permitidas pelo seu perfil.",
+      "Não há tela administrativa correspondente documentada"
+    ],
+    [
+      "RF-046",
+      "Dashboard administrativa",
+      "O sistema deverá apresentar indicadores administrativos contemplados no escopo do projeto para os usuários autorizados.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "A dashboard poderá apresentar receitas, despesas, evolução da receita ao longo do ano e desempenho em relação às metas; não será um sistema completo de contabilidade.",
+      "Dado um usuário autorizado, quando acessar a dashboard, então os indicadores administrativos previstos deverão ser apresentados conforme as permissões.",
+      "Não há tela administrativa correspondente documentada"
+    ],
+    [
+      "RF-047",
+      "Visualizar vínculos de clientes e pets",
+      "O sistema deverá apresentar os vínculos entre tutor, pet, serviço, valor, período, pacote e status ativo na tabela de gerenciamento de clientes.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "As informações apresentadas deverão corresponder aos vínculos de plano registrados no sistema.",
+      "Dado que existam vínculos registrados, quando o usuário administrativo autorizado abrir o gerenciamento de clientes, então deverá visualizar os dados correspondentes na tabela.",
+      "TL16 - Gerenciamento de clientes"
+    ],
+    [
+      "RF-048",
+      "Vincular plano a cliente e pet",
+      "O sistema deverá permitir vincular um plano a um tutor e a um pet por meio do formulário Vincular Novo Plano.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "O vínculo deverá conter tutor, pet, serviço, período e demais campos solicitados, como valor, diárias, início e fim; campos obrigatórios deverão ser validados.",
+      "Dado que o usuário administrativo autorizado preencha os campos obrigatórios com informações válidas, quando salvar o vínculo, então ele deverá ser registrado e ficar disponível na tabela; se os dados forem inválidos ou incompletos, o sistema deverá indicar os campos a corrigir.",
+      "TL16 - Gerenciamento de clientes; Formulário de planos"
+    ],
+    [
+      "RF-049",
+      "Editar vínculo de plano",
+      "O sistema deverá permitir editar um vínculo de plano existente a partir da ação Editar na tabela de gerenciamento de clientes.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "A edição deverá alterar somente o vínculo selecionado e deverá validar os campos obrigatórios antes de salvar.",
+      "Dado que o usuário administrativo autorizado selecione um vínculo e altere seus dados, quando salvar as alterações válidas, então o sistema deverá atualizar o vínculo correspondente e apresentar confirmação.",
+      "TL16 - Gerenciamento de clientes"
+    ],
+    [
+      "RF-050",
+      "Ativar ou desativar vínculo de plano",
+      "O sistema deverá permitir alterar o status ativo dos vínculos de planos associados aos clientes.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "A alteração de status deverá se aplicar somente ao vínculo selecionado e refletir-se na tabela após a confirmação.",
+      "Dado que o usuário administrativo autorizado altere o status de um vínculo, quando confirmar a operação, então o sistema deverá atualizar e exibir o novo status.",
+      "TL16 - Gerenciamento de clientes"
+    ],
+    [
+      "RF-051",
+      "Consultar planos oferecidos",
+      "O sistema deverá apresentar a lista de planos oferecidos pela EcoDog, incluindo nome, serviço, valor, pacote e status ativo.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "A listagem deverá refletir os planos cadastrados e seus status atuais.",
+      "Dado que existam planos cadastrados, quando o usuário administrativo autorizado acessar o gerenciamento de planos, então deverá visualizar os planos e os dados previstos na tabela.",
+      "TL17 - Gerenciamento de planos"
+    ],
+    [
+      "RF-052",
+      "Criar plano",
+      "O sistema deverá permitir criar um plano informando nome, serviço, quantidade de diárias e valor.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "Os campos obrigatórios do formulário deverão ser validados antes de salvar; valores devem corresponder aos campos definidos na tela.",
+      "Dado que o usuário administrativo autorizado preencha os campos obrigatórios com dados válidos, quando salvar o novo plano, então ele deverá aparecer na listagem; se houver dados inválidos ou ausentes, o sistema deverá informar o problema.",
+      "TL17 - Gerenciamento de planos; Formulário de planos"
+    ],
+    [
+      "RF-053",
+      "Editar plano",
+      "O sistema deverá permitir editar os dados de um plano existente.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "A edição deverá atualizar apenas o plano selecionado e validar os dados obrigatórios.",
+      "Dado que o usuário administrativo autorizado edite um plano e informe dados válidos, quando salvar, então o sistema deverá atualizar o plano na listagem e confirmar a operação.",
+      "TL17 - Gerenciamento de planos"
+    ],
+    [
+      "RF-054",
+      "Ativar ou desativar plano",
+      "O sistema deverá permitir alterar o status ativo de um plano cadastrado.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "O status deverá ser atualizado no plano selecionado e refletido na listagem.",
+      "Dado que o usuário administrativo autorizado altere o status de um plano, quando confirmar a ação, então o sistema deverá apresentar o status atualizado.",
+      "TL17 - Gerenciamento de planos"
+    ],
+    [
+      "RF-055",
+      "Excluir plano quando permitido",
+      "O sistema deverá permitir excluir um plano existente somente quando as regras de negócio permitirem a exclusão.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "Antes de excluir, o sistema deverá solicitar confirmação; planos vinculados a clientes não deverão ser excluídos se isso comprometer vínculos existentes.",
+      "Dado que o usuário administrativo autorizado solicite a exclusão de um plano, quando a exclusão for permitida e confirmada, então o sistema deverá removê-lo da listagem; se não for permitida, deverá informar o motivo e preservar os dados.",
+      "TL17 - Gerenciamento de planos"
+    ],
+    [
+      "RF-056",
+      "Gerenciamento de usuários",
+      "Usuários autorizados deverão poder realizar o cadastro e o gerenciamento dos usuários necessários para utilização das funcionalidades administrativas do sistema.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "Cada colaborador deverá possuir sua própria conta.",
+      "Dado que o usuário administrativo autorizado, quando cadastrar ou gerenciar um colaborador, então o colaborador deverá possuir uma conta própria conforme as permissões definidas.",
+      "Não há tela administrativa correspondente documentada"
+    ],
+    [
+      "RF-057",
+      "Gerenciamento de metas",
+      "Usuários administrativos autorizados deverão poder gerenciar as metas previstas no projeto.",
+      "Usuário administrativo autorizado",
+      "Não definida",
+      "O gerenciamento deverá respeitar as permissões do perfil administrativo.",
+      "Dado que o usuário autorizado, quando acessar o gerenciamento de metas, então deverá poder realizar as operações previstas para seu perfil.",
+      "Não há tela administrativa correspondente documentada"
+    ]
+  ],
+  "Requisitos Não Funcionais": [
+    [
+      "REQUISITOS NÃO FUNCIONAIS"
+    ],
+    [
+      "ID",
+      "Requisito",
+      "Descrição"
+    ],
+    [
+      "RNF-001",
+      "Usabilidade",
+      "Interface simples e organizada, especialmente para a monitora."
+    ],
+    [
+      "RNF-002",
+      "Facilidade de consulta",
+      "Informações importantes devem ser localizadas rapidamente."
+    ],
+    [
+      "RNF-003",
+      "Clareza visual",
+      "Diferenciar informações, tarefas, alertas e registros."
+    ],
+    [
+      "RNF-004",
+      "Identidade visual",
+      "Respeitar a identidade visual definida para o projeto."
+    ],
+    [
+      "RNF-005",
+      "Tipografia",
+      "Utilizar Luckiest Guy, Lilita One e Roboto conforme suas funções."
+    ],
+    [
+      "RNF-006",
+      "Responsividade",
+      "Adaptar interface para diferentes tamanhos de tela."
+    ],
+    [
+      "RNF-007",
+      "Segurança de acesso",
+      "Impedir acesso sem permissão."
+    ],
+    [
+      "RNF-008",
+      "Privacidade",
+      "Impedir visualização indevida de dados."
+    ],
+    [
+      "RNF-009",
+      "Rastreabilidade",
+      "Operações de colaboradores devem ser associadas ao usuário."
+    ],
+    [
+      "RNF-010",
+      "Integridade dos dados",
+      "Evitar reservas conflitantes e acima da capacidade."
+    ],
+    [
+      "RNF-011",
+      "Persistência",
+      "Dados registrados permanecem disponíveis para consulta autorizada."
+    ],
+    [
+      "RNF-012",
+      "Desempenho de carregamento",
+      "Otimização de imagens e recursos visuais."
+    ],
+    [
+      "RNF-013",
+      "Consistência",
+      "As informações mostradas no sistema devem estar de acordo com os dados registrados."
+    ],
+    [
+      "RNF-014",
+      "Disponibilidade",
+      "Funcionalidades dependentes do sistema devem estar disponíveis quando a aplicação funcionar."
+    ],
+    [
+      "RNF-015",
+      "Manutenção",
+      "O sistema deve ser organizado de forma que futuras correções e alterações possam ser realizadas com facilidade."
+    ],
+    [
+      "RNF-016",
+      "Tratamento de erros",
+      "Mensagens devem ser claras."
+    ],
+    [
+      "RNF-017",
+      "Legibilidade",
+      "Textos e estados devem permanecer legíveis."
+    ],
+    [
+      "RNF-018",
+      "Acessibilidade visual",
+      "Cores não devem ser o único recurso para comunicar informação."
+    ]
+  ],
+  "User Stories": [
+    [
+      "USER STORIES"
+    ],
+    [
+      "ID",
+      "Épico",
+      "Como (persona)",
+      "Eu quero (ação)",
+      "Para que (valor)",
+      "Critérios de aceitação (Dado / Quando / Então)",
+      "RF relacionado",
+      "Prioridade",
+      "Estimativa (pts)"
+    ],
+    [
+      "US01",
+      "Apresentar proposta institucional",
+      "Responsável pelo animal",
+      "conhecer a proposta e os serviços da EcoDog Park",
+      "eu possa entender o que a empresa oferece",
+      "Dado que o visitante acesse a página inicial, quando visualizar a apresentação, então deverá encontrar informações claras sobre a proposta, a creche e o hotel.",
+      "RF-001",
+      "Alta"
+    ],
+    [
+      "US02",
+      "Navegar entre páginas institucionais",
+      "Responsável pelo animal",
+      "navegar entre as páginas Início, Sobre e Estrutura",
+      "eu possa encontrar as informações que procuro",
+      "Dado que o visitante esteja em uma página institucional, quando selecionar um item do menu, então deverá ser direcionado à página correspondente.",
+      "RF-002",
+      "Alta"
+    ],
+    [
+      "US03",
+      "Acessar cadastro ou login",
+      "Responsável pelo animal",
+      "acessar as opções de cadastro e entrada",
+      "eu possa começar a utilizar o sistema",
+      "Dado que o visitante selecione Cadastrar ou Entrar, quando clicar na opção desejada, então deverá ser direcionado à tela correspondente.",
+      "RF-003",
+      "Alta"
+    ],
+    [
+      "US04",
+      "Realizar login",
+      "Monitora Recreativa",
+      "acessar o sistema com minhas credenciais",
+      "eu possa utilizar as funcionalidades necessárias para o meu trabalho",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Cada colaborador usa sua própria conta. Operações ficam associadas ao usuário.",
+      "RF-004",
+      "Alta",
+      " "
+    ],
+    [
+      "US05",
+      "Realizar login",
+      "Responsável pelo animal",
+      "acessar o sistema com minhas credenciais",
+      "eu possa acompanhar as informações do meu cão",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Cada usuário usa sua própria conta. Operações ficam associadas ao usuário.",
+      "RF-004",
+      "Alta",
+      " "
+    ],
+    [
+      "US06",
+      "Controlar acesso às funcionalidades",
+      "Monitora Recreativa",
+      "acessar as funcionalidades permitidas para o meu perfil",
+      "eu possa realizar as atividades necessárias para o meu trabalho",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Permitir que a monitora acesse as informações dos cães e as funcionalidades necessárias para realizar seu trabalho.",
+      "RF-005",
+      "Alta",
+      " "
+    ],
+    [
+      "US07",
+      "Controlar acesso às funcionalidades",
+      "Responsável pelo animal",
+      "acessar as funcionalidades permitidas para o meu perfil",
+      "eu possa acompanhar as informações do meu cão",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O responsável deverá visualizar somente seus próprios pets.",
+      "RF-005",
+      "Alta",
+      " "
+    ],
+    [
+      "US08",
+      "Cadastrar responsável",
+      "Responsável pelo animal",
+      "cadastrar minhas informações",
+      "eu possa utilizar o sistema",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O cadastro deverá conter as informações necessárias para identificar o responsável e permitir o vínculo com seus cães.",
+      "RF-006",
+      "Alta",
+      " "
+    ],
+    [
+      "US09",
+      "Cadastrar pet",
+      "Responsável pelo animal",
+      "cadastrar meu cão",
+      "suas informações fiquem registradas no sistema",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Cada cão deverá possuir seu próprio cadastro e estar vinculado a um responsável.",
+      "RF-007",
+      "Alta",
+      " "
+    ],
+    [
+      "US10",
+      "Consultar perfil do pet",
+      "Responsável pelo animal",
+      "consultar o perfil do meu cão",
+      "eu possa acompanhar suas informações",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O perfil deverá reunir informações de identificação, saúde, vacinação, necessidades, medicamentos e comportamento.",
+      "RF-008",
+      "Alta",
+      " "
+    ],
+    [
+      "US11",
+      "Consultar perfil do pet",
+      "Monitora Recreativa",
+      "consultar o perfil do cão",
+      "eu possa conhecer suas informações e os cuidados necessários",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Dados são fornecidos pelos usuários e o sistema não verifica a veracidade.",
+      "RF-008",
+      "Alta",
+      " "
+    ],
+    [
+      "US12",
+      "Cadastrar necessidades específicas",
+      "Responsável pelo animal",
+      "registrar as necessidades específicas do meu cão",
+      "suas informações fiquem registradas no sistema",
+      "Dado que um cão esteja cadastrado, quando o responsável registrar uma necessidade específica, então a informação deverá ficar disponível no perfil do animal para consulta da monitora autorizada, sem gerar diagnóstico ou decisão veterinária pelo sistema.",
+      "RF-009",
+      "Alta"
+    ],
+    [
+      "US13",
+      "Cadastrar medicamentos e orientações",
+      "Responsável pelo animal",
+      "registrar medicamentos e orientações",
+      "eu possa disponibilizar informações importantes da saúde do meu pet",
+      "Dado que um medicamento e uma orientação tenham sido previamente fornecidos pelo responsável e aceitos pela equipe, quando forem registrados, então deverão permanecer disponíveis para consulta e histórico, incluindo os registros realizados pela monitora.",
+      "RF-010",
+      "Alta"
+    ],
+    [
+      "US14",
+      "Editar dados do pet",
+      "Responsável pelo animal",
+      "alterar os dados cadastrais e de cuidado do meu pet",
+      "eu possa manter suas informações atualizadas",
+      "Dado que o responsável selecione um pet vinculado à sua conta, quando alterar os dados obrigatórios e salvar, então o sistema deverá validar as informações, registrar as alterações e apresentar uma confirmação.",
+      "RF-011",
+      "Alta"
+    ],
+    [
+      "US15",
+      "Validar formulário de pet",
+      "Responsável pelo animal",
+      "receber a indicação de campos obrigatórios vazios ou dados inválidos",
+      "eu possa corrigir o formulário antes de salvar",
+      "Dado que o responsável preencha o formulário, quando houver campos obrigatórios vazios ou dados inválidos, então o sistema deverá indicar o que precisa ser corrigido e impedir o salvamento.",
+      "RF-012",
+      "Alta"
+    ],
+    [
+      "US16",
+      "Consultar informações do cão",
+      "Monitora Recreativa",
+      "consultar rapidamente as informações dos cães",
+      "eu possa encontrar os dados necessários durante a rotina",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Priorizar necessidades específicas, medicamentos, comportamento, reservas e tarefas.",
+      "RF-013",
+      "Alta",
+      " "
+    ],
+    [
+      "US17",
+      "Visualizar agenda de reservas",
+      "Responsável pelo animal",
+      "consultar a agenda de reservas",
+      "eu possa verificar as datas e horários disponíveis para meu cão",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Considerar disponibilidade e capacidade.",
+      "RF-014",
+      "Alta",
+      " "
+    ],
+    [
+      "US18",
+      "Visualizar agenda de reservas",
+      "Monitora Recreativa",
+      "consultar a agenda de reservas",
+      "eu possa acompanhar quais cães estarão na EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Visualizar disponibilidade e capacidade.",
+      "RF-014",
+      "Alta",
+      " "
+    ],
+    [
+      "US19",
+      "Selecionar pets para agendamento",
+      "Responsável pelo animal",
+      "selecionar um ou mais pets da minha conta para o agendamento",
+      "eu possa reservar o serviço para os animais desejados",
+      "Dado que o responsável esteja montando um agendamento, quando selecionar os pets participantes, então o resumo deverá refletir a seleção e o sistema não deverá permitir a confirmação sem nenhum pet selecionado.",
+      "RF-015",
+      "Alta"
+    ],
+    [
+      "US20",
+      "Criar reserva",
+      "Responsável pelo animal",
+      "realizar uma reserva para meu cão",
+      "eu possa garantir sua vaga na creche ou no hotel",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: A reserva dependerá de disponibilidade e capacidade.",
+      "RF-016",
+      "Alta",
+      " "
+    ],
+    [
+      "US21",
+      "Cancelar reserva",
+      "Responsável pelo animal",
+      "cancelar uma reserva",
+      "eu possa informar que meu cão não irá mais naquele período",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O cancelamento deverá seguir as regras definidas pela EcoDog.",
+      "RF-017",
+      "Alta",
+      " "
+    ],
+    [
+      "US22",
+      "Alterar reserva",
+      "Responsável pelo animal",
+      "alterar uma reserva",
+      "eu possa ajustar a data ou o horário da estadia do meu cão",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Somente até 24h antes. Nova data depende de disponibilidade.",
+      "RF-018",
+      "Alta",
+      " "
+    ],
+    [
+      "US23",
+      "Consultar detalhes de cuidados no diário",
+      "Responsável pelo animal",
+      "acompanhar os cuidados realizados pela equipe",
+      "eu possa visualizar os registros de medicamentos e observações do meu pet",
+      "Dado que existam registros de medicamentos ou observações no diário, quando o responsável acessar a seção correspondente, então deverá visualizar os registros do seu pet sem poder alterá-los.",
+      "RF-019",
+      "Alta"
+    ],
+    [
+      "US24",
+      "Consultar diário/feed",
+      "Responsável pelo animal",
+      "visualizar o diário do meu cão",
+      "eu possa acompanhar como foi sua rotina na EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas.",
+      "RF-020",
+      "Alta",
+      " "
+    ],
+    [
+      "US25",
+      "Restringir acesso ao feed",
+      "Proprietário",
+      "controlar o acesso às informações dos cães e responsáveis",
+      "cada usuário visualize somente os dados permitidos para seu perfil",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Cada responsável deverá visualizar somente os dados relacionados aos seus próprios cães.",
+      "RF-021",
+      "Alta",
+      " "
+    ],
+    [
+      "US26",
+      "Consultar planos vinculados",
+      "Responsável pelo animal",
+      "consultar os planos vinculados à minha conta ou aos meus pets",
+      "eu possa acompanhar os serviços contratados",
+      "Dado que o responsável acesse a seção Meus Planos, quando consultar os planos, então deverá visualizar somente os vínculos da sua conta e as informações disponibilizadas pela interface.",
+      "RF-022",
+      "Alta"
+    ],
+    [
+      "US27",
+      "Receber resultado das ações",
+      "Responsável pelo animal",
+      "receber uma mensagem sobre o resultado das minhas ações",
+      "eu possa saber se a operação foi concluída ou se ocorreu um erro",
+      "Dado que o responsável conclua uma ação, quando o sistema processar a solicitação, então deverá apresentar uma mensagem correspondente ao resultado real, sem indicar sucesso em caso de falha.",
+      "RF-023",
+      "Alta"
+    ],
+    [
+      "US28",
+      "Controlar capacidade",
+      "Proprietário",
+      "definir a capacidade máxima de cães por período",
+      "as reservas não ultrapassem a quantidade de animais que a EcoDog consegue atender",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas.",
+      "RF-024",
+      "Alta",
+      " "
+    ],
+    [
+      "US29",
+      "Impedir reservas conflitantes",
+      "Proprietário",
+      "que o sistema impeça reservas conflitantes para o mesmo cão e período",
+      "os agendamentos sejam organizados corretamente",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas.",
+      "RF-025",
+      "Alta",
+      " "
+    ],
+    [
+      "US30",
+      "Impedir duplicidade de reservas",
+      "Responsável pelo animal",
+      "que o sistema impeça reservas conflitantes",
+      "eu não faça mais de uma reserva para o mesmo cão no mesmo período",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Inclui conflito entre hotel e creche.",
+      "RF-025",
+      "Alta",
+      " "
+    ],
+    [
+      "US31",
+      "Registrar check-in",
+      "Monitora Recreativa",
+      "registrar a entrada do cão",
+      "eu possa controlar quais cães já chegaram à EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Responsável não realiza o próprio check-in do seu pet.",
+      "RF-026",
+      "Alta",
+      " "
+    ],
+    [
+      "US32",
+      "Registrar check-out",
+      "Monitora Recreativa",
+      "registrar a saída do cão",
+      "eu possa controlar quais cães já deixaram a EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Responsável não realiza o próprio check-out do seu pet.",
+      "RF-027",
+      "Alta",
+      " "
+    ],
+    [
+      "US33",
+      "Visualizar cães presentes",
+      "Monitora Recreativa",
+      "visualizar os cães presentes",
+      "eu possa organizar os cuidados durante a rotina",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: A informação deverá considerar os registros de entrada e saída.",
+      "RF-028",
+      "Alta",
+      " "
+    ],
+    [
+      "US34",
+      "Consultar atividades do dia",
+      "Monitora Recreativa",
+      "consultar as atividades previstas para o dia",
+      "eu possa organizar e realizar os cuidados dos cães",
+      "Dado que existam atividades previstas, quando a monitora abrir a tela de atividades do dia, então deverá visualizar a lista correspondente à data selecionada ou ao dia atual, com os dados necessários para identificar cada pet e atividade.",
+      "RF-029 e RF-030",
+      "Alta"
+    ],
+    [
+      "US35",
+      "Visualizar tarefas pendentes",
+      "Monitora Recreativa",
+      "visualizar as tarefas pendentes",
+      "eu possa identificar quais cuidados ainda precisam ser realizados",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: A monitora deverá identificar quais cuidados ainda precisam ser realizados.",
+      "RF-031",
+      "Alta",
+      " "
+    ],
+    [
+      "US36",
+      "Concluir tarefa",
+      "Monitora Recreativa",
+      "registrar que uma tarefa foi realizada",
+      "eu possa manter o controle dos cuidados já realizados",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Conclusão associada à colaboradora.",
+      "RF-032",
+      "Alta",
+      " "
+    ],
+    [
+      "US37",
+      "Registrar alimentação",
+      "Monitora Recreativa",
+      "registrar a alimentação do cão",
+      "eu possa manter sua rotina registrada",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O registro deverá fazer parte do histórico da rotina.",
+      "RF-033",
+      "Alta",
+      " "
+    ],
+    [
+      "US38",
+      "Registrar administração de medicamentos",
+      "Monitora Recreativa",
+      "registrar os medicamentos administrados",
+      "eu possa manter o histórico dos cuidados realizados",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Não prescreve medicamentos.",
+      "RF-034",
+      "Alta",
+      " "
+    ],
+    [
+      "US39",
+      "Registrar atividades",
+      "Monitora Recreativa",
+      "registrar as atividades realizadas com os cães",
+      "eu possa manter sua rotina registrada",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Inclui atividades recreativas.",
+      "RF-035",
+      "Alta",
+      " "
+    ],
+    [
+      "US40",
+      "Registrar sono e descanso",
+      "Monitora Recreativa",
+      "registrar informações sobre o sono e descanso do cão",
+      "eu possa acompanhar sua rotina",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: As informações deverão fazer parte do acompanhamento da rotina.",
+      "RF-036",
+      "Alta",
+      " "
+    ],
+    [
+      "US41",
+      "Registrar comportamento",
+      "Monitora Recreativa",
+      "registrar o comportamento do cão",
+      "eu possa acompanhar como ele se comportou durante sua permanência",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Descritivo. Não é diagnóstico.",
+      "RF-037",
+      "Alta",
+      " "
+    ],
+    [
+      "US42",
+      "Registrar interações",
+      "Monitora Recreativa",
+      "registrar as interações dos cães com outros animais",
+      "eu possa acompanhar sua convivência durante a rotina",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: As informações deverão fazer parte do histórico da rotina.",
+      "RF-038",
+      "Alta",
+      " "
+    ],
+    [
+      "US43",
+      "Registrar intercorrências",
+      "Monitora Recreativa",
+      "registrar as intercorrências ocorridas com os cães",
+      "eu possa manter essas informações no histórico",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: As informações deverão ficar disponíveis para consultas futuras.",
+      "RF-039",
+      "Alta",
+      " "
+    ],
+    [
+      "US44",
+      "Registrar observações",
+      "Monitora Recreativa",
+      "registrar observações sobre os cães",
+      "eu possa manter informações importantes sobre sua rotina",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: As observações deverão complementar os demais registros.",
+      "RF-040",
+      "Alta",
+      " "
+    ],
+    [
+      "US45",
+      "Consultar histórico da rotina",
+      "Responsável pelo animal",
+      "consultar o histórico do meu cão",
+      "eu possa acompanhar o que aconteceu durante sua permanência na EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O histórico deverá reunir as informações registradas sobre a rotina do animal. Consultar conforme permissões.",
+      "RF-041",
+      "Alta",
+      " "
+    ],
+    [
+      "US46",
+      "Consultar histórico da rotina",
+      "Monitora Recreativa",
+      "consultar o histórico da rotina dos cães",
+      "eu possa acompanhar os registros realizados durante sua permanência",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O histórico deverá reunir as informações registradas sobre a rotina do animal. Consultar conforme permissões.",
+      "RF-041",
+      "Alta",
+      " "
+    ],
+    [
+      "US47",
+      "Proteger registros",
+      "Proprietário",
+      "manter os registros dos cães protegidos",
+      "o histórico dos cuidados realizados seja preservado",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Registros não deverão ser alterados ou excluídos posteriormente.",
+      "RF-042",
+      "Alta",
+      " "
+    ],
+    [
+      "US48",
+      "Receber confirmação do registro",
+      "Monitora recreativa",
+      "receber uma confirmação ou aviso de falha após registrar uma atividade ou observação",
+      "eu possa saber se o registro foi salvo corretamente",
+      "Dado que a monitora envie um registro, quando o sistema terminar o processamento, então deverá apresentar uma mensagem compatível com o resultado, sem indicar sucesso caso o registro não tenha sido salvo.",
+      "RF-043",
+      "Alta"
+    ],
+    [
+      "US49",
+      "Identificar ações dos usuários",
+      "Proprietário",
+      "identificar qual usuário realizou cada operação no sistema",
+      "eu possa acompanhar quem realizou cada registro",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Os registros deverão ficar associados ao usuário que realizou a ação.",
+      "RF-044",
+      "Alta",
+      " "
+    ],
+    [
+      "US50",
+      "Gerenciar dados administrativos",
+      "Proprietário",
+      "gerenciar os dados administrativos previstos no sistema",
+      "eu possa acompanhar e organizar as informações da EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O acesso deverá ser restrito ao proprietário ou a usuários autorizados.",
+      "RF-045",
+      "Alta",
+      " "
+    ],
+    [
+      "US51",
+      "Visualizar dashboard",
+      "Proprietário",
+      "visualizar um dashboard com os indicadores previstos",
+      "eu possa acompanhar as informações administrativas da EcoDog",
+      "Dado que o usuário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: Não é ferramenta completa de contabilidade. Os indicadores deverão apresentar somente informações previstas no escopo.",
+      "RF-046",
+      "Alta",
+      " "
+    ],
+    [
+      "US52",
+      "Visualizar vínculos de clientes e pets",
+      "Proprietário",
+      "consultar os vínculos entre tutores, pets e planos",
+      "eu possa acompanhar os serviços e contratos registrados",
+      "Dado que existam vínculos registrados, quando o proprietário abrir o gerenciamento de clientes, então deverá visualizar na tabela o tutor, o pet, o serviço, o valor, o período, o pacote e o status ativo.",
+      "RF-047",
+      "Alta"
+    ],
+    [
+      "US53",
+      "Vincular plano a cliente e pet",
+      "Proprietário",
+      "vincular um plano a um tutor e a um pet",
+      "eu possa registrar os serviços contratados",
+      "Dado que o proprietário preencha os campos obrigatórios com informações válidas, quando salvar o vínculo, então ele deverá ser registrado e aparecer na tabela; caso haja dados inválidos ou incompletos, o sistema deverá indicar os campos a corrigir.",
+      "RF-048",
+      "Alta"
+    ],
+    [
+      "US54",
+      "Editar vínculo de plano",
+      "Proprietário",
+      "editar um vínculo de plano existente",
+      "eu possa manter os dados dos contratos atualizados",
+      "Dado que o proprietário selecione um vínculo e altere seus dados, quando salvar as alterações válidas, então o sistema deverá atualizar somente o vínculo selecionado e apresentar uma confirmação.",
+      "RF-049",
+      "Alta"
+    ],
+    [
+      "US55",
+      "Ativar ou desativar vínculo de plano",
+      "Proprietário",
+      "alterar o status de um vínculo de plano",
+      "eu possa controlar quais vínculos estão ativos",
+      "Dado que o proprietário altere o status de um vínculo, quando confirmar a operação, então o sistema deverá atualizar e exibir o novo status somente para o vínculo selecionado.",
+      "RF-050",
+      "Alta"
+    ],
+    [
+      "US56",
+      "Consultar planos oferecidos",
+      "Proprietário",
+      "consultar os planos oferecidos pela empresa",
+      "eu possa acompanhar os serviços e valores cadastrados",
+      "Dado que existam planos cadastrados, quando o proprietário acessar seus planos, então deverá visualizar a lista com nome, serviço e valor.",
+      "RF-051",
+      "Alta"
+    ],
+    [
+      "US57",
+      "Criar plano",
+      "Proprietário",
+      "cadastrar um novo plano com nome, serviço, quantidade de diárias e valor",
+      "eu possa disponibilizar o plano para gerenciamento",
+      "Dado que o proprietário preencha os campos obrigatórios com dados válidos, quando salvar o plano, então ele deverá aparecer na listagem; se houver dados inválidos ou ausentes, o sistema deverá informar o problema.",
+      "RF-052",
+      "Alta"
+    ],
+    [
+      "US58",
+      "Editar plano",
+      "Proprietário",
+      "alterar os dados de um plano existente",
+      "eu possa manter as informações dos planos atualizadas",
+      "Dado que o proprietário edite um plano e informe dados válidos, quando salvar, então o sistema deverá atualizar somente o plano selecionado na listagem e confirmar a operação.",
+      "RF-053",
+      "Alta"
+    ],
+    [
+      "US59",
+      "Ativar ou desativar plano",
+      "Proprietário",
+      "alterar o status de um plano cadastrado",
+      "eu possa controlar quais planos estão ativos para uso",
+      "Dado que o proprietário altere o status de um plano, quando confirmar a ação, então o sistema deverá atualizar e exibir o status correspondente na listagem.",
+      "RF-054",
+      "Alta"
+    ],
+    [
+      "US60",
+      "Excluir plano quando permitido",
+      "Proprietário",
+      "excluir um plano quando as regras de negócio permitirem",
+      "eu possa manter o gerenciamento de planos organizado",
+      "Dado que o proprietário solicite a exclusão de um plano, quando a exclusão for permitida e confirmada, então o sistema deverá removê-lo da listagem; caso não seja permitida, deverá informar o motivo e preservar os dados.",
+      "RF-055",
+      "Alta"
+    ],
+    [
+      "US61",
+      "Gerenciar usuários",
+      "Proprietário",
+      "cadastrar e gerenciar os usuários autorizados",
+      "cada funcionário tenha acesso ao sistema de acordo com sua função",
+      "Dado que o proprietário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O Proprietário deverá definir os acessos conforme a função de cada usuário.",
+      "RF-056",
+      "Alta",
+      " "
+    ],
+    [
+      "US62",
+      "Gerenciar metas",
+      "Proprietário",
+      "gerenciar as metas previstas no sistema",
+      "eu possa acompanhar o que precisa ser alcançado pela EcoDog",
+      "Dado que o proprietário possua permissão para a funcionalidade, quando realizar a ação prevista, então o sistema deve atender ao requisito conforme as regras definidas. Regra: O acesso deverá ser restrito aos usuários autorizados.",
+      "RF-057",
+      "Alta",
+      " "
+    ]
+  ],
+  "Persona": [
+    [
+      "PERSONA"
+    ],
+    [
+      "ID",
+      "Nome fictício",
+      "Idade",
+      "Ocupação",
+      "Contexto / rotina",
+      "Objetivos com o produto",
+      "Dores e frustrações",
+      "Nível de familiaridade digital",
+      "Dispositivo mais usado",
+      "Necessidades de acessibilidade",
+      "Frase que a resume"
+    ],
+    [
+      "P01",
+      "Viviane Vieira",
+      "23",
+      "Cliente / Tutor Pet",
+      "Resolve tudo pelo celular, busca facilidade, agilidade e confiança pelas informações dispostas.",
+      "Marcar e remarcar estadia dos seus pets sem depender do horário comercial.",
+      "Tem poucas informações sobre como o pet está durante a estadia",
+      "Intermediário",
+      "Smartphone Android",
+      "“Quero ter certeza de que meu pet está seguro e sendo bem cuidado, mesmo quando não estou por perto.”"
+    ],
+    [
+      "P02",
+      "Mariana Souza",
+      "31",
+      "Adestrador / Cuidador de cães",
+      "Trabalha das 7h às 17h, resolve a maioria das coisas pelo celular enquanto precisa estar atento aos pets.",
+      "Consultar informações de forma agil sobre os pets e suas necessidades",
+      "Dificuldade para acompanhar vários pets ao mesmo tempo e sofre o risco de esquecer algum cuidado ou informação importante",
+      "Intermediário",
+      "Smartphone Android",
+      "“Preciso garantir que todos os pets estejam seguros e recebam os cuidados corretos durante o dia.”"
+    ],
+    [
+      "P03",
+      "Sandra Macedo",
+      "40",
+      "Proprietário",
+      "Tem muitas coisas para administrar ao mesmo tempo, enquanto ainda recebe novos clientes",
+      "Consultar informações sobre desempenho da empresa e informações financeiras sobre o sistema",
+      "Dificuldade de organizar informações, acompanhar os animais e manter uma comunicação eficiente. ",
+      "Iniciante",
+      "Notebook",
+      "“Preciso acessar rapidamente as informações dos pets como medicação, alergias, relcionamento com outros pets e acompanhar o desempenho do meu negócio, incluindo receitas e planos ativos, para facilitar a gestão e a tomada de decisões.”"
+    ]
+  ],
+  "Paleta de Cores": [
+    [
+      "PALETA DE CORES"
+    ],
+    [
+      "Token / nome",
+      "Papel na interface",
+      "HEX",
+      "RGB",
+      "Amostra (pinte a célula)",
+      "Onde é usada",
+      "Cor do texto sobre ela",
+      "Contraste (ex.: 4.8:1)",
+      "Passa no WCAG AA?"
+    ],
+    [
+      "Turquesa acinzentado",
+      "Fundos, áreas de destaque e elementos suaves ",
+      "#ADD9CC",
+      "173, 217, 204",
+      "#1F653D",
+      "3.75:1",
+      "Sim"
+    ],
+    [
+      "Verde escuro",
+      "Elementos principais, títulos, botões e áreas de maior contraste ",
+      "#1F653D",
+      "31, 101, 61",
+      "#FEFEFE",
+      "6.97:1",
+      "Sim"
+    ],
+    [
+      "Turquesa",
+      "Elementos de apoio, destaques e estados intermediários",
+      "#3C816F",
+      "69, 147, 127"
+    ],
+    [
+      "Verde vivo",
+      "Destaques, ações positivas e elementos interativos ",
+      "#49812F",
+      "73, 129, 47",
+      "#FEFEFE",
+      "4.66:1",
+      "Sim"
+    ],
+    [
+      "Laranja ",
+      "Destaques secundários e elementos de atenção ",
+      "#CB8335",
+      "203, 131, 53",
+      "#000000",
+      "6.84:1",
+      "Sim"
+    ],
+    [
+      "Laranja vívido",
+      "Alertas, ações de maior destaque e elementos de ênfase ",
+      "#CD492B",
+      "242, 88, 53",
+      "#FEFEFE",
+      "4.54:1",
+      "Sim"
+    ],
+    [
+      "Branco",
+      "Texto secundário, textos simples, caixas de texto do tipo input",
+      "#FEFEFE",
+      "254, 254, 254"
+    ],
+    [
+      "Preto",
+      "Texto secundário, textos simples",
+      "#000000",
+      "0, 0, 0"
+    ],
+    [
+      "Sugestão de tokens: cor-primaria, cor-primaria-escura, cor-secundaria, cor-fundo, cor-superficie, cor-texto, cor-texto-secundario, cor-borda, cor-sucesso, cor-alerta, cor-erro. Verifique o contraste em webaim.org/resources/contrastchecker (mínimo 4.5:1 para texto normal e 3:1 para texto grande)."
+    ],
+    [
+      "TIPOGRAFIA E ESPAÇAMENTO"
+    ],
+    [
+      "Elemento",
+      "Fonte",
+      "Peso",
+      "Tamanho (px)",
+      "Altura de linha",
+      "Observação"
+    ],
+    [
+      "Título H1",
+      "Inter",
+      "700",
+      "32",
+      "1.2",
+      "Usado apenas uma vez por tela"
+    ]
+  ],
+  "Tom de Voz": [
+    [
+      "TOM DE VOZ"
+    ],
+    [
+      "Atributo da marca",
+      "O que significa na prática",
+      "Exemplo do que ESCREVER (faça)",
+      "Exemplo do que EVITAR (não faça)",
+      "Aplicação (botões, erros, vazios...)"
+    ],
+    [
+      "Acolhedor",
+      "Falamos como um atendente atencioso, sem jargão técnico e sem formalidade excessiva.",
+      "Pronto! Aula agendada para segunda, 28/09, 10h",
+      "Dia marcado para 28/09, as 10h",
+      "Mensagens de confirmação e e-mails"
+    ],
+    [
+      "Informal",
+      "Falamos como um atendente que trabalha com pets e tem uma relação mais próxima com o cliente",
+      "Novo \"auluno\" cadastrado, será muito bom ter ele conosco",
+      "Pet cadastrado com sucesso",
+      "Mensagens de sucesso"
+    ],
+    [
+      "Alegre",
+      "Buscamos manter uma constância de animo e parecer amigaveis sempre",
+      "Que bom ter você de volta, vamos marcar uma nova data para nos vermos?",
+      "Marque nova aula aqui",
+      "Textos de botão (CTA)"
+    ],
+    [
+      "Atributos comuns: acolhedor, direto, profissional, otimista, educativo, divertido, confiável, inclusivo. Escolha de 3 a 5 e seja consistente em todas as telas."
+    ]
+  ],
+  "Conteúdo das Páginas": [
+    [
+      "CONTEÚDO DAS PÁGINAS"
+    ],
+    [
+      "ID da tela",
+      "Página / seção",
+      "Bloco de conteúdo",
+      "Tipo",
+      "Texto final (copy)",
+      "Ação / destino do link",
+      "Origem do dado",
+      "Observações"
+    ],
+    [
+      "TL01",
+      "Home",
+      "Seção hero",
+      "Título + subtítulo + CTA",
+      "Título: 'Sua consulta marcada em 2 minutos.' | Subtítulo: 'Escolha o dentista, o dia e pronto.' | Botão: 'Agendar agora'",
+      "Botão leva para TL03 - Agendamento",
+      "Estático",
+      "Imagem de fundo: foto da recepção da clínica"
+    ]
+  ],
+  "Telas do Software": [
+    [
+      "TELAS DO SOFTWARE"
+    ],
+    [
+      "ID da tela",
+      "Nome da tela",
+      "Objetivo da tela",
+      "Perfil de acesso",
+      "Tela anterior",
+      "Próxima(s) tela(s)",
+      "Componentes principais",
+      "Estados previstos",
+      "Arquivo do wireframe",
+      "Responsividade",
+      "Prioridade"
+    ],
+    [
+      "TL01",
+      "Início",
+      "Apresentar a EcoDog, seus serviços e os caminhos públicos para conhecer a estrutura, entender a proposta e acessar ou cadastrar uma conta.",
+      "Público / visitante",
+      "—",
+      "TL02 - Entrar; TL04 - Cadastro; TL08 - Sobre; TL09 - Estrutura",
+      "Cabeçalho e menu, apresentação principal, cards/seções de serviços, destaques institucionais e rodapé",
+      "Padrão; carregando; erro de carregamento",
+      "Inicío.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL02",
+      "Entrar",
+      "Autenticar o usuário e direcioná-lo às funcionalidades correspondentes ao seu perfil e às permissões da conta.",
+      "Usuário cadastrado (tutora, monitora ou proprietária/administradora autorizada)",
+      "TL01 - Início; TL04 - Cadastro (após concluir o cadastro)",
+      "TL05 - Meus Pets (tutora); TL10 - Feed do Monitor (monitora); TL13 - Dashboard geral (usuário administrativo autorizado)",
+      "Cabeçalho, campos de e-mail e senha, botão Entrar e formulário de acesso",
+      "Padrão; campos vazios; dados inválidos; carregando; erro de conexão; acesso negado",
+      "Entrar.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL03",
+      "Agendamento de serviços (tutora)",
+      "Permitir que a tutora selecione o tipo de agendamento (Creche, Hotel ou DayUse), escolha uma data disponível no calendário e selecione quais pets participarão. Exibir um resumo com a data, os pets selecionados e o valor previsto antes da confirmação.",
+      "Tutora autenticada",
+      "TL05 - Meus Pets",
+      "TL05 - Meus Pets (retorno após agendar ou cancelar)",
+      "Seleção do tipo de agendamento; calendário mensal com dias indisponíveis, selecionados e disponíveis; seleção de todos os pets ou pets individuais; cards dos pets; resumo do agendamento com data, pets e valor previsto; botão Agendar",
+      "Padrão; tipo de serviço não selecionado; data indisponível; nenhuma data selecionada; nenhum pet selecionado; carregando; erro de conexão; confirmação ou falha do agendamento",
+      "Agendamento - Tutor (1).png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL04",
+      "Cadastro",
+      "Permitir que um novo usuário crie uma conta informando os dados solicitados no wireframe.",
+      "Público / visitante",
+      "TL01 - Início",
+      "TL02 - Entrar (após cadastro concluído)",
+      "Campos Nome, E-mail, Telefone, Endereço, Senha e Confirmação de senha; botão Cadastrar",
+      "Padrão; campos obrigatórios vazios; dados inválidos; carregando; cadastro realizado; erro de conexão",
+      "Cadastro.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL05",
+      "Meus Pets",
+      "Permitir que a tutora visualize seus pets, acesse seus dados, inicie agendamentos e consulte informações relacionadas aos planos exibidos no wireframe.",
+      "Tutora autenticada (persona P01 - Viviane)",
+      "TL02 - Entrar; TL03 - Agendamento (retorno); TL06 - Cadastro e edição de pet; TL07 - Diário do Pet",
+      "TL03 - Agendamento; TL06 - Cadastro e edição de pet; TL07 - Diário do Pet",
+      "Cards dos pets, resumo dos dados, ações de visualizar/editar/excluir, botão Adicionar Pet, botão Agendar e área de planos",
+      "Padrão; nenhum pet cadastrado; carregando; erro de carregamento; confirmação de exclusão; sem plano ou agendamento, se aplicável",
+      "Adicionar e Excluir Pet - Tutor.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL06",
+      "Cadastro e edição de pet",
+      "Permitir cadastrar um novo pet ou editar os dados de um pet existente, incluindo informações relevantes para seu cuidado.",
+      "Tutora autenticada (persona P01 - Viviane)",
+      "TL05 - Meus Pets",
+      "TL05 - Meus Pets (após salvar ou cancelar)",
+      "Foto do pet; campos de identificação; sexo; relacionamento com outros pets; dados de contato/veterinário; vacinas; alergias; medicamentos e botão Salvar",
+      "Padrão; campos obrigatórios vazios; dados inválidos; carregando; cadastro/edição realizada; erro de conexão",
+      "Cadastrar e edição pet- Tutor.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL07",
+      "Diário do Pet",
+      "Permitir que a tutora consulte os registros disponibilizados sobre seu próprio pet, organizados por data e categoria.",
+      "Tutora autenticada (persona P01 - Viviane)",
+      "TL05 - Meus Pets",
+      "TL05 - Meus Pets",
+      "Seleção de data, resumo do dia, atividades, medições e observações",
+      "Padrão; sem registros no dia; carregando; erro de carregamento; acesso não autorizado",
+      "Diario do pet-Tutor.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL08",
+      "Sobre",
+      "Apresentar informações institucionais sobre a EcoDog e sua proposta.",
+      "Público / visitante",
+      "TL01 - Início",
+      "TL01 - Início (retorno pelo menu ou navegação)",
+      "Cabeçalho, título Sobre nós, imagem institucional, apresentação da proposta/equipe e rodapé",
+      "Padrão; carregando; erro de carregamento",
+      "Sobre.png",
+      "Mobile e desktop",
+      "Média"
+    ],
+    [
+      "TL09",
+      "Estrutura",
+      "Apresentar os ambientes e a estrutura da EcoDog, além das informações visuais sobre os espaços e a rotina dos pets presentes no wireframe.",
+      "Público / visitante",
+      "TL01 - Início",
+      "TL01 - Início (retorno pelo menu ou navegação)",
+      "Cabeçalho, cards/áreas dos ambientes, seção de rotina, conteúdo visual e rodapé",
+      "Padrão; carregando; erro de carregamento",
+      "Estrutura.png",
+      "Mobile e desktop",
+      "Média"
+    ],
+    [
+      "TL10",
+      "Feed do Monitor",
+      "Permitir que a monitora consulte e registre informações de rotina e cuidados dos pets durante a permanência.",
+      "Monitora autenticada (persona P02 - Mariana)",
+      "TL02 - Entrar",
+      "TL11 - Check-in e check-out dos Pets; TL12 - Atividades do dia (se disponibilizadas pela navegação do perfil monitor)",
+      "Identificação do pet, atividades, medições, observações, medicamentos e ações de registro/salvamento",
+      "Padrão; sem registros; carregando; erro de carregamento; salvamento realizado ou falho",
+      "Feed-Monitor.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL11",
+      "Check-in e check-out dos Pets",
+      "Permitir que a monitora identifique os pets previstos e registre sua entrada e saída, além de acessar as atividades relacionadas.",
+      "Monitora autenticada (persona P02 - Mariana)",
+      "TL10 - Feed do Monitor; TL12 - Atividades do dia (retorno)",
+      "TL12 - Atividades do dia (ação Atividades); TL10 - Feed do Monitor (retorno, se disponibilizado pela navegação)",
+      "Cards dos pets, identificação, horários e botões de check-in/check-out e Atividades",
+      "Padrão; pet aguardando entrada; pet em permanência; pet com saída registrada; carregando; erro de conexão; confirmação de operação",
+      "Checkin-in Pet-Monitor.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL12",
+      "Atividades do dia",
+      "Permitir que a monitora consulte as atividades do dia e registre/conclua as ações previstas para os pets.",
+      "Monitora autenticada (persona P02 - Mariana)",
+      "TL11 - Check-in e check-out dos Pets",
+      "TL11 - Check-in e check-out dos Pets (botão Voltar)",
+      "Botão Voltar, seleção/identificação do pet, lista de atividades, grupos de pets, duração e ações de detalhes/conclusão",
+      "Padrão; sem atividades; carregando; erro de carregamento; atividade pendente; atividade concluída; registro realizado ou falho",
+      "Atividades do dia-Monitor.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL13",
+      "Dashboard geral",
+      "Apresentar um resumo administrativo da EcoDog, permitindo acompanhar receitas mensais por serviço, pacotes ativos, pets previstos para o dia, evolução de receitas e novos clientes, distribuição de pets, últimas movimentações e definição/registro de metas e receitas.",
+      "Proprietário autenticada (persona P03 - Sandra)",
+      "TL02 - Entrar (após autenticação e validação de permissão)",
+      "TL14 - Gerenciamento de calendário; TL15 - Gerenciamento de usuários; TL16 - Gerenciamento de clientes; TL17 - Gerenciamento de planos (por navegação administrativa)",
+      "Cabeçalho e menu lateral; ação Adicionar/Alterar meta; cards de receita mensal por Creche e Hotel, pacotes ativos e pets previstos para hoje; gráficos de receita prevista versus recebida e novos clientes por mês; gráfico de distribuição de pets; tabela de últimas movimentações; formulários Definição de metas e Registro de receitas",
+      "Padrão; carregando; sem dados; erro de carregamento; formulário de meta inválido; registro de receita inválido; salvamento realizado ou falho; acesso negado",
+      "Dashboard-geral.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL14",
+      "Gerenciamento de calendário",
+      "Permitir a consulta e organização visual do calendário, das atividades do dia e dos alunos/pets agendados, conforme os controles apresentados no wireframe.",
+      "Proprietária autenticada (persona P03 - Sandra)",
+      "TL13 - Dashboard geral",
+      "TL13 - Dashboard geral (retorno por navegação administrativa)",
+      "Calendário mensal, configuração do dia, lista de atividades do dia e lista de alunos/pets agendados",
+      "Padrão; dia sem agendamentos; carregando; erro de carregamento; data selecionada; alteração salva ou falha; acesso negado",
+      "Dashboard - Gerenciamento de calendario.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL15",
+      "Gerenciamento de usuários",
+      "Permitir que um usuário administrativo autorizado consulte usuários e realize as ações de cadastro/edição, ativação e desativação exibidas no wireframe.",
+      "Proprietária autenticada (persona P03 - Sandra)",
+      "TL13 - Dashboard geral",
+      "TL13 - Dashboard geral (retorno por navegação administrativa)",
+      "Tabela de usuários com nome, e-mail, telefone, status, ações e botão Criar usuário",
+      "Padrão; lista vazia; carregando; erro de carregamento; formulário inválido; confirmação de ativação/desativação; acesso negado",
+      "Dashboard - Gerenciamento de usuário.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL16",
+      "Gerenciamento de clientes",
+      "Permitir que a proprietária/administradora consulte e gerencie os clientes/tutores cadastrados, pesquise por tutor e visualize os pets e os planos vinculados, podendo vincular um novo plano e alterar o status ativo dos vínculos existentes.",
+      "Proprietária/administradora autenticada (persona P03 - Sandra)",
+      "TL13 - Dashboard geral",
+      "TL13 - Dashboard geral (retorno por navegação administrativa)",
+      "Cabeçalho e menu lateral; título Gerenciamento de Clientes; campo Pesquisar Tutor; botão Vincular Plano; tabela com Tutor, Pet, Serviço, Valor, Período, Pacote, status Ativo e ação Editar; formulário Vincular Novo Plano com seletores de tutor, pet, serviço e período, campos de valor, diárias, início e fim e botão Salvar",
+      "Padrão; lista vazia; busca sem resultados; formulário incompleto ou inválido; vínculo de plano salvo ou falho; plano ativado/desativado; erro de carregamento; acesso negado",
+      "Gerenciamento de clientes.png",
+      "Mobile e desktop",
+      "Alta"
+    ],
+    [
+      "TL17",
+      "Gerenciamento de planos",
+      "Permitir que a proprietária/administradora consulte e gerencie os planos oferecidos pela EcoDog, crie planos com nome, serviço, quantidade de diárias e valor, edite os planos existentes, altere seu status ativo e exclua planos quando permitido.",
+      "Proprietária/administradora autenticada (persona P03 - Sandra)",
+      "TL13 - Dashboard geral",
+      "TL13 - Dashboard geral (retorno por navegação administrativa)",
+      "Cabeçalho e menu lateral; título Gerenciamento de Planos; botão Criar Plano; tabela com Plano, Serviço, Valor, Pacote, status Ativo e ações Editar e Excluir; formulário Criar Plano com campos Nome do plano, Serviço, Diárias e Valor e botão Salvar",
+      "Padrão; lista vazia; formulário incompleto ou inválido; plano criado/editado; ativação/desativação; confirmação de exclusão; erro de carregamento ou salvamento; acesso negado",
+      "Gerenciamento de planos.png",
+      "Mobile e desktop",
+      "Alta"
+    ]
+  ],
+  "Prompt p IA": [
+    [
+      "PROMPT SUGERIDO PARA A IA GENERATIVA"
+    ],
+    [
+      "Copie o texto abaixo, cole no chat da IA e anexe esta planilha preenchida + as imagens dos wireframes."
+    ],
+    [
+      "Você é um designer de produto sênior especializado em design systems e em documentação de UI."
+    ],
+    [
+      "CONTEXTO"
+    ],
+    [
+      "Vou anexar dois materiais:"
+    ],
+    [
+      "1. Uma planilha (.xlsx) com o briefing completo do projeto, contendo as abas: Identificação do Projeto, Requisitos Funcionais, Requisitos Não Funcionais, User Stories, Persona, Paleta de Cores, Tom de Voz, Conteúdo das Páginas e Telas do Software."
+    ],
+    [
+      "2. Imagens dos wireframes de baixa fidelidade, uma por tela, nomeadas com o ID da tela (ex.: wireframe-TL03.png)."
+    ],
+    [
+      "TAREFA"
+    ],
+    [
+      "Gere um único arquivo em Markdown (.md) que sirva como especificação de design pronta para ser importada no Figma (via plugin de importação de Markdown) ou no Google Stitch, para geração automática das telas de front-end."
+    ],
+    [
+      "ESTRUTURA OBRIGATÓRIA DO ARQUIVO .MD"
+    ],
+    [
+      "1. # Nome do Projeto — visão geral, problema, proposta de valor e público-alvo."
+    ],
+    [
+      "2. ## Persona — resumo de cada persona e as implicações de design que ela gera."
+    ],
+    [
+      "3. ## Design Tokens — tabelas de cores (nome do token, HEX, papel, contraste), tipografia (escala, pesos, altura de linha), espaçamento (escala de 4 ou 8 px), raio de borda e sombras."
+    ],
+    [
+      "4. ## Tom de Voz — atributos, regras de escrita e exemplos de faça/não faça aplicados a botões, erros e estados vazios."
+    ],
+    [
+      "5. ## Componentes — para cada componente recorrente (botão, campo de formulário, card, cabeçalho, navegação, modal), descreva anatomia, variantes, tamanhos e estados (padrão, hover, foco, ativo, desabilitado, carregando, erro)."
+    ],
+    [
+      "6. ## Telas — uma seção ## por tela, na ordem do fluxo, contendo:"
+    ],
+    [
+      "   - ID, nome e objetivo da tela"
+    ],
+    [
+      "   - Layout descrito de cima para baixo, seção por seção, fiel ao wireframe anexado"
+    ],
+    [
+      "   - Grid, breakpoints e comportamento responsivo (mobile-first)"
+    ],
+    [
+      "   - Todo o texto real (copy) extraído da aba Conteúdo das Páginas — nunca use lorem ipsum"
+    ],
+    [
+      "   - Componentes usados, com os tokens aplicados"
+    ],
+    [
+      "   - Estados da tela (padrão, carregando, vazio, erro)"
+    ],
+    [
+      "   - Navegação: de onde vem e para onde vai"
+    ],
+    [
+      "   - Requisitos funcionais e user stories atendidos"
+    ],
+    [
+      "7. ## Fluxo de Navegação — diagrama em Mermaid ligando todas as telas."
+    ],
+    [
+      "8. ## Acessibilidade — checklist WCAG 2.1 nível AA: contraste, ordem de foco, rótulos de formulário, textos alternativos, área mínima de toque (44x44 px) e navegação por teclado."
+    ],
+    [
+      "REGRAS"
+    ],
+    [
+      "- Use exclusivamente as informações da planilha e dos wireframes; não invente funcionalidades."
+    ],
+    [
+      "- Se alguma informação necessária estiver faltando, liste-a ao final em uma seção \"## Lacunas do briefing\" em vez de preenchê-la por conta própria."
+    ],
+    [
+      "- Todos os textos de interface devem estar em português do Brasil e seguir o tom de voz definido."
+    ],
+    [
+      "- Use nomes de tokens (ex.: cor-primaria, espaco-16) em vez de valores soltos ao descrever os componentes."
+    ],
+    [
+      "- A saída deve ser apenas o conteúdo do arquivo .md, sem comentários adicionais."
+    ]
+  ]
+}

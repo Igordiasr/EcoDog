@@ -24,7 +24,6 @@ public class AgendamentosEntity {
     private String servico;
     @Enumerated(EnumType.STRING)
     private SituacaoAgendamento situacao;
-    private String servico;
     private String tutorCheckin;
     private String tutorCheckout;
     private String pertences;
@@ -85,14 +84,6 @@ public class AgendamentosEntity {
 
     public void setSituacao(SituacaoAgendamento situacao) {
         this.situacao = situacao;
-    }
-
-    public String getServico() {
-        return servico;
-    }
-
-    public void setServico(String servico) {
-        this.servico = servico;
     }
 
     public String getTutorCheckin() {

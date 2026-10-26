@@ -22,30 +22,30 @@ import java.util.stream.Collectors;
 
 @Service
 public class AgendamentoTutorService {
-    private final AgendamentosRepository agendamentosRepository;
+    private final AgendamentoRepository agendamentoRepository;
     private final CalendarioRepository calendarioRepository;
-    private final PetsRepository petsRepository;
+    private final PetRepository petRepository;
     private final ServicosRepository servicosRepository;
     private final ContratosRepository contratosRepository;
     private final MovimentacoesRepository movimentacoesRepository;
     private static final Integer capacidadePadrao = 10;
 
-    public AgendamentoTutorService(AgendamentosRepository agendamentosRepository,
+    public AgendamentoTutorService(AgendamentoRepository agendamentoRepository,
                                    CalendarioRepository calendarioRepository,
-                                   PetsRepository petsRepository,
+                                   PetRepository petRepository,
                                    ServicosRepository servicosRepository,
                                    ContratosRepository contratosRepository,
                                    MovimentacoesRepository movimentacoesRepository) {
-        this.agendamentosRepository = agendamentosRepository;
+        this.agendamentoRepository = agendamentoRepository;
         this.calendarioRepository = calendarioRepository;
-        this.petsRepository = petsRepository;
+        this.petRepository = petRepository;
         this.servicosRepository = servicosRepository;
         this.contratosRepository = contratosRepository;
         this.movimentacoesRepository = movimentacoesRepository;
     }
 
     public List<PetsDoTutorResponse> buscarPets(Long idUsuario) {
-        List<PetsEntity> pets = petsRepository.findByFkUsuarioIdUsuario(idUsuario);
+        List<PetsEntity> pets = petRepository.findByFkUsuarioIdUsuario(idUsuario);
         List<PetsDoTutorResponse> petsDoTutor = new ArrayList<>();
 
         for (PetsEntity pet : pets) {
@@ -90,7 +90,7 @@ public class AgendamentoTutorService {
         LocalDate primeiroDia = mesEscolhido.atDay(1);
         LocalDate ultimoDia = mesEscolhido.atEndOfMonth();
 
-        return agendamentosRepository.buscarAgendamentosDoTutor(
+        return agendamentoRepository.buscarAgendamentosDoTutor(
                 idUsuario,
                 primeiroDia,
                 ultimoDia,
@@ -150,7 +150,7 @@ public class AgendamentoTutorService {
         for (PetsEntity pet : pets) {
             for (LocalDate data : datas) {
                 AgendamentosEntity agendamento = paraEntityAgendamentos(pet, data, "CRECHE");
-                agendamentosRepository.save(agendamento);
+                agendamentoRepository.save(agendamento);
             }
             ContratosEntity plano = buscarPlanoVigente(pet, datas.getFirst());
             if ("PENDENTE".equals(plano.getSituacao())) {
@@ -185,7 +185,7 @@ public class AgendamentoTutorService {
 
         if (contrato.isEmpty()) {
             agendamento.setSituacao(SituacaoAgendamento.CANCELADO);
-            agendamentosRepository.save(agendamento);
+            agendamentoRepository.save(agendamento);
             return new CancelamentoResponse("Dia cancelado. O uso foi devolvido ao saldo do plano.");
         }
 
@@ -194,7 +194,7 @@ public class AgendamentoTutorService {
     }
 
     private AgendamentosEntity buscarAgendamentoDoTutor(Long idAgendamento, Long idUsuario) {
-        AgendamentosEntity agendamento = agendamentosRepository.findById(idAgendamento)
+        AgendamentosEntity agendamento = agendamentoRepository.findById(idAgendamento)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
 
         if (!agendamento.getFkPet().getFkUsuario().getIdUsuario().equals(idUsuario)) {
@@ -204,14 +204,14 @@ public class AgendamentoTutorService {
     }
 
     private void cancelarContratoAgendado(ContratosEntity contrato, PetsEntity pet, String categoria) {
-        List<AgendamentosEntity> dias = agendamentosRepository.buscarAtivosNoPerido(
+        List<AgendamentosEntity> dias = agendamentoRepository.buscarAtivosNoPerido(
                 pet.getIdPet(), categoria,
                 contrato.getDataInicio().atStartOfDay(),
                 contrato.getDataFim().plusDays(1).atStartOfDay());
 
         for (AgendamentosEntity dia : dias) {
             dia.setSituacao(SituacaoAgendamento.CANCELADO);
-            agendamentosRepository.save(dia);
+            agendamentoRepository.save(dia);
         }
 
         contrato.setSituacao("CANCELADO");
@@ -245,7 +245,7 @@ public class AgendamentoTutorService {
 
             for (LocalDate data : datas) {
                 AgendamentosEntity agendamento = paraEntityAgendamentos(pet, data, servicoCategoria);
-                agendamentosRepository.save(agendamento);
+                agendamentoRepository.save(agendamento);
             }
         }
 
@@ -293,7 +293,7 @@ public class AgendamentoTutorService {
         LocalDateTime inicioHora = inicio.atStartOfDay();
         LocalDateTime fimHora = fim.plusDays(1).atStartOfDay();
 
-        return agendamentosRepository.buscarAgendamentoPorServico(servico, inicioHora, fimHora).stream()
+        return agendamentoRepository.buscarAgendamentoPorServico(servico, inicioHora, fimHora).stream()
                 .collect(Collectors.toMap(
                         DiasComAgendamentoResponse::data,
                         DiasComAgendamentoResponse::totalPetsAgendados
@@ -317,7 +317,7 @@ public class AgendamentoTutorService {
         }
 
         List<Long> idsDistintos = ids.stream().distinct().toList();
-        List<PetsEntity> pets = petsRepository.findByIdPetInAndFkUsuarioIdUsuario(idsDistintos, idUsuario);
+        List<PetsEntity> pets = petRepository.findByIdPetInAndFkUsuarioIdUsuario(idsDistintos, idUsuario);
 
         if (pets.size() != idsDistintos.size()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Pet não encontrado para este tutor");
@@ -413,7 +413,7 @@ public class AgendamentoTutorService {
         LocalDateTime fim = data.plusDays(1).atStartOfDay();
 
         CalendarioEntity calendario = calendarioRepository.findByData(data).orElse(null);
-        long ocupadas =agendamentosRepository.buscarAgendamentoPorServico(servico, inicio, fim)
+        long ocupadas = agendamentoRepository.buscarAgendamentoPorServico(servico, inicio, fim)
                 .stream().mapToLong(DiasComAgendamentoResponse::totalPetsAgendados).sum();
 
         long livres = capacidadeDoDia(servico, calendario) - ocupadas;
@@ -423,7 +423,7 @@ public class AgendamentoTutorService {
         }
 
         for (PetsEntity pet : pets) {
-            if (agendamentosRepository.petJaAgendado(pet.getIdPet(), inicio, fim)) {
+            if (agendamentoRepository.petJaAgendado(pet.getIdPet(), inicio, fim)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, pet.getNome() + " já possui agendamento em " + data + ".");
             }
         }
@@ -467,7 +467,7 @@ public class AgendamentoTutorService {
             }
 
             int limite = Integer.parseInt(plano.getServicos().getFrequencia().replaceAll("[^0-9]", ""));
-            long usados = agendamentosRepository.contarCrecheNaSemana(
+            long usados = agendamentoRepository.contarCrecheNaSemana(
                     pet.getIdPet(), segunda.atStartOfDay(), segunda.plusDays(7).atStartOfDay());
 
             if (usados + diasNovos.size() > limite) {

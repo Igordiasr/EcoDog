@@ -57,9 +57,6 @@ public class UsuarioService {
 
     public void excluirTutor(Long id) {
         buscarTutor(id);
-//        if (petRepository.existsByTutorId(id)) {
-//            throw new ResponseStatusException(HttpStatus.CONFLICT, "Exclua os pets deste usuário antes de removê-lo");
-//        }
         usuarioRepository.deleteById(id);
     }
 
@@ -79,7 +76,11 @@ public class UsuarioService {
     }
 
     private UsuarioResponse paraUsuarioResponse(UsuariosEntity usuario) {
-        return new UsuarioResponse(usuario.getIdUsuario(), usuario.getNome(), usuario.getEmail(), usuario.getTelefone());
+        return new UsuarioResponse(
+                usuario.getIdUsuario(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getTelefone());
     }
 
     // -------------------------- Regras de negócio para Gestão de Usuários --------------------------------------

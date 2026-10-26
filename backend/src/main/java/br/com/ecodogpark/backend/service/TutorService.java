@@ -42,9 +42,11 @@ public class TutorService {
     public CadastroPetResponse cadastrarNovoPet(CadastroPetRequest cadastroPetRequest, Long idTutor) {
         if (!usuarioRepository.existsById(idTutor)) throw new UsuarioNaoEncontradoException("Tutor não encontrado");
         Optional<UsuariosEntity> tutor = usuarioRepository.findById(idTutor);
+
         if (petRepository.existsByFkUsuarioAndNome(tutor.get(), cadastroPetRequest.nome())) throw new ConflitoAoCadastrarException("Pet já cadastrado");
         PetsEntity pet = PetMapper.requestParaEntity(cadastroPetRequest);
         pet.setFkUsuario(tutor.get());
+
         NovoPetResponse novoPet = PetMapper.entityParaPetResponse(petRepository.save(pet));
         List<AlergiaParaListaResponse> alergiasDoPet = alergiasDoPetRepository.saveAll(PetMapper.alergiaDoPetParaEntity(cadastroPetRequest, pet))
                 .stream().map(PetMapper::entityParaAlergiaParaLista).toList();

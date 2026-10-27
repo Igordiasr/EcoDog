@@ -2,7 +2,7 @@ export function petCardFromPrototype(template, pet) {
     let description = 0;
     const map = node => {
         if (typeof node === 'string') return node;
-        const copy = { ...node, id: `${node.id || 'pet'}-${pet.idPet}` };
+        const copy = { ...node, id: `${node.id || 'pet'}-${pet.idPet}`, diaryPetId: pet.idPet };
         if (node.name === 'Ação' && node.children?.some(child => child.name === 'Rótulo' && child.children?.includes('Editar'))) copy.editPetId = pet.idPet;
         if (node.name === 'Nome') copy.children = [pet.nome];
         else if (node.name === 'Descrição') {

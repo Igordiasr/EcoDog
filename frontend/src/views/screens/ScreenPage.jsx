@@ -20,7 +20,11 @@ import { clearBookingDraft, draftDatesForCalendar, markBookingDraftReady, readBo
 import { structureBookingDesign } from '../design/structure-booking';
 import { structureActivities, structureActivityDesign } from '../design/structure-activities';
 import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
-import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions } from '../design/monitor-records';
+import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions, integratedMonitorDesign } from '../design/monitor-records';
+import { useMonitorFeed } from '../../viewmodels/use-monitor-feed';
+import { usePetDiary } from '../../viewmodels/use-pet-diary';
+import { integratedPetDiaryDesign } from '../design/pet-diary';
+import { presenceDay } from '../../viewmodels/use-presence';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
 import { useDashboard } from '../../viewmodels/use-dashboard';
 import { useManagementCalendar } from '../../viewmodels/use-management-calendar';
@@ -76,6 +80,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const tutorPets = useTutorPets(id === 'TL05', session);
     const presence = usePresence(id === 'TL11' && !preview, session);
     const dailyActivities = useDailyActivities(id === 'TL12' && !preview, session);
+    const monitorPetId = Number(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet'));
+    const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session);
+    const diaryPetId = Number(new URLSearchParams(location.search).get('pet'));
+    const diaryDay = new URLSearchParams(location.search).get('data') || presenceDay();
+    const petDiary = usePetDiary(id === 'TL07' && !preview, diaryPetId, diaryDay, session);
     const [design, setDesign] = useState(null);
     const [bookingDesign, setBookingDesign] = useState(null);
     const applyingDraft = useRef(null);
@@ -143,6 +152,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const [activityIndex, setActivityIndex] = useState(0);
     const [monitorSaved, setMonitorSaved] = useState({});
     const monitorSavedRef = useRef({});
+    useEffect(() => {
+        monitorSavedRef.current = {};
+        setMonitorSaved({});
+        setFields(values => Object.fromEntries(Object.entries(values).filter(([key]) => !key.startsWith('monitor.'))));
+    }, [id, monitorPetId, session?.token, monitorFeed.day]);
     useEffect(() => { setActivityIndex(0); }, [id]);
     const [confirmAction, setConfirmAction] = useState(null);
     const [allergies, setAllergies] = useState([]);
@@ -469,7 +483,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             const text = identity ? content(identity).trim() : '';
             const petName = text.split(/\s+Pet\s+\d/)[0].trim();
             const pet = panel?.presencePet;
-            navigate(preview ? '/prototipo/TL10' : '/monitor/feed', { state: { monitorContext: { petName: pet?.nomePet || petName, idPet: pet?.idPet, idAgendamento: pet?.idAgendamento, illustrative: !pet } } });
+            navigate(preview ? '/prototipo/TL10' : pet ? `/monitor/feed?pet=${pet.idPet}` : '/monitor/feed', { state: { monitorContext: { petName: pet?.nomePet || petName, idPet: pet?.idPet, idAgendamento: pet?.idAgendamento, illustrative: !pet } } });
             return;
         }
         if (id === 'TL14' && label === 'Adicionar atividade') {
@@ -501,7 +515,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         if (id === 'TL10' && label === 'Salvar') {
             const record = ancestors.findLast(isMonitorRecord);
-            if (!record || busy)
+            if (!record || busy || monitorFeed.saving || monitorFeed.loading)
                 return;
             const key = monitorRecordKey(record);
             if (monitorRecordLocked(record, monitorSavedRef.current[key])) {
@@ -519,7 +533,16 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setMessage('Registro bloqueado para alterações após salvar somente na prévia, em memória. Não foi salvo no servidor.');
                 return;
             }
-            setMessage(monitorDataUnavailable);
+            if (!record.monitorRecord || !monitorFeed.data) {
+                setMessage(monitorFeed.error || 'Aguarde a consulta da rotina do pet.');
+                return;
+            }
+            void monitorFeed.save(record.monitorRecord, values).then(saved => {
+                if (!saved) return;
+                monitorSavedRef.current = { ...monitorSavedRef.current, [key]: { values: { ...values } } };
+                setMonitorSaved(monitorSavedRef.current);
+                setMessage('Registro salvo no sistema.');
+            }).catch(error => setMessage(error.message));
             return;
         }
         if (id === 'TL09' && (label === 'Atividade anterior' || label === 'Próxima atividade')) {
@@ -673,7 +696,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             Promise.resolve().then(() => createAuthViewModel(api).login(fields)).then(session => {
                 onSession(session);
                 const bookingFlow = session.profile === 'tutor' && markBookingDraftReady();
-                go(bookingFlow ? 'TL03' : session.profile === 'tutor' ? 'TL05' : session.profile === 'monitor' ? 'TL10' : 'TL13');
+                go(bookingFlow ? 'TL03' : session.profile === 'tutor' ? 'TL05' : session.profile === 'monitor' ? 'TL11' : 'TL13');
             }).catch(error => setMessage(error instanceof Error ? error.message : 'Não foi possível entrar.')).finally(() => setBusy(false));
             return;
         }
@@ -714,7 +737,9 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return;
         }
         if (label === 'Ver diário') {
-            go('TL07');
+            const petId = node.diaryPetId || ancestors.findLast(parent => parent.diaryPetId)?.diaryPetId;
+            if (preview) go('TL07');
+            else navigate(`/tutor/diario${petId ? `?pet=${petId}` : ''}`);
             return;
         }
         if (/Já tem|Clique aqui/.test(label)) {
@@ -990,7 +1015,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                     return Object.fromEntries(Object.keys(errors).filter(key => updated[key]).map(key => [key, updated[key]]));
                 });
         }, tutorPets: id === 'TL05' ? tutorPets : undefined, petHealthCatalog: id === 'TL06' ? petHealthCatalog : undefined, managementCalendar: id === 'TL14' ? managementCalendar : undefined, dashboard: id === 'TL13' ? dashboard : undefined, activityIndex, petRecords, petErrors, removePetRecord, petAllergies: allergies, setPetAllergies: setAllergies, action, day, selectedDates: bookingDates, crecheWeekdays, cart, removeDate: (date) => { if (service !== 'Creche')
-            setSelectedDates(dates => dates.filter(selected => selected !== date)); }, service, pets, busy: busy || id === 'TL13' && dashboard.saving || id === 'TL14' && managementCalendar.saving, search: fields.pesquisa || '', monthOffset };
+            setSelectedDates(dates => dates.filter(selected => selected !== date)); }, service, pets, busy: busy || monitorFeed.saving || id === 'TL10' && !preview && (monitorFeed.loading || !monitorFeed.data) || id === 'TL13' && dashboard.saving || id === 'TL14' && managementCalendar.saving, search: fields.pesquisa || '', monthOffset };
     const screen = design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);
     const info = screens.find(s => s.id === id);
@@ -1003,17 +1028,17 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
       {id === 'TL09' && !preview && <button type="button" className="management-button" onClick={() => void openDialog('details')}>Consultar catálogo de atividades</button>}
-      {id === 'TL10' && <p className="loading-message" role="status">{monitorDataUnavailable} {preview ? 'Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.' : 'Registros apresentados são exemplos, não histórico consultado do sistema.'}</p>}
+      {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
+      {id === 'TL10' && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
        {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
        {id === 'TL11' && !preview && presence.error && <p className="loading-message" role="alert">{presence.error}</p>}
        {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
-      {id === 'TL10' && location.state?.monitorContext?.petName && <p className="loading-message">Contexto recebido: {location.state.monitorContext.petName}. Os dados do feed continuam ilustrativos até a integração por pet e agendamento.</p>}
       {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
       {!design && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
        {screen && <DesignContext.Provider value={{ ...context, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
-          <DesignRenderer node={enhance(screen)} root/>
+          <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
         </form>
       </DesignContext.Provider>}
       {menu && <Menu current={id} profile={info.profile || 'public'} go={go} close={closeMenu}/>}

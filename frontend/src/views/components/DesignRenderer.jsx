@@ -309,6 +309,9 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (!inert && /Vínculo de plano/.test(name) && ctx.search && !value.toLowerCase().includes(ctx.search.toLowerCase()))
         return null;
     const label = value.replace(/ ✓$/, '').trim();
+    if (!inert && ctx.dailyActivities && name === 'Filtro de concluídos') {
+        return <button {...props} type="button" className={`${className} design-button`} aria-label="CONCLUÍDOS" aria-pressed={ctx.dailyActivities.completed} onClick={() => ctx.action('CONCLUÍDOS', node, ancestors)}>{childNodes.map(child => child.name === 'Seleção' ? <span key={child.id} className={child.className} aria-hidden="true">{ctx.dailyActivities.completed ? '✓' : ''}</span> : recurse(child))}</button>;
+    }
     if (!inert && !isLeaf(node) && label === '×' && ancestors.some(n => n.name === 'Pet selecionado')) {
         const record = ancestors.findLast(n => n.name === 'Pet selecionado');
         const pet = content(record).split(' ')[0];
@@ -322,8 +325,13 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (canAct || inlineLink) {
         const record = ctx.screen === 'TL10' ? ancestors.findLast(isMonitorRecord) : undefined;
         const alreadySaved = /Entrada registrada|Saída registrada/.test(label) || label === 'Salvar' && !!record && monitorRecordLocked(record, ctx.monitorSaved?.[monitorRecordKey(record)]);
-        const missingCheckInEvidence = ctx.screen === 'TL11' && label === 'Registrar saída';
-        return <button {...props} type="button" className={`${className} design-button`} disabled={ctx.busy || alreadySaved || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
+        const completedActivity = ctx.dailyActivities && label === 'Concluído' && ancestors.findLast(parent => parent.dailyActivity)?.dailyActivity.situacao === 'CONCLUIDA';
+        const presencePet = ancestors.findLast(parent => parent.presencePet)?.presencePet;
+        const missingCheckInEvidence = ctx.screen === 'TL11' && (ctx.presenceIntegrated
+            ? label === 'Registrar entrada' ? !presencePet || presencePet.situacao !== 'AGENDADO' || !!presencePet.dataSaidaRaw
+                : label === 'Registrar saída' && (!presencePet || presencePet.situacao !== 'CONFIRMADO' || !presencePet.dataEntradaRaw || !!presencePet.dataSaidaRaw)
+            : label === 'Registrar saída');
+        return <button {...props} type="button" className={`${className} design-button`} disabled={ctx.busy || alreadySaved || completedActivity || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
     }
     if (!inert && ctx.screen === 'TL09' && bookingContext && isLeaf(node) && name === 'Mês') {
         const label = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(2026, 7 + ctx.monthOffset, 1));

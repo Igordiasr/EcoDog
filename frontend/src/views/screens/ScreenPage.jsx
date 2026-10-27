@@ -27,6 +27,10 @@ import { useManagementCalendar } from '../../viewmodels/use-management-calendar'
 import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
 import { checkInFeedDesign, diaryActionsDesign } from '../design/presentation-adjustments';
+import { presenceDesign } from '../design/presence';
+import { usePresence } from '../../viewmodels/use-presence';
+import { useDailyActivities } from '../../viewmodels/use-daily-activities';
+import { dailyActivitiesDesign } from '../design/daily-activities';
 import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
 import { PetCatalogDialog } from '../components/PetCatalogDialog';
@@ -70,6 +74,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const managementCalendar = useManagementCalendar(id === 'TL14', preview, api, calendarSource);
     const petHealthCatalog = usePetHealthCatalog(id === 'TL06' && preview, preview, petHealthCatalogSource);
     const tutorPets = useTutorPets(id === 'TL05', session);
+    const presence = usePresence(id === 'TL11' && !preview, session);
+    const dailyActivities = useDailyActivities(id === 'TL12' && !preview, session);
     const [design, setDesign] = useState(null);
     const [bookingDesign, setBookingDesign] = useState(null);
     const applyingDraft = useRef(null);
@@ -426,6 +432,29 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const action = (label, node, ancestors) => {
+        if (id === 'TL12' && !preview) {
+            if (label === 'CONCLUÍDOS') {
+                dailyActivities.toggleCompleted();
+                return;
+            }
+            if (label === 'Concluído') {
+                const activity = ancestors.findLast(parent => parent.dailyActivity)?.dailyActivity;
+                if (activity) void dailyActivities.complete(activity.idAtividadeDoDia);
+                return;
+            }
+            if (label === 'Detalhes' || label === 'Ver detalhes') {
+                const pet = ancestors.findLast(parent => parent.dailyPet)?.dailyPet;
+                const activity = ancestors.findLast(parent => parent.dailyActivity)?.dailyActivity;
+                if (pet) dailyActivities.openPet(pet);
+                else if (activity) dailyActivities.expand(activity.idAtividadeDoDia);
+                return;
+            }
+        }
+        if (id === 'TL11' && !preview && ['Registrar entrada', 'Registrar saída'].includes(label)) {
+            const pet = ancestors.findLast(parent => parent.presencePet)?.presencePet;
+            presence.open(pet, label === 'Registrar entrada' ? 'checkIn' : 'checkOut');
+            return;
+        }
         if (/^Legal!?$/.test(label)) {
             close();
             return;
@@ -439,7 +468,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             const identity = panel && findDesignNode(panel, 'Identificação do auluno');
             const text = identity ? content(identity).trim() : '';
             const petName = text.split(/\s+Pet\s+\d/)[0].trim();
-            navigate(preview ? '/prototipo/TL10' : '/monitor/feed', { state: { monitorContext: { petName, illustrative: true } } });
+            const pet = panel?.presencePet;
+            navigate(preview ? '/prototipo/TL10' : '/monitor/feed', { state: { monitorContext: { petName: pet?.nomePet || petName, idPet: pet?.idPet, idAgendamento: pet?.idAgendamento, illustrative: !pet } } });
             return;
         }
         if (id === 'TL14' && label === 'Adicionar atividade') {
@@ -936,7 +966,9 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (id === 'TL07')
             return diaryActionsDesign({ ...node, children });
         if (id === 'TL11')
-            return checkInFeedDesign({ ...node, children });
+            return !preview ? presenceDesign(checkInFeedDesign({ ...node, children }), presence) : checkInFeedDesign({ ...node, children });
+        if (id === 'TL12' && !preview && !dialog)
+            return dailyActivitiesDesign({ ...node, children }, dailyActivities, currentUser?.token === session?.token ? currentUser?.name : undefined);
         if (id === 'TL14')
             return managementCalendarDesign({ ...node, children }, managementCalendar);
         if (id === 'TL13') {
@@ -972,12 +1004,14 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
       {id === 'TL09' && !preview && <button type="button" className="management-button" onClick={() => void openDialog('details')}>Consultar catálogo de atividades</button>}
       {id === 'TL10' && <p className="loading-message" role="status">{monitorDataUnavailable} {preview ? 'Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.' : 'Registros apresentados são exemplos, não histórico consultado do sistema.'}</p>}
-      {id === 'TL11' && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
+       {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
+       {id === 'TL11' && !preview && presence.error && <p className="loading-message" role="alert">{presence.error}</p>}
+       {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
       {id === 'TL10' && location.state?.monitorContext?.petName && <p className="loading-message">Contexto recebido: {location.state.monitorContext.petName}. Os dados do feed continuam ilustrativos até a integração por pet e agendamento.</p>}
       {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
       {!design && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-      {screen && <DesignContext.Provider value={context}>
+       {screen && <DesignContext.Provider value={{ ...context, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(screen)} root/>
         </form>
@@ -1006,6 +1040,24 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     {(message || busy) && <div className="status-message" role={busy ? 'status' : 'alert'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
     {id === 'TL14' && <ManagementCalendarDialogs calendar={managementCalendar}/>}
     {id === 'TL06' && <PetCatalogDialog catalog={petHealthCatalog}/>}
+    {id === 'TL12' && !preview && dailyActivities.detailsPet && <Modal title={`Detalhes de ${dailyActivities.detailsPet.nome}`} onClose={dailyActivities.closePet}>
+      <div className="dialog-content"><h2>{dailyActivities.detailsPet.nome}</h2>
+        {dailyActivities.detailsError ? <p role="alert">{dailyActivities.detailsError}</p> : !dailyActivities.details ? <p role="status">Carregando detalhes…</p> : <>
+          <p>Pet {dailyActivities.detailsPet.idPet} • {dailyActivities.details.raca || 'Raça não informada'}</p>
+          <p>Tutor: {dailyActivities.details.nomeTutor || 'não informado'}</p>
+          <p>Observações: {dailyActivities.details.observacao || 'não informadas'}</p>
+        </>}
+        <div className="dialog-actions"><button type="button" onClick={dailyActivities.closePet}>Voltar</button></div>
+      </div>
+    </Modal>}
+    {id === 'TL11' && !preview && presence.target && <Modal title={presence.target.operation === 'checkIn' ? 'Registrar entrada' : 'Registrar saída'} onClose={presence.close}>
+      <form className="dialog-content" onSubmit={event => { event.preventDefault(); void presence.save(); }}>
+        <h2>{presence.target.operation === 'checkIn' ? 'Registrar entrada' : 'Registrar saída'} • {presence.target.pet.nomePet}</h2>
+        <label className="allergy-description">Nome do responsável<input required maxLength={100} autoFocus value={presence.responsible} disabled={presence.saving} onChange={event => presence.setResponsible(event.target.value)}/></label>
+        {presence.error && <p role="alert">{presence.error}</p>}
+        <div className="dialog-actions"><button type="button" disabled={presence.saving} onClick={presence.close}>Cancelar</button><button type="submit" disabled={presence.saving || !presence.responsible.trim()}>{presence.saving ? 'Aguarde…' : 'Confirmar'}</button></div>
+      </form>
+    </Modal>}
     {dialog && <Modal title={dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'}>
       {dialog === 'linkPlan' && <p className="dialog-content" role="status">{recordIdentityUnavailable} O formulário permanece apenas como rascunho ilustrativo de vínculo.</p>}
       {modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>

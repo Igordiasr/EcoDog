@@ -1,7 +1,7 @@
 import { requestJson } from './http';
 import { list, object, optionalText, positiveId, text } from '../models/integration-contracts';
-export function createMonitorFeedApi(baseUrl, request) {
-    const get = (path, signal) => requestJson(baseUrl, path, {}, signal, request);
+export function createMonitorFeedApi(baseUrl, request, token) {
+    const get = (path, signal) => requestJson(baseUrl, path, { headers: token ? { Authorization: `Bearer ${token}` } : {} }, signal, request);
     return {
         /** Read-only while MON-02/03 and RF-042 remain unverified. */
         async pet(petId, signal) {

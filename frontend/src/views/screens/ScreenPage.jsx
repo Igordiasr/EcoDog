@@ -10,6 +10,10 @@ import { categoryForService, loadActiveServices, loadBookingAvailability } from 
 import { bookingDate, bookingMonth, selectionForService, toggleBookingDate, validBookingSelection, recurringBookingDates, toggleCrecheWeekday, weekdayForDate, weekdaysForDates } from '../design/booking';
 import { buildBookingCart } from '../../viewmodels/booking-cart';
 import { createPetDraft } from '../../viewmodels/pet-draft';
+import { registerTutorPet } from '../../models/pet-registration';
+import { loadTutorPets } from '../../models/tutor-pets';
+import { loadCurrentUserName } from '../../models/current-user';
+import { availableBookingDates, bookingPets, bookingBudget, matchingBookingService, saveTutorBooking } from '../../api/tutor-booking';
 import { validatePetForm, validatePetPhoto } from '../../models/pet-validation';
 import { unconfiguredHolidayCalendar } from '../../models/holidays';
 import { clearBookingDraft, draftDatesForCalendar, markBookingDraftReady, readBookingDraft, saveBookingDraft } from '../../viewmodels/booking-draft';
@@ -48,10 +52,23 @@ function useMobile() {
 export function ScreenPage({ id, preview = false, api, session, holidayCalendar = unconfiguredHolidayCalendar, dashboardSource, calendarSource, petHealthCatalogSource, tutorScheduleSource, onSession }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const [currentUser, setCurrentUser] = useState(null);
+    useEffect(() => {
+        setCurrentUser(null);
+        if (!session?.token || preview) return;
+        const controller = new AbortController();
+        loadCurrentUserName(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, controller.signal)
+            .then(name => { if (!controller.signal.aborted) setCurrentUser({ token: session.token, name }); })
+            .catch(() => {});
+        return () => controller.abort();
+    }, [session?.token, session?.id, preview]);
+    const editPetParam = id === 'TL06' && !preview ? new URLSearchParams(location.search).get('editar') : null;
+    const editPetId = editPetParam === null ? undefined : Number(editPetParam);
+    const [editPetReady, setEditPetReady] = useState(false);
     const mobile = useMobile();
     const dashboard = useDashboard(id === 'TL13', preview, api, dashboardSource);
     const managementCalendar = useManagementCalendar(id === 'TL14', preview, api, calendarSource);
-    const petHealthCatalog = usePetHealthCatalog(id === 'TL06', preview, petHealthCatalogSource);
+    const petHealthCatalog = usePetHealthCatalog(id === 'TL06' && preview, preview, petHealthCatalogSource);
     const tutorPets = useTutorPets(id === 'TL05', session);
     const [design, setDesign] = useState(null);
     const [bookingDesign, setBookingDesign] = useState(null);
@@ -72,9 +89,26 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const [monthOffset, setMonthOffset] = useState(0);
     const [availability, setAvailability] = useState(null);
     const [availabilityError, setAvailabilityError] = useState('');
-    const availabilityKey = `${service}:${monthOffset}`;
+    const [bookingPetList, setBookingPetList] = useState([]);
+    const [bookingServices, setBookingServices] = useState([]);
+    const [budgetState, setBudgetState] = useState(null);
+    const [budgetError, setBudgetError] = useState('');
+    const bookingInFlight = useRef(false);
+    const [bookingRefresh, setBookingRefresh] = useState(0);
+    const availabilityKey = `${service}:${monthOffset}:${pets.length}`;
+    const bookingBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
     useEffect(() => {
-        if (!bookingScreen || preview || !import.meta.env.VITE_API_BASE_URL)
+        if (id !== 'TL03' || preview) return;
+        const controller = new AbortController();
+        setBookingPetList([]);
+        setPets([]);
+        bookingPets(bookingBaseUrl, session, controller.signal).then(data => {
+            if (!controller.signal.aborted) setBookingPetList(data);
+        }).catch(error => { if (!controller.signal.aborted) setMessage(error.message); });
+        return () => controller.abort();
+    }, [id, preview, session?.token]);
+    useEffect(() => {
+        if (!bookingScreen || preview)
             return;
         const controller = new AbortController();
         const category = categoryForService(service);
@@ -82,8 +116,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setAvailability(null);
         setAvailabilityError('');
         Promise.all([
-            loadActiveServices(import.meta.env.VITE_API_BASE_URL, category, controller.signal),
-            loadBookingAvailability(import.meta.env.VITE_API_BASE_URL, category, date.getFullYear(), date.getMonth() + 1, controller.signal),
+            loadActiveServices(bookingBaseUrl, category, controller.signal, undefined, session?.token),
+            loadBookingAvailability(bookingBaseUrl, category, date.getFullYear(), date.getMonth() + 1, controller.signal, undefined, session?.token),
         ]).then(([services, dates]) => {
             if (controller.signal.aborted)
                 return;
@@ -91,12 +125,13 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setAvailabilityError('Não há serviços ativos nesta categoria.');
                 return;
             }
-            const available = new Set(dates.filter(d => d.vagasDisponiveis > 0).map(d => d.data));
-            setAvailability({ key: `${service}:${monthOffset}`, available });
+            setBookingServices(services);
+            const available = availableBookingDates(dates, pets.length);
+            setAvailability({ key: availabilityKey, available });
         }).catch(() => { if (!controller.signal.aborted)
             setAvailabilityError('Não foi possível consultar a disponibilidade.'); });
         return () => controller.abort();
-    }, [bookingScreen, preview, service, monthOffset]);
+    }, [bookingScreen, preview, service, monthOffset, pets.length, session?.token, bookingRefresh]);
     const [busy, setBusy] = useState(false);
     const [message, setMessage] = useState(location.state?.message || '');
     const [activityIndex, setActivityIndex] = useState(0);
@@ -133,11 +168,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setRepeats({});
         setDay(id === 'TL14' ? 15 : 13);
         setService('Hotel');
-        setPets(['Thor', 'Mel', 'Luke']);
-        setMonthOffset(id === 'TL09' ? (new Date().getFullYear() - 2026) * 12 + new Date().getMonth() - 7 : 0);
+        setPets(id === 'TL03' && !preview ? [] : ['Thor', 'Mel', 'Luke']);
+        setMonthOffset((id === 'TL09' || id === 'TL03' && !preview) ? (new Date().getFullYear() - 2026) * 12 + new Date().getMonth() - 7 : 0);
         setAllergies([]);
         setPhoto('');
-        setSelectedDates(['2026-08-13']);
+        setSelectedDates(id === 'TL03' && !preview ? [] : ['2026-08-13']);
         if (id === 'TL09')
             setSelectedDates([]);
         setCrecheWeekdays([]);
@@ -162,6 +197,22 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         window.scrollTo(0, 0);
         return () => { canceled = true; };
     }, [id]);
+    useEffect(() => {
+        setEditPetReady(false);
+        if (editPetId === undefined) return;
+        const controller = new AbortController();
+        setBusy(true);
+        setFields({});
+        loadTutorPets(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, controller.signal).then(pets => {
+            if (controller.signal.aborted) return;
+            const pet = pets.find(pet => pet.idPet === editPetId);
+            if (!pet) throw new Error('Pet não encontrado na sua lista.');
+            setFields({ nome: pet.nome, raca: pet.raca || '', sexo: pet.sexo || '', castrado: pet.castrado === true ? 'Sim' : pet.castrado === false ? 'Não' : '', nascimento: pet.dataNascimento?.split('-').reverse().join('/') || '', veterinario: pet.veterinario || '', contato: pet.telefoneVeterinario || '', convenio: typeof pet.convenio === 'boolean' ? pet.convenio ? 'Sim' : 'Não' : '', obs: pet.observacao || '', 'relacionamento-com-outros-pets': pet.relacaoComOutros || '' });
+            setEditPetReady(true);
+            setMessage('Edição do pet: confira os dados e preencha os campos não retornados pela consulta. Vacinas, alergias e medicações serão substituídas por listas vazias.');
+        }).catch(error => { if (!controller.signal.aborted) setMessage(error.message); }).finally(() => { if (!controller.signal.aborted) setBusy(false); });
+        return () => controller.abort();
+    }, [editPetId, session?.token, session?.id]);
     const bookingReference = id === 'TL09' ? bookingDesign?.desktop : design?.desktop;
     const bookingDates = service === 'Creche' ? recurringBookingDates(bookingReference, crecheWeekdays, monthOffset) : selectedDates;
     useEffect(() => {
@@ -175,7 +226,35 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         clearBookingDraft(draft.token);
         applyingDraft.current = null;
     }, [id, design, service, monthOffset, selectedDates, crecheWeekdays]);
-    const cart = buildBookingCart({ service, dates: bookingDates, frequency: crecheWeekdays.length, month: bookingMonth(monthOffset), petCount: pets.length, holidays: holidayCalendar });
+    const selectedBookingService = matchingBookingService(bookingServices, categoryForService(service), crecheWeekdays.length);
+    const budgetKey = JSON.stringify([session?.token, service, selectedBookingService?.id, pets, bookingDates]);
+    useEffect(() => {
+        if (id !== 'TL03' || preview) return;
+        const controller = new AbortController();
+        setBudgetState(null);
+        setBudgetError('');
+        if (!pets.length || !bookingDates.length) return;
+        if (!selectedBookingService) {
+            setBudgetError('Não há um serviço único no backend correspondente ao serviço e à frequência selecionados.');
+            return;
+        }
+        if (!availability || availability.key !== availabilityKey || bookingDates.some(date => !availability.available.has(date))) {
+            return;
+        }
+        bookingBudget(bookingBaseUrl, session, selectedBookingService, pets.map(Number), bookingDates, controller.signal).then(data => {
+            if (!controller.signal.aborted) setBudgetState({ key: budgetKey, data });
+        }).catch(error => { if (!controller.signal.aborted) setBudgetError(error.message); });
+        return () => controller.abort();
+    }, [id, preview, budgetKey, availability]);
+    const currentBudget = budgetState?.key === budgetKey ? budgetState.data : null;
+    useEffect(() => {
+        if (id === 'TL03' && !preview && budgetError) setMessage(budgetError);
+    }, [id, preview, budgetError]);
+    const cart = id === 'TL03' && !preview ? {
+        items: [], petCount: pets.length, totalCents: currentBudget ? Math.round(currentBudget.valorTotal * 100) : 0,
+        subtotalPerPetCents: currentBudget && pets.length ? Math.round(currentBudget.valorTotal * 100 / pets.length) : 0,
+        dates: currentBudget?.datasUtilizacao || bookingDates, pending: !currentBudget, error: budgetError,
+    } : buildBookingCart({ service, dates: bookingDates, frequency: crecheWeekdays.length, month: bookingMonth(monthOffset), petCount: pets.length, holidays: holidayCalendar });
     const selectWeekday = (weekday) => {
         if (weekday === 0)
             return;
@@ -257,14 +336,15 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return !Object.keys(dashboard.validate(keys)).length;
         }
         if (id === 'TL06' && !dialog) {
-            const errors = validatePetForm(fields, petRecords);
-            const stepKeys = [['nome', 'nascimento', 'raca', 'sexo', 'castrado', 'convenio'], ['veterinario', 'contato', 'relacionamento-com-outros-pets'], ['vacinas.'], ['alergia-'], ['medicamentos.']][step];
+            const registrationFields = preview ? fields : Object.fromEntries(Object.entries(fields).filter(([key]) => !key.startsWith('alergia-')));
+            const errors = validatePetForm(registrationFields, preview ? petRecords : { vacinas: [], medicamentos: [] }, !preview);
+            const stepKeys = [['nome', 'nascimento', 'raca', 'sexo', 'castrado', 'convenio'], ['veterinario', 'contato', 'relacionamento-com-outros-pets', 'obs'], ['vacinas.'], ['alergia-'], ['medicamentos.']][step];
             const relevant = allPetFields || !mobile || step === 5 ? errors : Object.fromEntries(Object.entries(errors).filter(([key]) => stepKeys?.some(prefix => key === prefix || key.startsWith(prefix))));
             setPetErrors(relevant);
             if (Object.keys(relevant).length) {
                 if (mobile && allPetFields) {
                     const key = Object.keys(relevant)[0];
-                    setStep(key.startsWith('vacinas.') ? 2 : key.startsWith('alergia-') ? 3 : key.startsWith('medicamentos.') ? 4 : ['veterinario', 'contato', 'relacionamento-com-outros-pets'].includes(key) ? 1 : 0);
+                    setStep(key.startsWith('vacinas.') ? 2 : key.startsWith('alergia-') ? 3 : key.startsWith('medicamentos.') ? 4 : ['veterinario', 'contato', 'relacionamento-com-outros-pets', 'obs'].includes(key) ? 1 : 0);
                 }
                 setMessage('Confira os campos indicados antes de continuar.');
                 return false;
@@ -281,14 +361,19 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         return true;
     };
     const run = async (operation, needsValidation = false) => {
-        const block = prototypeOperationBlock(operation, dialog);
+        if (operation === 'savePet' && editPetId !== undefined && !editPetReady) {
+            setMessage('Aguarde a consulta do pet ou volte para Meus Pets para tentar novamente.');
+            return;
+        }
+        const integratedBooking = operation === 'book' && id === 'TL03' && !preview;
+        const block = integratedBooking ? null : prototypeOperationBlock(operation, dialog);
         if (block) {
             setMessage(block);
             return;
         }
-        if (busy || needsValidation && !validate(operation === 'savePet'))
+        if (busy || integratedBooking && bookingInFlight.current || needsValidation && !validate(operation === 'savePet'))
             return;
-        if (operation === 'book' && ((!availability || availability.key !== availabilityKey || bookingDates.some(date => !availability.available.has(date))) || !validBookingSelection(design?.desktop, bookingDates, service) || service === 'Creche' && (!crecheWeekdays.length || crecheWeekdays.length > 6))) {
+        if (operation === 'book' && ((!availability || availability.key !== availabilityKey || bookingDates.some(date => !availability.available.has(date))) || !integratedBooking && !validBookingSelection(design?.desktop, bookingDates, service) || service === 'Creche' && (!crecheWeekdays.length || crecheWeekdays.length > 6))) {
             setMessage('Selecione uma data disponível.');
             return;
         }
@@ -296,6 +381,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             setMessage('Selecione o serviço, a data e os pets.');
             return;
         }
+        if (integratedBooking && (!selectedBookingService || !currentBudget)) {
+            setMessage('Aguarde o orçamento do serviço selecionado antes de agendar.');
+            return;
+        }
+        if (integratedBooking) bookingInFlight.current = true;
         setBusy(true);
         setMessage('');
         try {
@@ -304,11 +394,20 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 petDraft.photo = petPhoto;
             // Only the creation form/draft is sent. Never attach unrelated pet names,
             // design targets or the prototype's day/service to another operation.
-            const result = await api.execute(operation, petDraft || (dialog ? dialogFields : fields));
+            const result = integratedBooking
+                ? await saveTutorBooking(bookingBaseUrl, session, selectedBookingService, pets.map(Number), bookingDates)
+                : operation === 'savePet' && id === 'TL06' && !dialog && !preview
+                ? await registerTutorPet(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, petDraft, undefined, undefined, editPetId)
+                : await api.execute(operation, petDraft || (dialog ? dialogFields : fields));
             setMessage(result.message);
             if (operation === 'book') {
                 clearBookingDraft();
                 await openDialog('confirmation');
+                setMessage(result.message);
+                setSelectedDates([]);
+                setCrecheWeekdays([]);
+                setBudgetState(null);
+                setBookingRefresh(value => value + 1);
             }
             else if (operation === 'register')
                 go('TL02');
@@ -319,12 +418,22 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         catch (error) {
             setMessage(error instanceof Error ? error.message : 'Não foi possível concluir. Tente novamente.');
+            if (integratedBooking) setBookingRefresh(value => value + 1);
         }
         finally {
+            if (integratedBooking) bookingInFlight.current = false;
             setBusy(false);
         }
     };
     const action = (label, node, ancestors) => {
+        if (/^Legal!?$/.test(label)) {
+            close();
+            return;
+        }
+        if (label === 'Editar pet integrado') {
+            navigate(`/tutor/pets/novo?editar=${node.editPetId}`);
+            return;
+        }
         if (id === 'TL11' && label === 'Feed do Monitor') {
             const panel = ancestors.findLast(node => node.name === 'Painel' && !!findDesignNode(node, 'Identificação do auluno'));
             const identity = panel && findDesignNode(panel, 'Identificação do auluno');
@@ -490,7 +599,13 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return;
         }
         if (label === 'Todos os pets') {
-            setPets(p => p.length === 3 ? [] : ['Thor', 'Mel', 'Luke']);
+            const all = id === 'TL03' && !preview ? bookingPetList.map(pet => String(pet.idPet)) : ['Thor', 'Mel', 'Luke'];
+            setPets(p => p.length === all.length ? [] : all);
+            return;
+        }
+        if (label.startsWith('Booking pet ')) {
+            const pet = label.slice(12);
+            setPets(list => list.includes(pet) ? list.filter(item => item !== pet) : [...list, pet]);
             return;
         }
         if (/^Pet (Thor|Mel|Luke)$/.test(label)) {
@@ -710,6 +825,23 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (id === 'TL06' && !dialog && (node.name === 'Listagem de alergias' || node.id === 'x2uAZ'))
             return { ...node, name: 'Pet allergies' };
         let children = node.children?.filter(c => !(id === 'TL13' && inDashboardForm && content(c).trim() === '×')).filter(c => id !== 'TL06' || typeof c === 'string' || !['e1u9df', 'uwuPj'].includes(c.id || '')).map(c => typeof c === 'string' ? c : enhance(c, inDashboardForm));
+        if (id === 'TL03' && !preview && children) {
+            const petTemplate = children.find(child => typeof child !== 'string' && (child.name === 'Pet selecionado' || /^(Thor|Mel|Luke) · selecionado$/.test(child.name || '')));
+            if (petTemplate) {
+                const mapPet = (entry, pet) => {
+                    if (typeof entry === 'string') return entry;
+                    const copy = { ...entry, id: `${entry.id || 'booking-pet'}-${pet.idPet}` };
+                    const selected = pets.includes(String(pet.idPet));
+                    if (entry.name === 'Foto do pet') return { ...copy, className: entry.className.replace(/bg-\[url\([^]*?\)\]/g, '') + ' bg-[var(--background)]', children: [] };
+                    if (entry.name === 'Nome' || entry.name === 'Nome do pet' || ['Thor', 'Mel', 'Luke'].includes(content(entry).trim())) return { ...copy, children: [pet.nome] };
+                    if (entry.name === 'Seleção individual' || entry.name === 'Texto' && content(entry).trim() === 'Selecionado') return { ...copy, children: [selected ? 'Selecionado' : 'Não selecionado'] };
+                    if (entry.name === 'Rótulo' && /Thor|Mel|Luke/.test(content(entry))) return { ...copy, children: [`${selected ? '✓' : '○'} ${pet.nome}`] };
+                    if (entry.name === 'Ação' && content(entry).trim() === '×') return { ...copy, children: [selected ? '×' : '+'] };
+                    return { ...copy, children: entry.children?.map(child => mapPet(child, pet)) };
+                };
+                children = [...children.filter(child => typeof child === 'string' || !(child.name === 'Pet selecionado' || /^(Thor|Mel|Luke) · selecionado$/.test(child.name || ''))), ...bookingPetList.map(pet => ({ ...mapPet(petTemplate, pet), name: 'Booking pet', bookingPet: pet }))];
+            }
+        }
         if (id === 'TL06' && !dialog && (node.id === 'CUvkc' || node.name === 'Card · Identificação') && children) {
             const candidates = children.filter((child) => typeof child !== 'string').flatMap(child => [child, ...nodes(child)]);
             const race = candidates.find(child => content(nodes(child)[0] || '') === 'Raça');
@@ -757,18 +889,20 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         if (id === 'TL03' && !mobile && node.id === 'PyCgJ') {
             let valuesCard;
-            const removeValuesCard = (child) => {
-                if (typeof child === 'string')
-                    return child;
+            const removeValuesCard = child => {
+                if (typeof child === 'string') return child;
                 if (child.id === 'IjVwX') {
                     valuesCard = child;
                     return null;
                 }
-                return { ...child, children: child.children?.map(removeValuesCard).filter((item) => item !== null) };
+                return { ...child, children: child.children?.map(removeValuesCard).filter(item => item !== null) };
             };
-            children = children?.map(removeValuesCard).filter((item) => item !== null);
-            if (valuesCard && children?.length)
-                children = [children[0], ...children.slice(1), { ...valuesCard, tag: 'aside' }];
+            children = children?.map(removeValuesCard).filter(item => item !== null);
+            if (valuesCard && children?.length) children = [children[0], ...children.slice(1), { ...valuesCard, tag: 'aside' }];
+        }
+        if (id === 'TL05' && node.name === 'Plano contratado') {
+            const header = children?.filter(child => typeof child !== 'string' && child.name === 'Cabeçalho da tabela') || [];
+            return { ...node, children: [...header, { tag: 'p', id: `${node.id}-unavailable`, name: 'Consulta de planos indisponível', className: 'w-full p-[16px] text-[16px]/[23px] text-[var(--text)] font-[Roboto,system-ui,sans-serif]', children: ['Não foi possível consultar seus planos: o backend ainda não disponibiliza essa consulta.'] }] };
         }
         if (repeats[node.id] && children) {
             const group = children.findLast(c => typeof c !== 'string' && c.name === 'Grupo de campos');
@@ -787,7 +921,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                     return entry;
                 const date = calendarDay(entry);
                 const blocked = date && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(date.day, monthOffset)));
-                return { ...entry, className: date ? `${(entry.className || '').replace(/bg-\[#ffe8e0(?:ff)?\]/gi, '')} ${blocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}` : entry.className, children: entry.children?.map(decorate) };
+                return { ...entry, ...(date && !preview ? { bookingUnavailable: !!blocked } : {}), className: date ? `${(entry.className || '').replace(/bg-\[#ffe8e0(?:ff)?\]/gi, '')} ${blocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}` : entry.className, children: entry.children?.map(decorate) };
             };
             return { ...node, className: `${node.className} booking-calendar`, children: calendar.children?.map(decorate) };
         }
@@ -814,7 +948,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         return { ...node, children };
     };
-    const context = { screen: id, mobile, monitorSaved, modal: false, fields: dialog ? dialogFields : fields, setField: (key, value) => {
+    const context = { screen: id, mobile, userRole: !preview ? { tutor: 'Tutor', monitor: 'Monitor', admin: 'Administrador' }[session?.profile] : undefined, userName: session?.token && !preview ? currentUser?.token === session.token ? currentUser.name : 'Minha conta' : undefined, bookingIntegrated: id === 'TL03' && !preview, bookingPetList, monitorSaved, modal: false, fields: dialog ? dialogFields : fields, setField: (key, value) => {
             if (id === 'TL10' && key.startsWith('monitor.') && monitorSavedRef.current[key.split('.')[1]])
                 return;
             (dialog ? setDialogFields : setFields)(f => ({ ...f, [key]: value }));
@@ -861,6 +995,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         return;
                     }
                     setPetPhoto(file);
+                    setMessage('A foto será exibida apenas nesta prévia; o backend não possui endpoint para salvá-la.');
                 }
                 if (photoRef.current)
                     URL.revokeObjectURL(photoRef.current);

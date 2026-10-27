@@ -8,6 +8,7 @@ import { bookingDate, weekdayForDate, recurringBookingDates } from '../design/bo
 import { BookingDates } from './BookingDates';
 import { BookingCartSummary } from './BookingCart';
 import { formatMoney } from '../../viewmodels/booking-cart';
+import { selectedPetsSentence } from '../../viewmodels/booking-presentation';
 import { petChoices } from '../../viewmodels/pet-draft';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLocked, monitorOptions, monitorOption } from '../design/monitor-records';
 import { DashboardCharts } from './DashboardCharts';
@@ -82,10 +83,24 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             className += ' page-footer';
     }
     props.className = className;
+    if (node.bookingPet) {
+        const pet = node.bookingPet;
+        const selected = ctx.pets.includes(String(pet.idPet));
+        return <button {...props} type="button" aria-label={pet.nome} aria-pressed={selected} onClick={() => ctx.action(`Booking pet ${pet.idPet}`, node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
+    }
+    if (node.editPetId) return <button {...props} type="button" aria-label="Editar pet" onClick={() => ctx.action('Editar pet integrado', node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     if (ctx.screen === 'TL05' && name === 'Pets cadastrados')
-        return <section aria-label="Pets cadastrados" className="w-full"><TutorPets model={ctx.tutorPets}/></section>;
-    if (ctx.screen === 'TL05' && name === 'Meus planos') return null;
-    if (ctx.screen === 'TL05' && name === 'Conta') return <div {...props}>Minha conta • Tutor</div>;
+        return <TutorPets model={ctx.tutorPets} node={node} renderCard={card => <DesignRenderer key={card.id} node={card} ancestors={[...ancestors, node]} inert/>}/>;
+    const isHeaderProfile = name === 'Perfil' && parentIsHeader && node.tag !== 'img';
+    if (isHeaderProfile && !inert) {
+        const identity = ctx.userName ? `${ctx.userName}${ctx.userRole ? ` • ${ctx.userRole}` : ''}` : undefined;
+        const missingLabel = !childNodes.some(child => ['Conta', 'Rótulo'].includes(child.name));
+        return <button {...props} type="button" aria-label="Editar meus dados" className={`${className} header-profile design-button`} onClick={() => ctx.action('Meus Dados', node, ancestors)}>{identity && missingLabel && <div className="header-user-identity" title={identity}>{identity}</div>}{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
+    }
+    if (ctx.userName && isLeaf(node) && ['Conta', 'Rótulo'].includes(name) && ancestors.some(ancestor => ancestor.name === 'Perfil') && ancestors.some(ancestor => /^(Cabeçalho|header)$/.test(ancestor.name || ''))) {
+        const identity = `${ctx.userName}${ctx.userRole ? ` • ${ctx.userRole}` : ''}`;
+        return <div {...props} className={`${className} header-user-identity`} title={identity}>{identity}</div>;
+    }
     if (ctx.screen === 'TL05' && name === 'Contexto') return <div {...props}>ÁREA DO TUTOR</div>;
     if (ctx.screen === 'TL05' && ['dRpD5', 'AwXSp'].includes(node.id || '') && ctx.tutorSchedule)
         return <div {...props}><ScheduledPetDays records={ctx.tutorSchedule.data} error={ctx.tutorSchedule.error} example={ctx.tutorSchedule.example}/></div>;
@@ -230,9 +245,9 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const recurse = (child, i, locked = inert) => typeof child === 'string' ? arrowText(child) : <DesignRenderer key={child.id || i} node={child} ancestors={[...ancestors, node]} inert={locked}/>;
     const renderChildren = (locked = inert) => node.children?.map((child, i) => recurse(child, i, locked));
     if (!inert && ctx.screen === 'TL03' && name === 'Valor previsto')
-        return <div {...props}>
-    {childNodes.filter(child => child.name !== 'Valor linha').map((child, index) => recurse(child, index))}
-  </div>;
+        return <div {...props}>{childNodes.filter(child => child.name !== 'Valor linha').map((child, index) => recurse(child, index))}</div>;
+    if (!inert && ctx.modal && /^Legal!?$/.test(value) && isLeaf(node))
+        return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action('Legal!', node, ancestors)}>{value}</button>;
     if (!inert && bookingContext && ctx.screen === 'TL03' && isLeaf(node) && value === 'Cancelar')
         return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action('Cancelar', node, ancestors)}>{value}</button>;
     if (/EcoMigo • Acesso/.test(name) && !inert)
@@ -246,7 +261,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const dayCell = !isLeaf(node) && childNodes.some(n => n.name === 'Número do dia') && /^\d+/.test(value);
     if (!inert && dayCell) {
         const day = parseInt(value);
-        const unavailable = bookingContext ? calendarDay(node)?.unavailable === true : /#d|#c|#f2/.test(className) && !/var\(--/.test(className);
+        const unavailable = node.bookingUnavailable !== undefined ? node.bookingUnavailable : bookingContext ? calendarDay(node)?.unavailable === true : /#d|#c|#f2/.test(className) && !/var\(--/.test(className);
         const blockedSunday = bookingContext && ctx.service === 'Creche' && weekdayForDate(bookingDate(day, ctx.monthOffset)) === 0;
         const selected = !unavailable && !blockedSunday && (bookingContext ? ctx.selectedDates.includes(bookingDate(day, ctx.monthOffset)) : day === ctx.day);
         const frequencyLimit = bookingContext && ctx.service === 'Creche' && ctx.crecheWeekdays.length === 6 && !ctx.crecheWeekdays.includes(weekdayForDate(bookingDate(day, ctx.monthOffset)));
@@ -264,7 +279,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (!inert && !isLeaf(node) && (name === 'Serviço' || /^[○●]\s/.test(name)) && ['Creche', 'Hotel', 'DayUse'].includes(serviceLabel))
         return <button {...props} type="button" className={`${className.replace(/bg-\[[^\]]+\]/g, '')} service-option ${ctx.service === serviceLabel ? 'service-selected' : ''}`} aria-label={serviceLabel} aria-pressed={ctx.service === serviceLabel} onClick={() => ctx.action(serviceLabel, node, ancestors)}>{ctx.mobile ? `${ctx.service === serviceLabel ? '●' : '○'}  ${serviceLabel}` : `${ctx.service === serviceLabel ? '✓ ' : ''}${serviceLabel}`}</button>;
     if (!inert && !isLeaf(node) && (/Selecionar todos/.test(name) || /^☐\s+Todos os pets/.test(name)))
-        return <button {...props} type="button" className={`${className} design-button`} aria-label="Todos os pets" aria-pressed={ctx.pets.length === 3} onClick={() => ctx.action('Todos os pets', node, ancestors)}><span className={ctx.screen === 'TL03' ? 'pets-all-checkbox' : undefined} aria-hidden="true">{ctx.pets.length === 3 ? '☑' : '☐'}</span><span>Todos os pets</span></button>;
+        return <button {...props} type="button" className={`${className} design-button`} aria-label="Todos os pets" aria-pressed={ctx.pets.length > 0 && ctx.pets.length === (ctx.bookingIntegrated ? ctx.bookingPetList.length : 3)} onClick={() => ctx.action('Todos os pets', node, ancestors)}><span className={ctx.screen === 'TL03' ? 'pets-all-checkbox' : undefined} aria-hidden="true">{ctx.pets.length > 0 && ctx.pets.length === (ctx.bookingIntegrated ? ctx.bookingPetList.length : 3) ? '☑' : '☐'}</span><span>Todos os pets</span></button>;
     if (!inert && !isLeaf(node) && /^(Thor|Mel|Luke) · selecionado$/.test(name)) {
         const pet = name.split(' · ')[0];
         const selected = ctx.pets.includes(pet);
@@ -321,7 +336,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (!inert && ctx.screen === 'TL09' && isLeaf(node) && value === 'Veja nossas vagas')
         return <div {...props}>Calendário ilustrativo</div>;
     if (!inert && ctx.screen === 'TL09' && isLeaf(node) && value.startsWith('Verifique os dias disponíveis'))
-        return <div {...props} role="status">{bookingSelectionNotice} Escolha datas apenas para a prévia.</div>;
+        return <div {...props} role="status">{ctx.bookingIntegrated ? 'Disponibilidade consultada para os pets selecionados. O orçamento não cria uma reserva.' : `${bookingSelectionNotice} Escolha datas apenas para a prévia.`}</div>;
     if (!inert && value === 'Meus Dados' && (isLeaf(node) || childNodes.length === 1))
         return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action('Meus Dados', node, ancestors)}>{renderChildren(true)}</button>;
     if (!inert && bookingContext && isLeaf(node) && parent?.name === 'Dia da semana') {
@@ -334,20 +349,17 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     }
     if (!inert && ['TL03'].includes(ctx.screen) && isLeaf(node)) {
         if (name === 'Montante')
-            return <div {...props} aria-live="polite">{formatMoney(ctx.cart.totalCents)}</div>;
+            return <div {...props} aria-live="polite">{ctx.cart.pending ? 'Aguardando orçamento' : formatMoney(ctx.cart.totalCents)}</div>;
         if (name === 'Rótulo valor')
             return <div {...props}>Valor total</div>;
         if (name === 'Nota valor')
             return <div {...props}><BookingCartSummary cart={ctx.cart} service={ctx.service} frequency={ctx.crecheWeekdays.length} removeDate={ctx.removeDate}/></div>;
         if (/^Valor previsto:/.test(value))
-            return <div {...props}>
-       <h2 className="booking-section-title font-interface text-[var(--brand)]">Resumo do Agendamento</h2>
-        <BookingCartSummary cart={ctx.cart} service={ctx.service} frequency={ctx.crecheWeekdays.length} removeDate={ctx.removeDate}/>
-     </div>;
+            return <div {...props}><h2 className="booking-section-title font-interface text-[var(--brand)]">Resumo do Agendamento</h2><BookingCartSummary cart={ctx.cart} service={ctx.service} frequency={ctx.crecheWeekdays.length} removeDate={ctx.removeDate}/></div>;
         if (name === 'Status' || /13 de agosto • Hotel/.test(value))
             return <div {...props}>{ctx.service === 'DayUse' ? 'Day Use' : ctx.service}</div>;
         if (/estão selecionados para/.test(value))
-            return <div {...props}>{ctx.pets.join(', ')} estão selecionados para essa auventura.</div>;
+            return <div {...props}>{selectedPetsSentence(ctx.bookingIntegrated ? ctx.bookingPetList.filter(pet => ctx.pets.includes(String(pet.idPet))).map(pet => pet.nome) : ctx.pets)}</div>;
         if (name === 'Seleção individual') {
             const record = ancestors.findLast(n => n.name === 'Pet selecionado');
             const pet = record && content(record).split(' ')[0];

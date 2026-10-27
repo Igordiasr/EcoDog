@@ -22,7 +22,7 @@ export function integratedMonitorDesign(root, feed) {
     const cloneRecord = (template, record, kind) => {
         const id = kind === 'medication' ? record.idMedicacaoDoDia : record.idParticipacaoDoPet;
         const state = record.status || record.situacao;
-        const option = kind === 'medication' ? { TOMOU: 'Tomou', NAO_TOMOU: 'Não tomou' }[state] : kind === 'meal' ? { PARTICIPOU: 'Se alimentou', NAO_PARTICIPOU: 'Recusou' }[state] : { PARTICIPOU: 'Participou', NAO_PARTICIPOU: 'Não participou' }[state];
+        const option = kind === 'medication' ? { PENDENTE: 'Tomou', TOMOU: 'Tomou', NAO_TOMOU: 'Não tomou' }[state] : kind === 'meal' ? { PENDENTE: 'Se alimentou', PARTICIPOU: 'Se alimentou', NAO_PARTICIPOU: 'Recusou' }[state] : { PENDENTE: 'Participou', PARTICIPOU: 'Participou', NAO_PARTICIPOU: 'Não participou' }[state];
         const name = record.nomeMedicacao || record.nomeAtividade;
         const identity = findDesignNode(template, 'Identificação do registro');
         const titleId = nodes(identity)[0]?.id;
@@ -64,7 +64,8 @@ export function monitorRecordValues(node, fields) {
     if (selection) {
         const children = nodes(selection);
         const field = fieldKey(content(children[0]));
-        values[field] = fields[`monitor.${key}.${field}`] ?? monitorOption(content(children[1]));
+        const defaultOption = !monitorRecordLocked(node) ? { refeicao: 'Se alimentou', participacao: 'Participou', medicacao: 'Tomou' }[field] : undefined;
+        values[field] = fields[`monitor.${key}.${field}`] ?? defaultOption ?? monitorOption(content(children[1]));
     }
     const observation = findDesignNode(node, 'Campo de observações');
     if (observation) {
@@ -79,6 +80,8 @@ export function monitorRecordDesign(node, fields, saved) {
     const option = values.refeicao || values.participacao || values.medicacao || '';
     const status = saved && !changed ? `${saved.local ? 'Salvo apenas na prévia (memória)' : 'Registro salvo'}${option ? ` • ${option}` : ''}${saved.author ? ` • ${saved.author}` : ''}` : changed ? 'Alterações ainda não salvas' : '';
     const visit = (current) => {
+        if (current.name === 'Escolha atual' && !monitorRecordLocked(node, saved))
+            return { ...current, children: [option] };
         if (current.name === 'Status')
                 return { ...current, children: [status || (!node.monitorRecord && content(current).includes('Registro salvo') ? `${content(current)} (exemplo de desenvolvimento)` : content(current))] };
         if (current.name === 'Atribuição salvo' && saved)

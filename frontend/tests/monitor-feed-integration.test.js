@@ -50,5 +50,8 @@ describe('monitor feed integration', () => {
         expect(monitorRecordLocked(records[0])).toBe(false);
         expect(monitorRecordLocked(records[1])).toBe(true);
         expect(monitorRecordValues(records[0], {}).observacoes).toBe('');
+        expect(monitorRecordValues(records[0], {}).refeicao).toBe('Se alimentou');
+        expect(monitorRecordValues(records[2], {}).medicacao).toBe('Tomou');
+        expect(monitorRecordValues(records[0], { 'monitor.meal-42.refeicao': 'Recusou' }).refeicao).toBe('Recusou');
     });
 });

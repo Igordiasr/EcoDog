@@ -265,7 +265,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         const blockedSunday = bookingContext && ctx.service === 'Creche' && weekdayForDate(bookingDate(day, ctx.monthOffset)) === 0;
         const selected = !unavailable && !blockedSunday && (bookingContext ? ctx.selectedDates.includes(bookingDate(day, ctx.monthOffset)) : day === ctx.day);
         const frequencyLimit = bookingContext && ctx.service === 'Creche' && ctx.crecheWeekdays.length === 6 && !ctx.crecheWeekdays.includes(weekdayForDate(bookingDate(day, ctx.monthOffset)));
-        return <button {...props} type="button" className={`${className.replace(/bg-\[[^\]]+\]/g, '')} calendar-day ${selected ? 'calendar-selected' : ''}`} aria-label={`${day}, ${unavailable || blockedSunday ? 'indisponível' : selected ? 'selecionado' : frequencyLimit ? 'limite de frequência' : 'disponível'}`} aria-description={bookingContext ? `${blockedSunday ? 'Domingos não estão disponíveis para Creche. ' : ''}Disponibilidade apenas para seleção ilustrativa. Vagas reais não foram consultadas.` : undefined} aria-pressed={selected} disabled={unavailable || blockedSunday || frequencyLimit} onClick={() => ctx.action(`Dia ${day}`, node, ancestors)}>{day}{selected && <span aria-hidden="true"> ✓</span>}</button>;
+        return <button {...props} type="button" className={`${className.replace(/bg-\[[^\]]+\]/g, '')} calendar-day ${selected ? 'calendar-selected' : ''}`} aria-label={`${day}, ${unavailable || blockedSunday ? 'indisponível' : selected ? 'selecionado' : frequencyLimit ? 'limite de frequência' : 'disponível'}`} aria-description={bookingContext ? `${blockedSunday ? 'Domingos não estão disponíveis para Creche. ' : ''}${ctx.bookingIntegrated ? 'Disponibilidade consultada no sistema.' : 'Disponibilidade apenas para seleção ilustrativa. Vagas reais não foram consultadas.'}` : undefined} aria-pressed={selected} disabled={unavailable || blockedSunday || frequencyLimit} onClick={() => ctx.action(`Dia ${day}`, node, ancestors)}>{day}{selected && <span aria-hidden="true"> ✓</span>}</button>;
     }
     if (!inert && bookingContext && ctx.service === 'Creche' && name === 'Dia da semana') {
         const weekday = parent ? nodes(parent).findIndex(child => child.id === node.id) : -1;
@@ -338,11 +338,11 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         return <div {...props}>{label.charAt(0).toLocaleUpperCase('pt-BR') + label.slice(1)}</div>;
     }
     if (!inert && isLeaf(node) && bookingContext && ['Disponível', 'Indisponível'].includes(value))
-        return <div {...props}>{value === 'Disponível' ? 'Selecionável no protótipo' : 'Bloqueado no protótipo'}</div>;
+        return <div {...props}>{ctx.bookingIntegrated ? value : value === 'Disponível' ? 'Selecionável no protótipo' : 'Bloqueado no protótipo'}</div>;
     if (!inert && ctx.screen === 'TL03' && isLeaf(node) && (/^Etapa \d de 4/.test(value) || value.startsWith('Um novo dia de auventuras')))
-        return <div {...props}>{value}<p role="status">{bookingSelectionNotice}</p></div>;
+        return <div {...props}>{value}{!ctx.bookingIntegrated && <p role="status">{bookingSelectionNotice}</p>}</div>;
     if (!inert && ctx.screen === 'TL09' && isLeaf(node) && value === 'Veja nossas vagas')
-        return <div {...props}>Calendário ilustrativo</div>;
+        return <div {...props}>{ctx.bookingIntegrated ? 'Veja nossas vagas' : 'Calendário ilustrativo'}</div>;
     if (!inert && ctx.screen === 'TL09' && isLeaf(node) && value.startsWith('Verifique os dias disponíveis'))
         return <div {...props} role="status">{ctx.bookingIntegrated ? 'Disponibilidade consultada para os pets selecionados. O orçamento não cria uma reserva.' : `${bookingSelectionNotice} Escolha datas apenas para a prévia.`}</div>;
     if (!inert && value === 'Meus Dados' && (isLeaf(node) || childNodes.length === 1))

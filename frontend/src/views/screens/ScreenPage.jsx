@@ -101,7 +101,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const [crecheWeekdays, setCrecheWeekdays] = useState([]);
     const [service, setService] = useState('Hotel');
     const [pets, setPets] = useState(['Thor', 'Mel', 'Luke']);
-    const [monthOffset, setMonthOffset] = useState(0);
+    const [monthOffset, setMonthOffset] = useState(() => id === 'TL09' || id === 'TL03' && !preview ? (new Date().getFullYear() - 2026) * 12 + new Date().getMonth() - 7 : 0);
     const [availability, setAvailability] = useState(null);
     const [availabilityError, setAvailabilityError] = useState('');
     const [bookingPetList, setBookingPetList] = useState([]);
@@ -131,22 +131,22 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setAvailability(null);
         setAvailabilityError('');
         Promise.all([
-            loadActiveServices(bookingBaseUrl, category, controller.signal, undefined, session?.token),
+            id === 'TL09' ? Promise.resolve([]) : loadActiveServices(bookingBaseUrl, category, controller.signal, undefined, session?.token),
             loadBookingAvailability(bookingBaseUrl, category, date.getFullYear(), date.getMonth() + 1, controller.signal, undefined, session?.token),
         ]).then(([services, dates]) => {
             if (controller.signal.aborted)
                 return;
-            if (!services.length) {
+            if (id !== 'TL09' && !services.length) {
                 setAvailabilityError('Não há serviços ativos nesta categoria.');
                 return;
             }
             setBookingServices(services);
-            const available = availableBookingDates(dates, pets.length);
+            const available = availableBookingDates(dates, id === 'TL09' ? 1 : pets.length);
             setAvailability({ key: availabilityKey, available });
         }).catch(() => { if (!controller.signal.aborted)
             setAvailabilityError('Não foi possível consultar a disponibilidade.'); });
         return () => controller.abort();
-    }, [bookingScreen, preview, service, monthOffset, pets.length, session?.token, bookingRefresh]);
+    }, [id, bookingScreen, preview, service, monthOffset, pets.length, session?.token, bookingRefresh]);
     const [busy, setBusy] = useState(false);
     const [message, setMessage] = useState(location.state?.message || '');
     const [activityIndex, setActivityIndex] = useState(0);
@@ -519,7 +519,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 return;
             const key = monitorRecordKey(record);
             if (monitorRecordLocked(record, monitorSavedRef.current[key])) {
-                setMessage('Registro protegido: não é permitido sobrescrever este registro. Na prévia, o armazenamento permanece somente em memória.');
+                setMessage(preview ? 'Registro protegido: não é permitido sobrescrever este registro. Na prévia, o armazenamento permanece somente em memória.' : 'Registro protegido: não é permitido sobrescrever este registro.');
                 return;
             }
             const values = monitorRecordValues(record, fields);
@@ -864,6 +864,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const enhance = (node, inDashboardForm = false) => {
+        if (['TL03', 'TL05', 'TL06', 'TL07', 'TL10', 'TL11', 'TL12'].includes(id) && !nodes(node).length && /^ÁREA (DO MONITOR|D[OA] TUTOR[A]?)(\s|$)/i.test(content(node).trim()))
+            return { ...node, className: 'hidden', children: [] };
+        const integrated = !preview && (['TL03', 'TL06', 'TL07', 'TL10', 'TL11', 'TL12'].includes(id) || id === 'TL13' && !dashboard.example || id === 'TL14' && !managementCalendar.example);
+        if (integrated && !nodes(node).length && /dados ilustrativos|valor ilustrativo|composição dos grupos ilustrativa|leitura aproximada do wireframe|persona de exemplo/i.test(content(node)))
+            return { ...node, className: 'hidden', children: [] };
         if (id === 'TL09' && bookingDesign) {
             const source = nodes(node);
             const calendar = source.find(child => ['a6sxP', 'aqBV3'].includes(child.id || ''));
@@ -978,7 +983,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 const blocked = date && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(date.day, monthOffset)));
                 return { ...entry, ...(date && !preview ? { bookingUnavailable: !!blocked } : {}), className: date ? `${(entry.className || '').replace(/bg-\[#ffe8e0(?:ff)?\]/gi, '')} ${blocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}` : entry.className, children: entry.children?.map(decorate) };
             };
-            return { ...node, className: `${node.className} booking-calendar`, children: calendar.children?.map(decorate) };
+            const calendarChildren = calendar.children?.map(decorate) || [];
+            if (id === 'TL09' && !preview && (!availability || availability.key !== availabilityKey))
+                calendarChildren.push({ tag: 'p', name: 'Estado de disponibilidade', className: 'w-full', children: [availabilityError || 'Consultando datas disponíveis…'] });
+            return { ...node, className: `${node.className} booking-calendar`, children: calendarChildren };
         }
         if (photo && /Foto do pet/.test(node.name || '') && !content(node))
             return { ...node, tag: 'img', src: photo, decorative: false };
@@ -1005,7 +1013,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         return { ...node, children };
     };
-    const context = { screen: id, mobile, userRole: !preview ? { tutor: 'Tutor', monitor: 'Monitor', admin: 'Administrador' }[session?.profile] : undefined, userName: session?.token && !preview ? currentUser?.token === session.token ? currentUser.name : 'Minha conta' : undefined, bookingIntegrated: id === 'TL03' && !preview, bookingPetList, monitorSaved, modal: false, fields: dialog ? dialogFields : fields, setField: (key, value) => {
+    const context = { screen: id, mobile, userRole: !preview ? { tutor: 'Tutor', monitor: 'Monitor', admin: 'Administrador' }[session?.profile] : undefined, userName: session?.token && !preview ? currentUser?.token === session.token ? currentUser.name : 'Minha conta' : undefined, bookingIntegrated: ['TL03', 'TL09'].includes(id) && !preview, bookingPetList, monitorSaved, modal: false, fields: dialog ? dialogFields : fields, setField: (key, value) => {
             if (id === 'TL10' && key.startsWith('monitor.') && monitorSavedRef.current[key.split('.')[1]])
                 return;
             (dialog ? setDialogFields : setFields)(f => ({ ...f, [key]: value }));
@@ -1027,7 +1035,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
     </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
-      {id === 'TL09' && !preview && <button type="button" className="management-button" onClick={() => void openDialog('details')}>Consultar catálogo de atividades</button>}
       {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
       {id === 'TL10' && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
        {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}

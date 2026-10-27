@@ -3,6 +3,7 @@ import { screens } from '../screens/catalog';
 import './DevelopmentNav.css';
 export function DevelopmentNav() {
     const { pathname } = useLocation();
+    if (pathname !== '/prototipo' && !pathname.startsWith('/prototipo/')) return null;
     return <nav className="development-nav" aria-label="Telas de desenvolvimento">
     <span className="development-nav-label">DEV</span>
     <div className="development-nav-links">

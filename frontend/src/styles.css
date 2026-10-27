@@ -399,3 +399,9 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 }
 @media (max-width: 600px) { .design-mobile { max-width: 100%; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+.tutor-pets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; width: 100%; }
+.tutor-pet-card { padding: 24px; background: var(--surface); border: 2px solid var(--brand); border-radius: 24px; color: var(--brand); }
+.tutor-pet-card h2 { font-size: 24px; margin-bottom: 16px; }
+.tutor-pet-card dl { display: grid; gap: 8px; }
+.tutor-pet-card dl > div { display: flex; justify-content: space-between; gap: 16px; }
+.tutor-pet-card dd { text-align: right; }

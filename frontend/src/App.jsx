@@ -3,9 +3,9 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { screens } from './views/screens/catalog';
 import { ScreenPage } from './views/screens/ScreenPage';
 import { DevelopmentNav } from './views/components/DevelopmentNav';
-import { unavailableApi } from './models/api';
+import { authApi } from './models/auth';
 import { unconfiguredHolidayCalendar } from './models/holidays';
-export function App({ api = unavailableApi, holidayCalendar = unconfiguredHolidayCalendar, dashboardSource, calendarSource, petHealthCatalogSource, tutorScheduleSource }) {
+export function App({ api = authApi, holidayCalendar = unconfiguredHolidayCalendar, dashboardSource, calendarSource, petHealthCatalogSource, tutorScheduleSource }) {
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
@@ -16,6 +16,11 @@ export function App({ api = unavailableApi, holidayCalendar = unconfiguredHolida
             setLoading(false); });
         return () => { active = false; };
     }, [api]);
+    useEffect(() => {
+        if (!session?.expiresAt) return;
+        const timer = setTimeout(() => { void api.logout(); setSession(null); }, Math.max(0, session.expiresAt - Date.now()));
+        return () => clearTimeout(timer);
+    }, [api, session]);
     return <>
     {import.meta.env.DEV && <DevelopmentNav />}
     <Routes>

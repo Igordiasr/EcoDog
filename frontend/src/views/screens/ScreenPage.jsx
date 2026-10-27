@@ -27,8 +27,10 @@ import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
 import { PetCatalogDialog } from '../components/PetCatalogDialog';
 import { addValidityToVaccineRecord, petInsuranceField, vaccineValidityField } from '../design/pet-health';
-import { useTutorSchedule } from '../../viewmodels/tutor-schedule';
+import { useTutorPets } from '../../viewmodels/use-tutor-pets';
 import { screens } from './catalog';
+import { createAuthViewModel } from '../../viewmodels/auth';
+import { registrationDesign } from '../design/auth';
 import { prototypeOperationBlock, recordIdentityUnavailable, monitorDataUnavailable, presenceDataUnavailable } from '../../viewmodels/prototype-safety';
 const imports = import.meta.glob('../design/*.json');
 const load = async (key) => (await imports[`../design/${key}.json`]()).default;
@@ -50,7 +52,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const dashboard = useDashboard(id === 'TL13', preview, api, dashboardSource);
     const managementCalendar = useManagementCalendar(id === 'TL14', preview, api, calendarSource);
     const petHealthCatalog = usePetHealthCatalog(id === 'TL06', preview, petHealthCatalogSource);
-    const tutorSchedule = useTutorSchedule(id === 'TL05', preview, tutorScheduleSource);
+    const tutorPets = useTutorPets(id === 'TL05', session);
     const [design, setDesign] = useState(null);
     const [bookingDesign, setBookingDesign] = useState(null);
     const applyingDraft = useRef(null);
@@ -96,7 +98,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         return () => controller.abort();
     }, [bookingScreen, preview, service, monthOffset]);
     const [busy, setBusy] = useState(false);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState(location.state?.message || '');
     const [activityIndex, setActivityIndex] = useState(0);
     const [monitorSaved, setMonitorSaved] = useState({});
     const monitorSavedRef = useRef({});
@@ -145,7 +147,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         Promise.all([load(id), id === 'TL09' ? load('TL03') : Promise.resolve(null)]).then(([data, reference]) => {
             if (canceled)
                 return;
-            setDesign(data);
+            setDesign(id === 'TL04' ? registrationDesign(data) : data);
             setBookingDesign(reference);
             if (id === 'TL03' && draft?.phase === 'ready') {
                 setSelectedDates(draftDatesForCalendar(draft, data.desktop));
@@ -523,7 +525,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 return;
             setBusy(true);
             setMessage('');
-            api.login(fields['e-mail'] || fields.email || '', fields.senha || '').then(session => {
+            Promise.resolve().then(() => createAuthViewModel(api).login(fields)).then(session => {
                 onSession(session);
                 const bookingFlow = session.profile === 'tutor' && markBookingDraftReady();
                 go(bookingFlow ? 'TL03' : session.profile === 'tutor' ? 'TL05' : session.profile === 'monitor' ? 'TL10' : 'TL13');
@@ -533,8 +535,13 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (label === 'Cadastrar') {
             if (id !== 'TL04')
                 go('TL04');
-            else
-                void run('register', true);
+            else if (!busy && validate()) {
+                setBusy(true);
+                setMessage('');
+                Promise.resolve().then(() => createAuthViewModel(api).register(fields)).then(() => {
+                    navigate('/entrar', { state: { message: 'Cadastro realizado! Entre com seu e-mail e senha.' } });
+                }).catch(error => setMessage(error.message || 'Não foi possível cadastrar.')).finally(() => setBusy(false));
+            }
             return;
         }
         if (id === 'TL09' && (label === 'Agendar' || label === 'Quero agendar')) {
@@ -816,7 +823,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                     const updated = validatePetForm({ ...fields, [key]: value }, petRecords);
                     return Object.fromEntries(Object.keys(errors).filter(key => updated[key]).map(key => [key, updated[key]]));
                 });
-        }, tutorSchedule: id === 'TL05' ? tutorSchedule : undefined, petHealthCatalog: id === 'TL06' ? petHealthCatalog : undefined, managementCalendar: id === 'TL14' ? managementCalendar : undefined, dashboard: id === 'TL13' ? dashboard : undefined, activityIndex, petRecords, petErrors, removePetRecord, petAllergies: allergies, setPetAllergies: setAllergies, action, day, selectedDates: bookingDates, crecheWeekdays, cart, removeDate: (date) => { if (service !== 'Creche')
+        }, tutorPets: id === 'TL05' ? tutorPets : undefined, petHealthCatalog: id === 'TL06' ? petHealthCatalog : undefined, managementCalendar: id === 'TL14' ? managementCalendar : undefined, dashboard: id === 'TL13' ? dashboard : undefined, activityIndex, petRecords, petErrors, removePetRecord, petAllergies: allergies, setPetAllergies: setAllergies, action, day, selectedDates: bookingDates, crecheWeekdays, cart, removeDate: (date) => { if (service !== 'Creche')
             setSelectedDates(dates => dates.filter(selected => selected !== date)); }, service, pets, busy: busy || id === 'TL13' && dashboard.saving || id === 'TL14' && managementCalendar.saving, search: fields.pesquisa || '', monthOffset };
     const screen = design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);

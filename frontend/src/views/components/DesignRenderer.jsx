@@ -16,6 +16,7 @@ import { dashboardSummary } from '../../models/dashboard-model';
 import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking } from './ManagementCalendar';
 import { findDesignNode } from '../design/structure-booking';
 import { ScheduledPetDays } from './ScheduledPetDays';
+import { TutorPets } from './TutorPets';
 import { PetField } from './PetField';
 import { PetAllergies } from './PetAllergies';
 import { petRecordFields } from '../../models/pet-validation';
@@ -81,6 +82,11 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             className += ' page-footer';
     }
     props.className = className;
+    if (ctx.screen === 'TL05' && name === 'Pets cadastrados')
+        return <section aria-label="Pets cadastrados" className="w-full"><TutorPets model={ctx.tutorPets}/></section>;
+    if (ctx.screen === 'TL05' && name === 'Meus planos') return null;
+    if (ctx.screen === 'TL05' && name === 'Conta') return <div {...props}>Minha conta • Tutor</div>;
+    if (ctx.screen === 'TL05' && name === 'Contexto') return <div {...props}>ÁREA DO TUTOR</div>;
     if (ctx.screen === 'TL05' && ['dRpD5', 'AwXSp'].includes(node.id || '') && ctx.tutorSchedule)
         return <div {...props}><ScheduledPetDays records={ctx.tutorSchedule.data} error={ctx.tutorSchedule.error} example={ctx.tutorSchedule.example}/></div>;
     if (ctx.screen === 'TL14' && ctx.managementCalendar) {

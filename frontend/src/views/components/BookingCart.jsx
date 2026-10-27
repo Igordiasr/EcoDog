@@ -14,14 +14,14 @@ export function BookingCartItems({ cart, removeDate }) {
   </div>;
 }
 export function BookingCartSummary({ cart, service, frequency, removeDate }) {
-    const dates = cart.items.flatMap(item => item.kind === 'daily' ? [item.date] : []);
+    const dates = cart.dates || cart.items.flatMap(item => item.kind === 'daily' ? [item.date] : []);
     return <div className="booking-cart-summary" aria-live="polite">
-    <dl className="booking-summary-field booking-summary-total"><dt>Valor Total</dt><dd data-booking-total data-design-name="Montante">{formatMoney(cart.totalCents)}</dd></dl>
+    <dl className="booking-summary-field booking-summary-total"><dt>Valor Total</dt><dd data-booking-total data-design-name="Montante">{cart.pending ? 'Aguardando orçamento' : formatMoney(cart.totalCents)}</dd></dl>
     <div className="booking-summary-information-scroll" role="region" aria-label="Informações do agendamento" tabIndex={0} onKeyDown={horizontalScrollKeys}>
       <dl className="booking-summary-information">
         <div className="booking-summary-field"><dt>Pets selecionados</dt><dd data-booking-pet-count>{cart.petCount}</dd></div>
         <div className="booking-summary-field"><dt>{service === 'Creche' ? 'Frequência semanal' : `Datas selecionadas (${dates.length})`}</dt><dd>{service === 'Creche' ? `${frequency} ${frequency === 1 ? 'vez' : 'vezes'} por semana` : <BookingDates dates={dates} removeDate={removeDate}/>}</dd></div>
-        <div className="booking-summary-field"><dt>Valor por pet</dt><dd data-booking-subtotal>{formatMoney(cart.subtotalPerPetCents)}</dd></div>
+        <div className="booking-summary-field"><dt>Valor por pet</dt><dd data-booking-subtotal>{cart.pending ? '—' : formatMoney(cart.subtotalPerPetCents)}</dd></div>
       </dl>
     </div>
   </div>;

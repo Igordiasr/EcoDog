@@ -38,7 +38,7 @@ export function validatePetField(key, value, required = false, today = new Date(
         if (!iso)
             return 'Data inválida';
         const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        if (key !== 'validade' && iso > localToday)
+        if (key !== 'validade' && (iso > localToday || key === 'nascimento' && iso === localToday))
             return 'Data inválida';
     }
     if (/contato|telefone/.test(key) && !/^\d{10,11}$/.test(text.replace(/\D/g, '')))
@@ -50,13 +50,17 @@ export function validatePetField(key, value, required = false, today = new Date(
     return '';
 }
 export const petRecordFields = { vacinas: ['vacina', 'data'], medicamentos: ['remedio', 'dosagem', 'frequencia'] };
-export function validatePetForm(fields, records) {
+export function validatePetForm(fields, records, backend = false) {
     const errors = {};
-    for (const key of ['nome', 'nascimento', 'raca', 'sexo', 'castrado', 'veterinario', 'contato', 'convenio', 'relacionamento-com-outros-pets']) {
-        const error = validatePetField(key, fields[key] || '', ['nome', 'nascimento', 'raca'].includes(key));
+    for (const key of ['nome', 'nascimento', 'raca', 'sexo', 'castrado', 'veterinario', 'contato', 'convenio', 'relacionamento-com-outros-pets', 'obs']) {
+        const error = validatePetField(key, fields[key] || '', backend || ['nome', 'nascimento', 'raca'].includes(key));
         if (error)
             errors[key] = error;
     }
+    for (const key of ['castrado', 'convenio'])
+        if (backend && fields[key] && !['Sim', 'Não'].includes(fields[key])) errors[key] = 'Selecione Sim ou Não.';
+    for (const [key, max] of [['nome', 100], ['raca', 100], ['obs', 200], ['relacionamento-com-outros-pets', 100]])
+        if ((fields[key] || '').trim().length > max) errors[key] = `Informe no máximo ${max} caracteres.`;
     for (const kind of ['vacinas', 'medicamentos']) {
         for (const id of records[kind]) {
             const active = id !== 0 || petRecordFields[kind].some(key => !!fields[`${kind}.${id}.${key}`]) || kind === 'vacinas' && !!fields[`${kind}.${id}.validade`];

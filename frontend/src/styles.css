@@ -258,6 +258,7 @@ input.design-input, select.design-input, textarea.design-input { display: block;
  .dashboard-page [data-design-name="Dashboard revenue chart"] { height: auto; min-height: 420px; }
  .dashboard-chart-revenue { grid-template-rows: 324px minmax(96px, auto); height: auto; min-height: 420px; }
  .dashboard-chart-revenue .dashboard-chart-scroll svg { height: 300px; }
+ .dashboard-chart-revenue .dashboard-chart-scroll { overflow: hidden; }
  .dashboard-secondary-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
  .dashboard-secondary-charts > [data-design-name="Painel"] { width: 100%; height: 100%; }
  .dashboard-page.design-mobile .dashboard-secondary-charts { grid-template-columns: minmax(0, 1fr); }

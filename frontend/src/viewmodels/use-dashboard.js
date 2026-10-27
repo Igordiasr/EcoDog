@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { dashboardServices, dateKey, moneyBRL, parseMoney } from '../models/dashboard-model';
+import { dashboardServices, dateKey, moneyBRL, parseMoney, validISODate } from '../models/dashboard-model';
 import { selectedGoal, validateDashboardForm } from '../models/dashboard-validation';
 import { petDateISO } from '../models/pet-validation';
 export function useDashboard(enabled, preview, api, source) {
@@ -12,29 +12,62 @@ export function useDashboard(enabled, preview, api, source) {
     const [saving, setSaving] = useState(false);
     const inFlight = useRef(false);
     const sequence = useRef(0);
+    const [goalLoading, setGoalLoading] = useState(false);
+    const [goalError, setGoalError] = useState('');
+    const integratedGoals = !!source?.saveGoal;
     const example = import.meta.env.DEV && preview && !source;
     useEffect(() => {
         if (!enabled)
             return;
         let active = true;
+        const controller = new AbortController();
         setLoading(true);
         setData(null);
         setLoadError('');
-        const load = source ? source.load() : example ? import('../models/dashboard-examples').then(module => module.dashboardExamples()) : Promise.reject(new Error('A integração com os dados do dashboard ainda não está disponível.'));
+        const load = source ? source.load(controller.signal) : example ? import('../models/dashboard-examples').then(module => module.dashboardExamples()) : Promise.reject(new Error('A integração com os dados do dashboard ainda não está disponível.'));
         load.then(result => { if (active)
             setData(result); }).catch(error => { if (active)
             setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o dashboard.'); }).finally(() => { if (active)
             setLoading(false); });
-        return () => { active = false; };
+        return () => { active = false; controller.abort(); };
     }, [enabled, source, example]);
+    useEffect(() => {
+        if (!enabled || !source?.services || !data || data.serviceOptions) return;
+        const controller = new AbortController();
+        source.services(controller.signal).then(serviceOptions => {
+            if (!controller.signal.aborted) setData(current => ({ ...current, serviceOptions }));
+        }).catch(error => { if (!controller.signal.aborted) setGoalError(error.message); });
+        return () => controller.abort();
+    }, [enabled, source, data]);
+    const referenceDate = mode === 'editGoal' || mode === 'loadedGoal' ? values['mes-cadastrado'] : `${values.ano}-${values.mes}-01`;
+    useEffect(() => {
+        if (!enabled || !source?.goals || !validISODate(referenceDate || '')) return;
+        const service = data?.serviceOptions?.find(row => row.id === values.servico);
+        if (!service) return;
+        const controller = new AbortController();
+        setGoalLoading(true);
+        setGoalError('');
+        source.goals(referenceDate, service, controller.signal).then(goals => {
+            if (controller.signal.aborted) return;
+            setData(current => ({ ...current, goals }));
+            if (mode === 'editGoal' || mode === 'loadedGoal') setValues(current => ({ ...current, valor: goals.length === 1 ? moneyBRL(goals[0].cents) : '' }));
+            if ((mode === 'editGoal' || mode === 'loadedGoal') && goals.length !== 1) setGoalError(goals.length ? 'Mais de uma meta encontrada para este serviço e data; não é possível escolher uma automaticamente.' : 'Nenhuma meta encontrada para este serviço e data.');
+        }).catch(error => { if (!controller.signal.aborted) setGoalError(error.message); }).finally(() => { if (!controller.signal.aborted) setGoalLoading(false); });
+        return () => controller.abort();
+    }, [enabled, source, referenceDate, values.servico, data?.serviceOptions, mode]);
     const begin = (formMode) => { setMode(formMode); setValues({}); setErrors({}); };
     const change = (key, value) => {
+        if (integratedGoals && ['mes-cadastrado', 'servico', 'ano', 'mes'].includes(key)) {
+            setGoalLoading(false);
+            setGoalError('');
+            setData(current => current ? { ...current, goals: [] } : current);
+        }
         setValues(current => {
             const next = { ...current, [key]: value };
             if (key === 'cliente' && !data?.pets.some(pet => pet.id === next.pet && pet.clientId === value))
                 next.pet = '';
             if ((mode === 'editGoal' || mode === 'loadedGoal') && (key === 'mes-cadastrado' || key === 'servico')) {
-                if (key === 'mes-cadastrado' && !data?.goals.some(goal => goal.period === value && goal.service === next.servico))
+                if (!integratedGoals && key === 'mes-cadastrado' && !data?.goals.some(goal => goal.period === value && goal.service === next.servico))
                     next.servico = '';
                 const goal = selectedGoal(data, next);
                 next.valor = goal ? moneyBRL(goal.cents) : '';
@@ -54,6 +87,8 @@ export function useDashboard(enabled, preview, api, source) {
         if (inFlight.current)
             return { success: false, message: '', errors: {} };
         const errors = validateDashboardForm(mode, values, data);
+        if (integratedGoals && mode !== 'revenue' && !data?.serviceOptions) errors.formulario = 'Aguarde o carregamento dos serviços.';
+        if (integratedGoals && mode !== 'revenue' && (goalLoading || goalError)) errors.formulario = goalError || 'Aguarde a consulta de metas.';
         setErrors(errors);
         if (Object.keys(errors).length || !data)
             return { success: false, message: 'Confira os campos indicados.', errors };
@@ -76,6 +111,15 @@ export function useDashboard(enabled, preview, api, source) {
                     next.goals = [...data.goals, { id: `local-preview-goal-${sequence.current++}`, period, service, cents }];
                 setData(next);
                 message = 'Atualizado somente na prévia (memória). Não foi salvo no servidor.';
+            }
+            else if (integratedGoals && mode !== 'revenue') {
+                const result = await source.saveGoal(referenceDate, service, cents / 100, editing ? goal.id : undefined);
+                message = result.message;
+                try {
+                    const updated = await source.load();
+                    const goals = await source.goals(referenceDate, data.serviceOptions.find(row => row.id === service));
+                    setData({ ...updated, serviceOptions: data.serviceOptions, goals });
+                } catch { message += ' Não foi possível atualizar os dados; recarregue a tela.'; }
             }
             else {
                 // Uses existing execute operations only. This is NOT a new HTTP contract.
@@ -101,6 +145,6 @@ export function useDashboard(enabled, preview, api, source) {
             inFlight.current = false;
             setSaving(false);
         }
-    }, [mode, values, data, example, api, source]);
-    return { data, loading, loadError, example, mode, values, errors, saving, begin, change, validate, save, today: dateKey(new Date()), services: dashboardServices };
+    }, [mode, values, data, example, api, source, integratedGoals, referenceDate, goalLoading, goalError]);
+    return { data, loading, loadError, example, mode, values, errors, saving, begin, change, validate, save, integratedGoals, goalLoading, goalError, today: dateKey(new Date()), services: dashboardServices };
 }

@@ -20,10 +20,11 @@ export function DashboardCharts({ data, kind }) {
     const view = dashboardSummary(data);
     if (kind === 'distribution') {
         const { counts, total } = view.distribution;
+        const unit = view.distribution.unit || 'pets';
         let start = 0;
         const circumference = 2 * Math.PI * 70;
         return <div className="dashboard-donut">
-      <svg viewBox="0 0 180 180" width="180" height="180" aria-label="Distribuição de pets">
+      <svg viewBox="0 0 180 180" width="180" height="180" aria-label={`Distribuição de ${unit}`}>
         {!total && <circle cx="90" cy="90" r="70" fill="none" stroke="#add9cc" strokeWidth="30"/>}
         {counts.map((count, index) => {
                 const length = total ? count / total * circumference : 0, offset = start;
@@ -33,26 +34,30 @@ export function DashboardCharts({ data, kind }) {
                     setSelected(index);
                 } }}><title>{categories[index]}: {count} pets</title></circle> : null;
             })}
-        <text x="90" y="95" textAnchor="middle" textLength={String(total).length > 3 ? 100 : undefined} lengthAdjust="spacingAndGlyphs" className="dashboard-donut-total">{total} pets</text>
+        <text x="90" y="95" textAnchor="middle" textLength={String(total).length > 3 ? 100 : undefined} lengthAdjust="spacingAndGlyphs" className="dashboard-donut-total">{total} {unit}</text>
       </svg>
-      <span className="dashboard-donut-tooltip" role="status">{selected !== null ? `${categories[selected]}: ${counts[selected]} pets` : ''}</span>
+      <span className="dashboard-donut-tooltip" role="status">{selected !== null ? `${categories[selected]}: ${counts[selected]} ${unit}` : ''}</span>
     </div>;
     }
     const revenue = kind === 'revenue';
     const colors = revenue ? ['var(--dashboard-forecast)', '#45937f'] : contractColors;
-    const rows = revenue ? view.revenueSeries.map(row => ({ period: row.period, values: [row.forecast, row.received] })) : view.contractSeries.map(row => ({ period: row.period, values: row.counts }));
+    const rows = revenue ? view.revenueSeries.slice().sort((a, b) => a.period.localeCompare(b.period)).slice(-6).map(row => ({ period: row.period, values: [row.forecast, row.received] })) : view.contractSeries.map(row => ({ period: row.period, values: row.counts }));
+    if (!rows.length) return <div className="dashboard-chart-empty" role="status">Nenhum dado no período.</div>;
     const max = Math.max(1, ...rows.flatMap(row => row.values.map(value => value || 0)));
-    const width = Math.max(revenue ? 800 : 360, availableWidth), height = revenue ? 300 : 220;
-    const left = revenue ? Math.max(130, moneyBRL(Math.round(max)).length * 11 + 16) : Math.max(55, String(Math.ceil(max)).length * 11 + 16), right = width - 30, top = 14, bottom = height - 64;
+    const width = revenue ? Math.max(1, availableWidth) : Math.max(360, availableWidth), height = revenue ? 300 : 220;
+    const compact = revenue && width < 600;
+    const axisMoney = value => compact ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1 }).format(value / 100) : moneyBRL(Math.round(value));
+    const axisSize = compact ? 11 : 16;
+    const left = revenue ? Math.min(width * .35, Math.max(65, axisMoney(max).length * axisSize * .6 + 12)) : Math.max(55, String(Math.ceil(max)).length * 11 + 16), right = width - (compact ? 16 : 30), top = 14, bottom = height - 64;
     const x = (index) => left + (right - left) * index / Math.max(1, rows.length - 1);
     const y = (value) => bottom - value / max * (bottom - top);
     const current = rows[Math.min(selected ?? rows.length - 1, rows.length - 1)];
     const series = revenue ? ['Prevista', 'Recebida'] : ['Creche', 'Hotel', 'DayUse'];
     const pointDescription = (index) => `${periodLabel(rows[index].period)} • ${series.map((label, s) => `${label}: ${rows[index].values[s] === null ? 'sem dados' : revenue ? moneyBRL(rows[index].values[s]) : rows[index].values[s]}`).join(' • ')}`;
     return <div className={`dashboard-chart${revenue ? ' dashboard-chart-revenue' : ''}`}>
-    <div className="dashboard-chart-scroll" ref={scrollRef} tabIndex={0} aria-label="Meses do gráfico; use as setas para rolar quando necessário">
-      <svg viewBox={`0 0 ${width} ${height}`} style={{ minWidth: revenue ? 800 : 360 }} aria-label={revenue ? 'Receita dos últimos 12 meses' : 'Novos contratos dos últimos 6 meses'}>
-        {[0, .25, .5, .75, 1].map(fraction => <g key={fraction}><line x1={left} y1={y(max * fraction)} x2={right} y2={y(max * fraction)} stroke="#add9cc"/><text x={left - 5} y={y(max * fraction) + 4} textAnchor="end" className="dashboard-axis">{revenue ? moneyBRL(Math.round(max * fraction)) : Math.ceil(max * fraction)}</text></g>)}
+    <div className="dashboard-chart-scroll" ref={scrollRef} tabIndex={revenue ? undefined : 0} aria-label={revenue ? 'Receitas dos últimos seis meses' : 'Meses do gráfico; use as setas para rolar quando necessário'}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ minWidth: revenue ? 0 : 360 }} aria-label={revenue ? 'Receita dos últimos 6 meses' : 'Novos contratos dos últimos 6 meses'}>
+        {[0, .25, .5, .75, 1].map(fraction => <g key={fraction}><line x1={left} y1={y(max * fraction)} x2={right} y2={y(max * fraction)} stroke="#add9cc"/><text x={left - 5} y={y(max * fraction) + 4} textAnchor="end" className="dashboard-axis" style={revenue ? { fontSize: axisSize } : undefined}>{revenue ? axisMoney(max * fraction) : Math.ceil(max * fraction)}</text></g>)}
         {revenue && series.map((_, s) => {
             let previous = false;
             const path = rows.map((row, index) => {
@@ -74,8 +79,8 @@ export function DashboardCharts({ data, kind }) {
           <title>{pointDescription(index)}</title>
           <rect x={x(index) - 25} y={top} width="50" height={height - 25} fill="transparent"/>
           {row.values.map((value, s) => value === null ? null : revenue ? <circle key={s} cx={x(index)} cy={y(value)} r="3" fill={colors[s]}/> : <rect key={s} x={x(index) - 12 + s * 8} y={y(value)} width="7" height={bottom - y(value)} fill={colors[s]} rx="2"/>)}
-          <text x={x(index)} y={height - 35} textAnchor="middle" className="dashboard-axis">{new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(`${row.period}-01T12:00:00`)).replace('.', '')}</text>
-          <text x={x(index)} y={height - 7} textAnchor="middle" className="dashboard-axis">{row.period.slice(0, 4)}</text>
+          <text x={x(index)} y={height - 35} textAnchor="middle" className="dashboard-axis" style={revenue ? { fontSize: axisSize } : undefined}>{new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(`${row.period}-01T12:00:00`)).replace('.', '')}</text>
+          <text x={x(index)} y={height - 7} textAnchor="middle" className="dashboard-axis" style={revenue ? { fontSize: axisSize } : undefined}>{row.period.slice(0, 4)}</text>
         </g>)}
       </svg>
     </div>

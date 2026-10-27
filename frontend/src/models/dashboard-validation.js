@@ -1,4 +1,4 @@
-import { dashboardServices, parseMoney, validPeriod } from './dashboard-model';
+import { dashboardServices, parseMoney, validPeriod, validISODate } from './dashboard-model';
 import { petDateISO } from './pet-validation';
 export function selectedGoal(data, values) {
     const goals = data?.goals.filter(goal => goal.period === values['mes-cadastrado'] && goal.service === values.servico) || [];
@@ -6,12 +6,14 @@ export function selectedGoal(data, values) {
 }
 export function validateDashboardForm(mode, values, data) {
     const errors = {};
-    if (!dashboardServices.includes(values.servico))
+    const integrated = !!data?.serviceOptions && mode !== 'revenue';
+    if (integrated ? !data.serviceOptions.some(row => row.id === values.servico) : !dashboardServices.includes(values.servico))
         errors.servico = 'Selecione um serviço válido.';
     if (parseMoney(values.valor || '') === null)
         errors.valor = 'Informe um valor monetário válido e não negativo.';
+    if (integrated && parseMoney(values.valor || '') === 0) errors.valor = 'Informe um valor maior que zero.';
     if (mode === 'editGoal' || mode === 'loadedGoal') {
-        if (!validPeriod(values['mes-cadastrado'] || '') || !data?.goals.some(goal => goal.period === values['mes-cadastrado']))
+        if (!(integrated ? validISODate(values['mes-cadastrado'] || '') : validPeriod(values['mes-cadastrado'] || '')) || !data?.goals.some(goal => goal.period === values['mes-cadastrado']))
             errors['mes-cadastrado'] = 'Selecione um período com metas cadastradas.';
         if (!selectedGoal(data, values))
             errors.servico = 'Selecione uma meta existente para o período.';
@@ -21,7 +23,7 @@ export function validateDashboardForm(mode, values, data) {
             errors.ano = 'Informe um ano válido.';
         if (!/^(0[1-9]|1[0-2])$/.test(values.mes || ''))
             errors.mes = 'Selecione um mês válido.';
-        if (data?.goals.some(goal => goal.period === `${values.ano}-${values.mes}` && goal.service === values.servico))
+        if (data?.goals.some(goal => goal.period === `${values.ano}-${values.mes}${integrated ? '-01' : ''}` && goal.service === values.servico))
             errors.servico = 'Já existe uma meta para este serviço e período. Utilize Editar meta.';
     }
     else {

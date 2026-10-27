@@ -20,7 +20,9 @@ export function dashboardFormDesign(node, mode, values, data) {
         if (key === 'pet')
             value = data?.pets.find(pet => pet.id === value)?.name || '';
         if (key === 'mes-cadastrado')
-            value = validPeriod(value) ? periodLabel(value) : '';
+            value = data?.serviceOptions && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value.split('-').reverse().join('/') : validPeriod(value) ? periodLabel(value) : '';
+        if (key === 'servico' && data?.serviceOptions)
+            value = data.serviceOptions.find(row => row.id === value)?.name || '';
         if (key === 'mes' && validPeriod(`${values.ano}-${value}`))
             value = periodLabel(`${values.ano}-${value}`);
         if (key === 'ano' && editing)
@@ -76,14 +78,16 @@ export function dashboardDesign(node, data) {
     }
     if (text === 'Receita prevista × Receita recebida' || text === 'Novos contratos no mês' || text === 'Novos clientes no mês') {
         const revenue = text === 'Receita prevista × Receita recebida';
-        return { ...node, children: node.children?.map(child => typeof child === 'string' ? child : child.name === 'Gráfico' ? { ...child, name: revenue ? 'Dashboard revenue chart' : 'Dashboard contracts chart', children: [] } : child.name === 'Descrição' ? { ...child, children: [revenue ? 'Últimos 12 meses • Valores em reais. Meses sem dados são indicados como indisponíveis.' : 'Últimos 6 meses • Novos contratos por serviço.'] } : child.name === 'Título' && !revenue ? { ...child, children: ['Novos contratos no mês'] } : child) };
+        return { ...node, children: node.children?.map(child => typeof child === 'string' ? child : child.name === 'Gráfico' ? { ...child, name: revenue ? 'Dashboard revenue chart' : 'Dashboard contracts chart', children: [] } : child.name === 'Descrição' ? { ...child, children: [revenue ? 'Últimos 6 meses • Valores em reais. Meses sem dados são indicados como indisponíveis.' : 'Últimos 6 meses • Novos contratos por serviço.'] } : child.name === 'Título' && !revenue ? { ...child, children: ['Novos contratos no mês'] } : child) };
     }
     if (text === 'Distribuição de pets') {
         let index = 0;
-        const labels = ['Cães ativos com pacote de Creche', 'Cães ativos com reserva de Hotel', 'Cães ativos com reserva de DayUse', 'Cães inativos'];
+        const labels = view?.distribution.unit === 'contratos' ? ['Contratos ativos de Creche', 'Contratos ativos de Hotel', 'Contratos ativos de DayUse', 'Contratos inativos'] : ['Cães ativos com pacote de Creche', 'Cães ativos com reserva de Hotel', 'Cães ativos com reserva de DayUse', 'Cães inativos'];
         return { ...node, children: node.children?.map(child => {
                 if (typeof child === 'string')
                     return child;
+                if (child.name === 'Título' && view?.distribution.unit === 'contratos')
+                    return { ...child, children: ['Distribuição de contratos'] };
                 if (child.name === 'Distribuição')
                     return { ...child, name: 'Dashboard distribution chart', children: [] };
                 if (child.name === 'Descrição' && index < 4) {
@@ -99,7 +103,7 @@ export function dashboardDesign(node, data) {
     if (movement) {
         const template = nodes(movement);
         const rows = view?.movements.slice(0, 3).map(row => {
-            const values = [`${row.date.split('-').reverse().join('/')}${row.time ? ` ${row.time}` : ''}`, row.service, data?.pets.find(pet => pet.id === row.petId)?.name || 'Pet não identificado', moneyBRL(row.cents)];
+            const values = [`${row.date.split('-').reverse().join('/')}${row.time ? ` ${row.time}` : ''}`, row.service, row.petName || data?.pets.find(pet => pet.id === row.petId)?.name || 'Pet não identificado', moneyBRL(row.cents)];
             const mobile = content(template[0]).startsWith('Data:');
             return { ...movement, id: `dashboard-movement-${row.id}`, children: template.map((child, index) => ({ ...child, id: `dashboard-movement-${row.id}-${index}`, children: [mobile ? `${['Data', 'Serviço', 'Pet', 'Valor'][index]}: ${values[index]}` : values[index]] })) };
         }) || [];

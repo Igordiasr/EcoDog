@@ -38,6 +38,7 @@ export function uniqueById(rows) { return [...new Map(rows.map(row => [row.id, r
 // future backend adapter; inactive contracts still count in their creation month.
 export const effectiveContract = (contract) => contract.status !== 'pending';
 export function dashboardSummary(data, now = new Date()) {
+    if (data.summary) return data.summary;
     const today = dateKey(now), period = today.slice(0, 7);
     const revenues = uniqueById(data.revenues).filter(row => validISODate(row.date) && validCents(row.cents));
     const contracts = uniqueById(data.contracts);

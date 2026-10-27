@@ -20,6 +20,7 @@ import java.util.List;
 
 @Tag(name = "Requisições dashboard", description = "Endpoints para requisições relacionadas a dashboard")
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/dashboard")
 public class DashboardController {
     DashboardService dashboardService;

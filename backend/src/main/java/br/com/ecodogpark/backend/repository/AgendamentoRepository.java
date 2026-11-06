@@ -44,16 +44,18 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     );
 
     @Query("""
-            SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse(
-                    a.servico,
-                    COUNT(a.servico)
-                    )
-            FROM AgendamentosEntity a
-            JOIN a.fkCalendario c
-            WHERE c.data = :data AND a.situacao IN ('AGENDADO', 'CONFIRMADO')
-            GROUP BY a.servico
-        """)
-    List<AgendamentosPorServicoResponse> buscarAgendamentosPorServicoParaHoje(@Param("data") LocalDate data);
+        SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse(
+                a.servico, COUNT(a.servico))
+        FROM AgendamentosEntity a
+        JOIN a.fkCalendario c
+        WHERE c.data >= :inicio AND c.data < :fim
+          AND a.situacao IN ('AGENDADO', 'CONFIRMADO')
+        GROUP BY a.servico
+    """)
+    List<AgendamentosPorServicoResponse> buscarAgendamentosPorServicoNoMes(
+            @Param("inicio") LocalDate inicio,
+            @Param("fim") LocalDate fim
+    );
 
     @Query("""
         SELECT a

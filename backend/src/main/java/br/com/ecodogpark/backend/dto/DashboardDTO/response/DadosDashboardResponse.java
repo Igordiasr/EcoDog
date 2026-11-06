@@ -12,6 +12,8 @@ public record DadosDashboardResponse(
         PlanosAtivosResponse planosAtivos,
         @Schema(description = "Quantidade de agendamentos agrupada por serviço")
         List<AgendamentosPorServicoResponse> agendamentosPorServico,
+        @Schema(description = "Quantidade total de vagas do mês separada por serviço")
+        List<VagasPorServicoResponse> vagasPorServico,
         @Schema(description = "Receitas previstas e recebidas por mês")
         List<GraficoReceitaResponse> graficoReceita,
         @Schema(description = "Novos serviços contratados por mês")

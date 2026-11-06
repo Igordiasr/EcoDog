@@ -31,15 +31,15 @@ public class DashboardController {
 
     @Operation(summary = "Buscar dados dashboard", description = "Requisição responsável por buscar todos os dados de métricas e gráficos da dashboard")
     @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<DadosDashboardResponse> buscarDados() {
         return ResponseEntity.ok(dashboardService.buscarDados());
     }
 
-    @Operation(summary = "Buscar metas", description = "Requisição para buscar as metas cadastradas para exibição no dropdown da edição de metas")
+    @Operation(summary = "Buscar metas", description = "Requisição para buscar as metas cadastradas para exibição no dropdown da edição de metas. A data de referência pode ser qualquer dia do mês, mas internamente a busca é sempre realizada no dia 01.")
     @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
     @GetMapping("/metas")
-    public ResponseEntity<List<MetaParaListaResponse>> buscarMetas(@Parameter(description = "Data de referência do mês da meta (yyyy-MM-dd)", example = "2026-10-26")
+    public ResponseEntity<List<MetaParaListaResponse>> buscarMetas(@Parameter(description = "Data de referência do mês da meta (yyyy-MM-dd). Qualquer dia do mês é aceito, mas internamente a busca é sempre realizada no dia 01.", example = "2026-10-26")
             @RequestParam LocalDate mesReferencia, @Parameter(description = "Nome do serviço usado para filtrar as metas", example = "Creche")
             @RequestParam String servico) {
         return ResponseEntity.ok(dashboardService.buscarMetas(mesReferencia, servico));
@@ -54,7 +54,7 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.buscarServicos());
     }
 
-    @Operation(summary = "Cadastrar meta", description = "Cadastra uma meta de receita por mês de referência e serviço, com valor positivo.")
+    @Operation(summary = "Cadastrar meta", description = "Cadastra uma meta de receita por mês de referência e serviço, com valor positivo. Nota: O dia do mês informado no payload será automaticamente normalizado para o dia 01 do respectivo mês.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados da meta inválidos", content = @Content)
@@ -64,7 +64,7 @@ public class DashboardController {
         return ResponseEntity.status(201).body(dashboardService.cadastrarMeta(novaMeta));
     }
 
-    @Operation(summary = "Atualizar meta", description = "Atualiza os dados da meta identificada pelo ID. A implementação retorna HTTP 201.")
+    @Operation(summary = "Atualizar meta", description = "Atualiza os dados da meta identificada pelo ID. A implementação retorna HTTP 201. Nota: O dia do mês informado no payload será automaticamente normalizado para o dia 01 do respectivo mês.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados da meta inválidos", content = @Content),

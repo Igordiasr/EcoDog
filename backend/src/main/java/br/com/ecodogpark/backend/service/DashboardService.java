@@ -3,6 +3,7 @@ package br.com.ecodogpark.backend.service;
 import br.com.ecodogpark.backend.dto.DashboardDTO.request.AlterarMovimentacaoRequest;
 import br.com.ecodogpark.backend.dto.DashboardDTO.request.ManipulacaoMetaRequest;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.*;
+import br.com.ecodogpark.backend.entity.CalendarioEntity;
 import br.com.ecodogpark.backend.entity.MetasEntity;
 import br.com.ecodogpark.backend.entity.MovimentacoesEntity;
 import br.com.ecodogpark.backend.entity.ServicosEntity;
@@ -27,6 +28,7 @@ public class DashboardService {
     MovimentacoesRepository movimentacoesRepository;
     MetaRepository metaRepository;
     AgendamentoRepository agendamentoRepository;
+    CalendarioRepository calendarioRepository;
     ServicoRepository servicoRepository;
 
     public DashboardService(
@@ -34,12 +36,14 @@ public class DashboardService {
             MovimentacoesRepository movimentacoesRepository,
             MetaRepository metaRepository,
             AgendamentoRepository agendamentoRepository,
+            CalendarioRepository calendarioRepository,
             ServicoRepository servicoRepository
     ) {
         this.contratoRepository = contratoRepository;
         this.movimentacoesRepository = movimentacoesRepository;
         this.metaRepository = metaRepository;
         this.agendamentoRepository = agendamentoRepository;
+        this.calendarioRepository = calendarioRepository;
         this.servicoRepository = servicoRepository;
     }
 
@@ -50,7 +54,9 @@ public class DashboardService {
 
         List<KpiReceitasResponse> kpiReceitas = montarKPIReceitas(hoje);
         PlanosAtivosResponse planosAtivos = contratoRepository.buscarPlanosAtivos();
-        List<AgendamentosPorServicoResponse> quantidadePetsAgendados = agendamentoRepository.buscarAgendamentosPorServicoParaHoje(hoje);
+        LocalDate inicioMes = hoje.withDayOfMonth(1);
+        List<AgendamentosPorServicoResponse> quantidadePetsAgendados = agendamentoRepository.buscarAgendamentosPorServicoNoMes(inicioMes, inicioMes.plusMonths(1));
+        List<VagasPorServicoResponse> vagasPorServico = montarVagasDoMes(inicioMes);
         List<GraficoReceitaResponse> graficoReceita = buscarReceitaUltimosMeses(inicio, fim);
         List<GraficoNovosServicosResponse> graficoNovosServicos = buscarListaNovosServicos(inicio, fim);
         List<GraficoContratosPorServicoResponse> graficoContratosPorServico = buscarSituacaoServicos();
@@ -60,6 +66,7 @@ public class DashboardService {
                 kpiReceitas,
                 planosAtivos,
                 quantidadePetsAgendados,
+                vagasPorServico,
                 graficoReceita,
                 graficoNovosServicos,
                 graficoContratosPorServico,
@@ -73,7 +80,22 @@ public class DashboardService {
     }
 
     public List<MetaParaListaResponse> buscarMetas(LocalDate mesReferencia, String servico) {
-        return metaRepository.buscarMetaPorMesEServico(mesReferencia, servico.toUpperCase()).stream().map(this::metaParaMetaParaLista).toList();
+        LocalDate primeiroDiaDoMes = mesReferencia.withDayOfMonth(1);
+        return metaRepository.buscarMetaPorMesEServico(primeiroDiaDoMes, servico.toUpperCase()).stream().map(this::metaParaMetaParaLista).toList();
+    }
+
+    private List<VagasPorServicoResponse> montarVagasDoMes(LocalDate inicioMes) {
+        LocalDate fim = inicioMes.plusMonths(1);
+        List<CalendarioEntity> dias = calendarioRepository.buscarCalendario(inicioMes, fim.minusDays(1));
+
+        long vagasCreche = dias.stream().map(CalendarioEntity::getVagasCreche).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
+        long vagasHotel = dias.stream().map(CalendarioEntity::getVagasHotel).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
+
+        return List.of(
+                new VagasPorServicoResponse("CRECHE", vagasCreche),
+                new VagasPorServicoResponse("HOTEL", vagasHotel),
+                new VagasPorServicoResponse("DAYUSE", 0L)
+        );
     }
 
     public ManipulacaoMetaResponse cadastrarMeta(ManipulacaoMetaRequest novaMeta) {
@@ -198,7 +220,7 @@ public class DashboardService {
     private MetasEntity incluirIdMeta(ManipulacaoMetaRequest meta, Long id) {
         MetasEntity novaMeta = new MetasEntity();
         novaMeta.setIdMeta(id);
-        novaMeta.setMesReferencia(meta.mesReferencia());
+        novaMeta.setMesReferencia(meta.mesReferencia().withDayOfMonth(1));
         novaMeta.setValor(meta.valor());
         novaMeta.setServicos(meta.servico());
         return novaMeta;
@@ -206,7 +228,7 @@ public class DashboardService {
 
     private MetasEntity criarMetaParaEntity(ManipulacaoMetaRequest meta) {
         MetasEntity novaMeta = new MetasEntity();
-        novaMeta.setMesReferencia(meta.mesReferencia());
+        novaMeta.setMesReferencia(meta.mesReferencia().withDayOfMonth(1));
         novaMeta.setValor(meta.valor());
         novaMeta.setServicos(meta.servico());
         return novaMeta;

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { dashboardServices, dateKey, moneyBRL, parseMoney, validISODate } from '../models/dashboard-model';
 import { selectedGoal, validateDashboardForm } from '../models/dashboard-validation';
 import { petDateISO } from '../models/pet-validation';
+import { goalReferenceForMonth } from '../models/goal-reference';
 export function useDashboard(enabled, preview, api, source) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ export function useDashboard(enabled, preview, api, source) {
         }).catch(error => { if (!controller.signal.aborted) setGoalError(error.message); });
         return () => controller.abort();
     }, [enabled, source, data]);
-    const referenceDate = mode === 'editGoal' || mode === 'loadedGoal' ? values['mes-cadastrado'] : `${values.ano}-${values.mes}-01`;
+    const referenceDate = mode === 'editGoal' || mode === 'loadedGoal' ? values['mes-cadastrado'] : goalReferenceForMonth(`${values.ano}-${values.mes}`, values.servico, data?.goals);
     useEffect(() => {
         if (!enabled || !source?.goals || !validISODate(referenceDate || '')) return;
         const service = data?.serviceOptions?.find(row => row.id === values.servico);
@@ -60,10 +61,11 @@ export function useDashboard(enabled, preview, api, source) {
         if (integratedGoals && ['mes-cadastrado', 'servico', 'ano', 'mes'].includes(key)) {
             setGoalLoading(false);
             setGoalError('');
-            setData(current => current ? { ...current, goals: [] } : current);
         }
         setValues(current => {
             const next = { ...current, [key]: value };
+            if (integratedGoals && key === 'servico' && (mode === 'editGoal' || mode === 'loadedGoal'))
+                next['mes-cadastrado'] = goalReferenceForMonth(current['mes-cadastrado']?.slice(0, 7) || '', value, data?.goals) || '';
             if (key === 'cliente' && !data?.pets.some(pet => pet.id === next.pet && pet.clientId === value))
                 next.pet = '';
             if ((mode === 'editGoal' || mode === 'loadedGoal') && (key === 'mes-cadastrado' || key === 'servico')) {
@@ -89,6 +91,7 @@ export function useDashboard(enabled, preview, api, source) {
         const errors = validateDashboardForm(mode, values, data);
         if (integratedGoals && mode !== 'revenue' && !data?.serviceOptions) errors.formulario = 'Aguarde o carregamento dos serviços.';
         if (integratedGoals && mode !== 'revenue' && (goalLoading || goalError)) errors.formulario = goalError || 'Aguarde a consulta de metas.';
+        if (integratedGoals && mode !== 'revenue' && !validISODate(referenceDate || '')) errors.formulario = 'O backend exige data completa. É necessário definir a convenção de referência ou consultar uma meta com data real.';
         setErrors(errors);
         if (Object.keys(errors).length || !data)
             return { success: false, message: 'Confira os campos indicados.', errors };

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DesignContext, DesignRenderer } from '../components/DesignRenderer';
 import { Menu } from '../components/Menu';
 import { Modal } from '../components/Modal';
 import { content, nodes, fieldKey } from '../design/types';
 import { isCarousel, rotateCarousel, updateCarouselIndicators } from '../design/carousel';
-import { calendarDay, calendarForMonth } from '../design/calendar';
+import { calendarDay, calendarForMonth, currentBookingMonthOffset, navigateBookingMonth, isPastBookingDate } from '../design/calendar';
+import { MyProfile } from './AccountPages';
 import { categoryForService, loadActiveServices, loadBookingAvailability } from '../../api/booking-availability';
 import { bookingDate, bookingMonth, selectionForService, toggleBookingDate, validBookingSelection, recurringBookingDates, toggleCrecheWeekday, weekdayForDate, weekdaysForDates } from '../design/booking';
 import { buildBookingCart } from '../../viewmodels/booking-cart';
@@ -45,7 +46,11 @@ import { createAuthViewModel } from '../../viewmodels/auth';
 import { registrationDesign } from '../design/auth';
 import { prototypeOperationBlock, recordIdentityUnavailable, monitorDataUnavailable, presenceDataUnavailable } from '../../viewmodels/prototype-safety';
 const imports = import.meta.glob('../design/*.json');
-const load = async (key) => (await imports[`../design/${key}.json`]()).default;
+import { correctDesignCopy } from '../design/copy-corrections';
+const load = async (key) => {
+    const design = (await imports[`../design/${key}.json`]()).default;
+    return Object.fromEntries(Object.entries(design).map(([key, value]) => [key, correctDesignCopy(value)]));
+};
 const dialogOperations = { userCreate: 'saveUser', userEdit: 'saveUser', createGoal: 'saveGoal', editGoal: 'saveGoal', loadedGoal: 'saveGoal', revenue: 'saveRevenue', linkPlan: 'saveLink', createPlan: 'savePlan', editPlan: 'savePlan', petEdit: 'savePet' };
 function useMobile() {
     const [mobile, setMobile] = useState(() => matchMedia('(max-width: 1439px)').matches);
@@ -99,9 +104,9 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const [day, setDay] = useState(0);
     const [selectedDates, setSelectedDates] = useState([]);
     const [crecheWeekdays, setCrecheWeekdays] = useState([]);
-    const [service, setService] = useState('Hotel');
-    const [pets, setPets] = useState(['Thor', 'Mel', 'Luke']);
-    const [monthOffset, setMonthOffset] = useState(() => id === 'TL09' || id === 'TL03' && !preview ? (new Date().getFullYear() - 2026) * 12 + new Date().getMonth() - 7 : 0);
+    const [service, setService] = useState(preview ? 'Hotel' : '');
+    const [pets, setPets] = useState(preview ? ['Thor', 'Mel', 'Luke'] : []);
+    const [monthOffset, setMonthOffset] = useState(() => bookingScreen && !preview ? currentBookingMonthOffset() : 0);
     const [availability, setAvailability] = useState(null);
     const [availabilityError, setAvailabilityError] = useState('');
     const [bookingPetList, setBookingPetList] = useState([]);
@@ -126,10 +131,12 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (!bookingScreen || preview)
             return;
         const controller = new AbortController();
-        const category = categoryForService(service);
         const date = new Date(2026, 7 + monthOffset, 1);
         setAvailability(null);
         setAvailabilityError('');
+        setBookingServices([]);
+        if (!service || id === 'TL03' && !pets.length) return;
+        const category = categoryForService(service);
         Promise.all([
             id === 'TL09' ? Promise.resolve([]) : loadActiveServices(bookingBaseUrl, category, controller.signal, undefined, session?.token),
             loadBookingAvailability(bookingBaseUrl, category, date.getFullYear(), date.getMonth() + 1, controller.signal, undefined, session?.token),
@@ -163,7 +170,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const [allergyDraft, setAllergyDraft] = useState([]);
     const [allergyDescription, setAllergyDescription] = useState('');
     const [repeats, setRepeats] = useState({});
-    const [petRecords, setPetRecords] = useState({ vacinas: [0], medicamentos: [0] });
+    const [petRecords, setPetRecords] = useState({ vacinas: [], medicamentos: [] });
     const petRecordSequence = useRef(1);
     const [petErrors, setPetErrors] = useState({});
     const removePetRecord = (kind, recordId) => {
@@ -187,12 +194,12 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setMenu(false);
         setRepeats({});
         setDay(id === 'TL14' ? 15 : 13);
-        setService('Hotel');
+        setService(preview ? 'Hotel' : '');
         setPets(id === 'TL03' && !preview ? [] : ['Thor', 'Mel', 'Luke']);
-        setMonthOffset((id === 'TL09' || id === 'TL03' && !preview) ? (new Date().getFullYear() - 2026) * 12 + new Date().getMonth() - 7 : 0);
+        setMonthOffset(bookingScreen && !preview ? currentBookingMonthOffset() : 0);
         setAllergies([]);
         setPhoto('');
-        setSelectedDates(id === 'TL03' && !preview ? [] : ['2026-08-13']);
+        setSelectedDates(!preview ? [] : ['2026-08-13']);
         if (id === 'TL09')
             setSelectedDates([]);
         setCrecheWeekdays([]);
@@ -208,7 +215,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setSelectedDates(draftDatesForCalendar(draft, data.desktop));
                 setService(draft.service);
                 setCrecheWeekdays(draft.service === 'Creche' ? draft.weekdays : []);
-                setMonthOffset(draft.monthOffset);
+                setMonthOffset(Math.max(currentBookingMonthOffset(), draft.monthOffset));
                 setDay(Number(draft.dates.at(-1)?.slice(-2)) || 0);
                 applyingDraft.current = draft;
             }
@@ -228,8 +235,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             const pet = pets.find(pet => pet.idPet === editPetId);
             if (!pet) throw new Error('Pet não encontrado na sua lista.');
             setFields({ nome: pet.nome, raca: pet.raca || '', sexo: pet.sexo || '', castrado: pet.castrado === true ? 'Sim' : pet.castrado === false ? 'Não' : '', nascimento: pet.dataNascimento?.split('-').reverse().join('/') || '', veterinario: pet.veterinario || '', contato: pet.telefoneVeterinario || '', convenio: typeof pet.convenio === 'boolean' ? pet.convenio ? 'Sim' : 'Não' : '', obs: pet.observacao || '', 'relacionamento-com-outros-pets': pet.relacaoComOutros || '' });
-            setEditPetReady(true);
-            setMessage('Edição do pet: confira os dados e preencha os campos não retornados pela consulta. Vacinas, alergias e medicações serão substituídas por listas vazias.');
+            setEditPetReady(false);
+            setMessage('Edição indisponível: a consulta não retorna os dados completos de saúde. Salvar poderia apagar vacinas, alergias e medicações existentes. Nenhum dado será alterado.');
         }).catch(error => { if (!controller.signal.aborted) setMessage(error.message); }).finally(() => { if (!controller.signal.aborted) setBusy(false); });
         return () => controller.abort();
     }, [editPetId, session?.token, session?.id]);
@@ -246,7 +253,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         clearBookingDraft(draft.token);
         applyingDraft.current = null;
     }, [id, design, service, monthOffset, selectedDates, crecheWeekdays]);
-    const selectedBookingService = matchingBookingService(bookingServices, categoryForService(service), crecheWeekdays.length);
+    const selectedBookingService = service ? matchingBookingService(bookingServices, categoryForService(service), crecheWeekdays.length) : null;
     const budgetKey = JSON.stringify([session?.token, service, selectedBookingService?.id, pets, bookingDates]);
     useEffect(() => {
         if (id !== 'TL03' || preview) return;
@@ -254,6 +261,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setBudgetState(null);
         setBudgetError('');
         if (!pets.length || !bookingDates.length) return;
+        if (bookingDates.some(date => isPastBookingDate(date))) {
+            setBudgetError('Remova as datas passadas antes de consultar o orçamento.');
+            return;
+        }
         if (!selectedBookingService) {
             setBudgetError('Não há um serviço único no backend correspondente ao serviço e à frequência selecionados.');
             return;
@@ -382,7 +393,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     };
     const run = async (operation, needsValidation = false) => {
         if (operation === 'savePet' && editPetId !== undefined && !editPetReady) {
-            setMessage('Aguarde a consulta do pet ou volte para Meus Pets para tentar novamente.');
+            setMessage('Edição indisponível: a consulta não retorna a saúde completa do pet. Volte para Meus Pets; nenhum dado será alterado.');
             return;
         }
         const integratedBooking = operation === 'book' && id === 'TL03' && !preview;
@@ -397,7 +408,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             setMessage('Selecione uma data disponível.');
             return;
         }
-        if (operation === 'book' && (!service || !bookingDates.length || !pets.length)) {
+        if (operation === 'book' && (!service || !bookingDates.length || !pets.length || !preview && bookingDates.some(date => isPastBookingDate(date)))) {
             setMessage('Selecione o serviço, a data e os pets.');
             return;
         }
@@ -446,6 +457,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const action = (label, node, ancestors) => {
+        if (label === 'WhatsApp indisponível') { setMessage('Atendimento pelo WhatsApp indisponível: aguardando configuração do número oficial.'); return; }
         if (id === 'TL12' && !preview) {
             if (label === 'CONCLUÍDOS') {
                 dailyActivities.toggleCompleted();
@@ -477,7 +489,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             navigate(`/tutor/pets/novo?editar=${node.editPetId}`);
             return;
         }
-        if (id === 'TL11' && label === 'Feed do Monitor') {
+        if (id === 'TL11' && ['Feed do Monitor', 'Diário do Pet'].includes(label)) {
             const panel = ancestors.findLast(node => node.name === 'Painel' && !!findDesignNode(node, 'Identificação do auluno'));
             const identity = panel && findDesignNode(panel, 'Identificação do auluno');
             const text = identity ? content(identity).trim() : '';
@@ -622,7 +634,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         if (label.startsWith('Dia ')) {
             const selectedDay = parseInt(label.slice(4));
-            if (bookingScreen && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(selectedDay, monthOffset))))
+        if (bookingScreen && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(selectedDay, monthOffset)) || !preview && isPastBookingDate(bookingDate(selectedDay, monthOffset))))
                 return;
             if (bookingScreen) {
                 if (service === 'Creche')
@@ -667,7 +679,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return;
         }
         if (label === '←' || label === '→') {
-            setMonthOffset(m => m + (label === '→' ? 1 : -1));
+            setMonthOffset(m => bookingScreen && !preview ? navigateBookingMonth(m, label === '→' ? 1 : -1) : m + (label === '→' ? 1 : -1));
             return;
         }
         if (label === '×') {
@@ -864,6 +876,13 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const enhance = (node, inDashboardForm = false) => {
+        if (id === 'TL06' && !nodes(node).length && ['Adicionar', '+ Adicionar', '+  Adicionar', 'Adicionar alergia'].includes(content(node).trim())) return { ...node, className: 'hidden', children: [] };
+        if (['TL10', 'TL11', 'TL12', 'TL13', 'TL14', 'TL15', 'TL16', 'TL17'].includes(id) && node.name === 'Ajuda') return { ...node, className: 'hidden', children: [] };
+        if (['TL10', 'TL11', 'TL12'].includes(id) && node.name === 'Navegação' && nodes(node).length) {
+            return { ...node, children: node.children.filter(child => typeof child === 'string' || !/Feed do Monitor|Diário do Pet/.test(content(child))).map(child => typeof child === 'string' ? child : enhance(child, inDashboardForm)) };
+        }
+        if (['TL10', 'TL11', 'TL12', 'TL13', 'TL14', 'TL15', 'TL16', 'TL17'].includes(id) && /Precisa de ajuda\?/.test(content(node)) && !nodes(node).length) return { ...node, className: 'hidden', children: [] };
+        if (['TL10', 'TL11', 'TL12'].includes(id) && !nodes(node).length && /Feed do Monitor/.test(content(node))) return { ...node, children: [content(node).replaceAll('Feed do Monitor', 'Diário do Pet')] };
         if (['TL03', 'TL05', 'TL06', 'TL07', 'TL10', 'TL11', 'TL12'].includes(id) && !nodes(node).length && /^ÁREA (DO MONITOR|D[OA] TUTOR[A]?)(\s|$)/i.test(content(node).trim()))
             return { ...node, className: 'hidden', children: [] };
         const integrated = !preview && (['TL03', 'TL06', 'TL07', 'TL10', 'TL11', 'TL12'].includes(id) || id === 'TL13' && !dashboard.example || id === 'TL14' && !managementCalendar.example);
@@ -980,12 +999,12 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 if (typeof entry === 'string')
                     return entry;
                 const date = calendarDay(entry);
-                const blocked = date && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(date.day, monthOffset)));
+                const blocked = date && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(date.day, monthOffset)) || !preview && isPastBookingDate(bookingDate(date.day, monthOffset)));
                 return { ...entry, ...(date && !preview ? { bookingUnavailable: !!blocked } : {}), className: date ? `${(entry.className || '').replace(/bg-\[#ffe8e0(?:ff)?\]/gi, '')} ${blocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}` : entry.className, children: entry.children?.map(decorate) };
             };
             const calendarChildren = calendar.children?.map(decorate) || [];
             if (id === 'TL09' && !preview && (!availability || availability.key !== availabilityKey))
-                calendarChildren.push({ tag: 'p', name: 'Estado de disponibilidade', className: 'w-full', children: [availabilityError || 'Consultando datas disponíveis…'] });
+                calendarChildren.push({ tag: 'p', name: 'Estado de disponibilidade', className: 'w-full', children: [!service ? 'Selecione um serviço para consultar as datas disponíveis.' : availabilityError || 'Consultando datas disponíveis…'] });
             return { ...node, className: `${node.className} booking-calendar`, children: calendarChildren };
         }
         if (photo && /Foto do pet/.test(node.name || '') && !content(node))
@@ -1043,7 +1062,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
       {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
       {!design && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-       {screen && <DesignContext.Provider value={{ ...context, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
+       {screen && <DesignContext.Provider value={{ ...context, session, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
         </form>
@@ -1069,7 +1088,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setPhoto(photoRef.current);
             }
         }}/>
-    {(message || busy) && <div className="status-message" role={busy ? 'status' : 'alert'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
+    {(message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
     {id === 'TL14' && <ManagementCalendarDialogs calendar={managementCalendar}/>}
     {id === 'TL06' && <PetCatalogDialog catalog={petHealthCatalog}/>}
     {id === 'TL12' && !preview && dailyActivities.detailsPet && <Modal title={`Detalhes de ${dailyActivities.detailsPet.nome}`} onClose={dailyActivities.closePet}>
@@ -1104,7 +1123,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         }}><h2>Alergias</h2><p>Selecione uma ou mais alergias previamente cadastradas. Quando “Outros” for selecionado, o campo de descrição personalizada será exibido.</p>{[...new Set(['Alergia a frango', ...allergies, 'Outros'])].map(a => <label key={a} className="allergy-option"><input type="checkbox" checked={allergyDraft.includes(a)} onChange={e => setAllergyDraft(v => e.target.checked ? [...v, a] : v.filter(x => x !== a))}/>{a}</label>)}{allergyDraft.includes('Outros') && <label className="allergy-description">Descrição da alergia *<input required value={allergyDescription} onChange={e => setAllergyDescription(e.target.value)}/></label>}<div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={allergyDraft.includes('Outros') && !allergyDescription.trim()}>Salvar alergia</button></div></form>
                         : dialog === 'details' && id === 'TL09' && !preview ? <ActivityCatalogDetails close={close}/>
                             : dialog === 'details' ? <div className="dialog-content"><h2>Detalhes</h2><p>Os detalhes desta atividade dependem dos dados do sistema.</p><button type="button" onClick={close}>Voltar</button></div>
-                                : dialog === 'profile' ? <div className="dialog-content"><h2>Meus Dados</h2><p>Os dados da conta dependem da autenticação no sistema.</p><button type="button" onClick={close}>Voltar</button></div>
+                                : dialog === 'profile' ? session?.token && !preview ? <MyProfile session={session} onLogout={async () => { await api.logout(); onSession(null); navigate('/entrar'); }}/> : <p className="dialog-content">Entre na sua conta para consultar seus dados.</p>
                                     : <p role="status" className="loading-message">Carregando…</p>}
     </Modal>}
   </>;

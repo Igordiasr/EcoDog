@@ -25,6 +25,16 @@ export function registrationData(fields) {
 export function createAuthViewModel(api) {
     return {
         login(fields) { const { email, senha } = loginData(fields); return api.login(email, senha); },
-        register(fields) { return api.register(registrationData(fields)); },
+        register(fields) { return api.register({ ...registrationData(fields), endereco: registrationAddressData(fields) }); },
     };
+}
+
+// Names and limits match EnderecoEntity; UsuarioRequest must accept this object to persist it.
+export function registrationAddressData(fields) {
+    const endereco = Object.fromEntries(['rua', 'numero', 'bairro', 'cidade', 'cep'].map(key => [key, (fields[key] || '').trim()]));
+    endereco.cep = endereco.cep.replace(/\D/g, '');
+    if (!/^\d{8}$/.test(endereco.cep)) throw new Error('Informe um CEP válido com 8 dígitos.');
+    if (['rua', 'numero', 'bairro', 'cidade'].some(key => !endereco[key])) throw new Error('Preencha os campos obrigatórios do endereço.');
+    if (endereco.numero.length > 10) throw new Error('O número deve ter até 10 caracteres.');
+    return endereco;
 }

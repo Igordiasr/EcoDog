@@ -1,3 +1,6 @@
+import { useRef, useState } from 'react';
+import { Modal } from './Modal';
+import { deleteTutorPet } from '../../api/pets-api';
 export function petCardFromPrototype(template, pet) {
     let description = 0;
     const map = node => {
@@ -17,14 +20,27 @@ export function petCardFromPrototype(template, pet) {
     return map(template);
 }
 
-export function TutorPets({ model, node, renderCard }) {
+export function TutorPets({ model, node, renderCard, session }) {
+    const [target, setTarget] = useState(null), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
+    const inFlight = useRef(false);
+    const remove = async () => {
+        if (!target || inFlight.current) return;
+        inFlight.current = true; setBusy(true); setMessage('');
+        try {
+            await deleteTutorPet(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, target.idPet);
+            setTarget(null); setMessage('Pet excluído com sucesso.'); model.reload();
+        } catch (error) { setMessage(error.message); }
+        finally { inFlight.current = false; setBusy(false); }
+    };
     if (model.loading) return <p role="status">Carregando seus pets…</p>;
     if (model.error) return <div><p role="alert">{model.error}</p><button type="button" className="management-button" onClick={model.reload}>Tentar novamente</button></div>;
-    if (!model.pets.length) return <p role="status">Você ainda não possui pets cadastrados.</p>;
+    if (!model.pets.length) return <div>{message && <p role="status">{message}</p>}<p role="status">Você ainda não possui pets cadastrados.</p></div>;
     const group = node.children.find(child => child.name === 'Grupo de pets');
     const template = group ? group.children.find(child => child.name === 'Pet cadastrado') : node.children.find(child => child.name === 'Pet cadastrado');
-    const cards = model.pets.map(pet => petCardFromPrototype(template, pet));
+    const cards = model.pets.map(pet => <div key={pet.idPet} className="tutor-pet-entry">{renderCard(petCardFromPrototype(template, pet))}<button className="management-button management-danger" type="button" disabled={busy} onClick={() => { setTarget(pet); setMessage(''); }}>Excluir {pet.nome}</button></div>);
     return <section aria-label="Pets cadastrados" className={node.className}>
-        {group ? Array.from({ length: Math.ceil(cards.length / 2) }, (_, index) => <div key={index} className={group.className}>{cards.slice(index * 2, index * 2 + 2).map(renderCard)}</div>) : cards.map(renderCard)}
+        {message && <p role={target ? 'alert' : 'status'}>{message}</p>}
+        {group ? Array.from({ length: Math.ceil(cards.length / 2) }, (_, index) => <div key={index} className={group.className}>{cards.slice(index * 2, index * 2 + 2)}</div>) : cards}
+        {target && <Modal title={`Excluir ${target.nome}`} onClose={() => { if (!busy) setTarget(null); }}><div className="dialog-content"><h2>Excluir {target.nome}?</h2><p>Esta ação remove o pet da sua lista.</p>{message && <p role="alert">{message}</p>}<div className="dialog-actions"><button type="button" disabled={busy} onClick={() => setTarget(null)}>Cancelar</button><button type="button" disabled={busy} onClick={remove}>{busy ? 'Excluindo…' : 'Confirmar exclusão'}</button></div></div></Modal>}
     </section>;
 }

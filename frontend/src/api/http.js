@@ -77,13 +77,17 @@ export async function requestJson(baseUrl, path, options = {}, signal, request) 
       ...(hasBody ? { data: JSON.stringify(options.body) } : {}),
       signal,
       withCredentials: false,
+      timeout: 20000,
       responseType: 'text',
       transformResponse: [(data) => data],
       validateStatus: () => true,
       ...(request ? { adapter: injectedFetchAdapter(request) } : {}),
     });
   } catch (error) {
-    if (axios.isCancel(error) || signal?.aborted) throw error;
+    if (axios.isCancel(error) || signal?.aborted || error.name === 'AbortError') throw error;
+    if (['ECONNABORTED', 'ETIMEDOUT'].includes(error.code)) {
+      throw new HttpError(0, 'O sistema demorou a responder. Não foi possível confirmar a operação; confira os dados antes de tentar novamente.');
+    }
     throw new HttpError(0, 'Não foi possível conectar ao sistema.');
   }
   if (response.status === 204) return null;

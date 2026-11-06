@@ -14,9 +14,6 @@ export function managementCalendarDesign(node, calendar) {
     if (!nodes(node).length && /^Vagas para /.test(description))
         return { ...node, children: [`Vagas para ${calendar.selectedDate.split('-').reverse().join('/')}.`] };
     const children = nodes(node);
-    if (node.name === 'Painel' && children.some(child => child.name === 'Data e configuração')) {
-        return { ...node, children: node.children?.flatMap(child => typeof child !== 'string' && child.name === 'Descrição' ? [child, { tag: 'div', name: 'Management availability', className: 'w-full' }] : [child]) };
-    }
     const activityTemplate = children.find(child => child.name === 'Atividade');
     const bookingTemplate = children.find(child => child.name === 'Auluno agendado');
     if (activityTemplate || bookingTemplate) {

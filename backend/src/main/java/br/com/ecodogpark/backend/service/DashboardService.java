@@ -3,7 +3,6 @@ package br.com.ecodogpark.backend.service;
 import br.com.ecodogpark.backend.dto.DashboardDTO.request.AlterarMovimentacaoRequest;
 import br.com.ecodogpark.backend.dto.DashboardDTO.request.ManipulacaoMetaRequest;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.*;
-import br.com.ecodogpark.backend.entity.CalendarioEntity;
 import br.com.ecodogpark.backend.entity.MetasEntity;
 import br.com.ecodogpark.backend.entity.MovimentacoesEntity;
 import br.com.ecodogpark.backend.entity.ServicosEntity;
@@ -55,8 +54,9 @@ public class DashboardService {
         List<KpiReceitasResponse> kpiReceitas = montarKPIReceitas(hoje);
         PlanosAtivosResponse planosAtivos = contratoRepository.buscarPlanosAtivos();
         LocalDate inicioMes = hoje.withDayOfMonth(1);
-        List<AgendamentosPorServicoResponse> quantidadePetsAgendados = agendamentoRepository.buscarAgendamentosPorServicoNoMes(inicioMes, inicioMes.plusMonths(1));
-        List<VagasPorServicoResponse> vagasPorServico = montarVagasDoMes(inicioMes);
+        List<AgendamentosPorServicoResponse> agendamentosPorServico = agendamentoRepository.buscarAgendamentosPorServicoParaHoje(hoje);
+        VagasTotaisMesResponse vagasTotaisNoMes = calendarioRepository.buscarVagasTotaisNoMes(inicioMes, inicioMes.plusMonths(1));
+        List<VagasPorServicoResponse> vagasPorServico = montarVagasDoMes(vagasTotaisNoMes);
         List<GraficoReceitaResponse> graficoReceita = buscarReceitaUltimosMeses(inicio, fim);
         List<GraficoNovosServicosResponse> graficoNovosServicos = buscarListaNovosServicos(inicio, fim);
         List<GraficoContratosPorServicoResponse> graficoContratosPorServico = buscarSituacaoServicos();
@@ -65,7 +65,7 @@ public class DashboardService {
         return new DadosDashboardResponse(
                 kpiReceitas,
                 planosAtivos,
-                quantidadePetsAgendados,
+                agendamentosPorServico,
                 vagasPorServico,
                 graficoReceita,
                 graficoNovosServicos,
@@ -84,16 +84,10 @@ public class DashboardService {
         return metaRepository.buscarMetaPorMesEServico(primeiroDiaDoMes, servico.toUpperCase()).stream().map(this::metaParaMetaParaLista).toList();
     }
 
-    private List<VagasPorServicoResponse> montarVagasDoMes(LocalDate inicioMes) {
-        LocalDate fim = inicioMes.plusMonths(1);
-        List<CalendarioEntity> dias = calendarioRepository.buscarCalendario(inicioMes, fim.minusDays(1));
-
-        long vagasCreche = dias.stream().map(CalendarioEntity::getVagasCreche).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
-        long vagasHotel = dias.stream().map(CalendarioEntity::getVagasHotel).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
-
+    private List<VagasPorServicoResponse> montarVagasDoMes(VagasTotaisMesResponse vagasTotais) {
         return List.of(
-                new VagasPorServicoResponse("CRECHE", vagasCreche),
-                new VagasPorServicoResponse("HOTEL", vagasHotel),
+                new VagasPorServicoResponse("CRECHE", vagasTotais == null || vagasTotais.vagasCreche() == null ? 0L : vagasTotais.vagasCreche()),
+                new VagasPorServicoResponse("HOTEL", vagasTotais == null || vagasTotais.vagasHotel() == null ? 0L : vagasTotais.vagasHotel()),
                 new VagasPorServicoResponse("DAYUSE", 0L)
         );
     }

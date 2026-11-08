@@ -48,14 +48,11 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
                 a.servico, COUNT(a.servico))
         FROM AgendamentosEntity a
         JOIN a.fkCalendario c
-        WHERE c.data >= :inicio AND c.data < :fim
+        WHERE c.data = :hoje
           AND a.situacao IN ('AGENDADO', 'CONFIRMADO')
         GROUP BY a.servico
     """)
-    List<AgendamentosPorServicoResponse> buscarAgendamentosPorServicoNoMes(
-            @Param("inicio") LocalDate inicio,
-            @Param("fim") LocalDate fim
-    );
+    List<AgendamentosPorServicoResponse> buscarAgendamentosPorServicoParaHoje(@Param("hoje") LocalDate hoje);
 
     @Query("""
         SELECT a

@@ -679,6 +679,18 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return;
         }
         if (label === '←' || label === '→') {
+            if (id === 'TL07' && !preview) {
+                const date = new Date(`${diaryDay}T12:00:00`);
+                if (Number.isNaN(date.getTime())) return;
+                date.setDate(date.getDate() + (label === '→' ? 1 : -1));
+                const nextDay = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                if (nextDay > presenceDay()) return;
+                const params = new URLSearchParams(location.search);
+                params.set('data', nextDay);
+                if (petDiary.pet) params.set('pet', String(petDiary.pet.idPet));
+                navigate(`${location.pathname}?${params}`);
+                return;
+            }
             setMonthOffset(m => bookingScreen && !preview ? navigateBookingMonth(m, label === '→' ? 1 : -1) : m + (label === '→' ? 1 : -1));
             return;
         }

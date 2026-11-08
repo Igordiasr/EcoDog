@@ -1,4 +1,5 @@
 import { createElement, useContext, createContext } from 'react';
+import { Link } from 'react-router-dom';
 import lastStudentPhoto from '../../../images/foto 9.jpeg';
 import { content, nodes, fieldKey } from '../design/types';
 import { Field } from './Field';
@@ -22,6 +23,10 @@ import { PetField } from './PetField';
 import { PetAllergies } from './PetAllergies';
 import { petRecordFields } from '../../models/pet-validation';
 import { bookingSelectionNotice } from '../../viewmodels/prototype-safety';
+import { frontendLinks } from '../../models/frontend-config';
+import { InstitutionalLinks } from './InstitutionalLinks';
+import { currentBookingMonthOffset } from '../design/calendar';
+import { PetHealthSection } from './PetHealthSection';
 export const DesignContext = createContext(null);
 const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
 const stripPosition = (c) => c.replace(/(?:^|\s)(?:absolute|left-\S+|top-\S+)/g, ' ').trim();
@@ -34,6 +39,13 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const value = content(node);
     const childNodes = nodes(node);
     const parent = ancestors.at(-1);
+    if (ctx.screen === 'TL02' && ['YtHBL', 'PaegW'].includes(node.id)) return <div className="auth-links"><Link to="/cadastro">Não tem login? Cadastre-se</Link><Link to="/esqueceu-senha">Esqueceu a senha?</Link></div>;
+    if (!inert && ctx.screen === 'TL06' && ['Pet records', 'Pet allergies'].includes(name)) return <PetHealthSection key={node.id} kind={name === 'Pet allergies' ? 'alergias' : node.id === 'pet-vacinas' ? 'vacinas' : 'medicamentos'} ctx={ctx}/>;
+    if (ctx.screen === 'TL02' && !nodes(node).length && /Esqueceu.*senha/i.test(value)) return null;
+    const institutional = ['TL01', 'TL08', 'TL09'].includes(ctx.screen);
+    const institutionalFooter = institutional && ['Footer', 'Assinatura e rodapé'].includes(name);
+    const insideFooter = institutional && ancestors.some(ancestor => /Footer|Rodapé|rodapé|Assinatura/.test(ancestor.name || ''));
+    if (insideFooter && name === 'Logo detalhada') return <img className={`${node.className.replace(/bg-\S+/g, '')} footer-logo`} src="/images/image-import-43.jpg" alt="EcoDog Park" loading="lazy"/>;
     let className = node.className;
     const bookingContext = ctx.screen === 'TL03' || ctx.screen === 'TL09' && [node, ...ancestors].some(ancestor => /(?:^|\s)booking-(calendar|controls)(?:\s|$)/.test(ancestor.className));
     const sectionTitle = bookingContext && isLeaf(node) && value !== 'Agendamento de aulunos' && (name === 'Título' || name === 'Título do resumo' || ['Serviço', 'Data', 'Pets', 'Revisão final', 'Selecione o tipo de agendamento', 'Quais aulunos vão para a escola?', 'Quando vamos nos ver?'].includes(value));
@@ -83,6 +95,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             className += ' page-footer';
     }
     props.className = className;
+    if (insideFooter && isLeaf(node) && value === '@ecodogpark' && frontendLinks.instagram && !ancestors.some(ancestor => ancestor.name === 'Redes')) return <a {...props} href={frontendLinks.instagram} target="_blank" rel="noopener noreferrer" aria-label="EcoDog Park no Instagram">{value}</a>;
+    if (institutionalFooter) props.className += ' institutional-footer';
     if (node.bookingPet) {
         const pet = node.bookingPet;
         const selected = ctx.pets.includes(String(pet.idPet));
@@ -90,12 +104,12 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     }
     if (node.editPetId) return <button {...props} type="button" aria-label="Editar pet" onClick={() => ctx.action('Editar pet integrado', node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     if (ctx.screen === 'TL05' && name === 'Pets cadastrados')
-        return <TutorPets model={ctx.tutorPets} node={node} renderCard={card => <DesignRenderer key={card.id} node={card} ancestors={[...ancestors, node]} inert/>}/>;
+        return <TutorPets model={ctx.tutorPets} session={ctx.session} node={node} renderCard={card => <DesignRenderer key={card.id} node={card} ancestors={[...ancestors, node]} inert/>}/>;
     const isHeaderProfile = name === 'Perfil' && parentIsHeader && node.tag !== 'img';
     if (isHeaderProfile && !inert) {
         const identity = ctx.userName ? `${ctx.userName}${ctx.userRole ? ` • ${ctx.userRole}` : ''}` : undefined;
         const missingLabel = !childNodes.some(child => ['Conta', 'Rótulo'].includes(child.name));
-        return <button {...props} type="button" aria-label="Editar meus dados" className={`${className} header-profile design-button`} onClick={() => ctx.action('Meus Dados', node, ancestors)}>{identity && missingLabel && <div className="header-user-identity" title={identity}>{identity}</div>}{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
+        return <button {...props} type="button" aria-label="Meus Dados" className={`${className} header-profile design-button`} onClick={() => ctx.action('Meus Dados', node, ancestors)}>{identity && missingLabel && <div className="header-user-identity" title={identity}>{identity}</div>}{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     }
     if (ctx.userName && isLeaf(node) && ['Conta', 'Rótulo'].includes(name) && ancestors.some(ancestor => ancestor.name === 'Perfil') && ancestors.some(ancestor => /^(Cabeçalho|header)$/.test(ancestor.name || ''))) {
         const identity = `${ctx.userName}${ctx.userRole ? ` • ${ctx.userRole}` : ''}`;
@@ -233,7 +247,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             const path = ctx.petRecord ? `${ctx.petRecord.kind}.${ctx.petRecord.id}.${baseKey}` : baseKey;
             const active = ctx.petRecord && (ctx.petRecord.id !== 0 || petRecordFields[ctx.petRecord.kind].some(key => !!ctx.fields[`${ctx.petRecord.kind}.${ctx.petRecord.id}.${key}`]) || ctx.petRecord.kind === 'vacinas' && !!ctx.fields[`vacinas.${ctx.petRecord.id}.validade`]);
             const catalogKind = baseKey === 'vacina' ? 'vacinas' : baseKey === 'remedio' ? 'medicamentos' : null;
-            return <PetField id={`${ctx.petRecord ? `${ctx.petRecord.kind}-${ctx.petRecord.id}-` : ''}${node.id}-input`} label={label} fieldKey={baseKey} className={className} placeholder={fieldText} value={ctx.fields[path] || ''} required={baseKey === 'validade' ? false : ctx.petRecord ? !!active : ['nome', 'nascimento', 'raca'].includes(baseKey)} error={ctx.petErrors?.[path]} readonly={!!saved || ctx.busy} options={catalogKind ? ctx.petHealthCatalog?.data[catalogKind].map(item => item.name) || [] : undefined} onAdd={catalogKind ? () => ctx.petHealthCatalog?.open(catalogKind, item => ctx.setField(path, item.name)) : undefined} onChange={v => ctx.setField(path, v)}/>;
+            return <PetField id={`${ctx.petRecord ? `${ctx.petRecord.kind}-${ctx.petRecord.id}-` : ''}${node.id}-input`} label={label} fieldKey={baseKey} className={className} placeholder={fieldText} value={ctx.fields[path] || ''} required={baseKey === 'validade' ? false : ctx.petRecord ? !!active : ['nome', 'nascimento', 'raca'].includes(baseKey)} error={ctx.petErrors?.[path]} readonly={!!saved || ctx.busy} options={baseKey === 'convenio' ? ['Sim', 'Não'] : catalogKind ? ctx.petHealthCatalog?.data[catalogKind].map(item => item.name) || [] : undefined} onAdd={catalogKind ? () => ctx.petHealthCatalog?.open(catalogKind, item => ctx.setField(path, item.name)) : undefined} onChange={v => ctx.setField(path, v)}/>;
         }
         return <Field id={`${node.id}-input`} label={label} className={className} placeholder={fieldText} value={ctx.fields[key] || ''} readonly={!!saved} onChange={v => ctx.setField(key, v)}/>;
     }
@@ -251,7 +265,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (!inert && bookingContext && ctx.screen === 'TL03' && isLeaf(node) && value === 'Cancelar')
         return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action('Cancelar', node, ancestors)}>{value}</button>;
     if (/EcoMigo • Acesso/.test(name) && !inert)
-        return <button {...props} type="button" className={`${className} assistant-trigger`} aria-label="Abrir Assistente EcoMigo" onClick={() => ctx.action('Assistente', node, ancestors)}>{renderChildren(true)}</button>;
+        return frontendLinks.whatsapp ? <a {...props} className={`${className} assistant-trigger ecomigo-whatsapp`} href={frontendLinks.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="EcoMigo: atendimento no WhatsApp">{renderChildren(true)}</a> : <button {...props} type="button" className={`${className} assistant-trigger ecomigo-whatsapp`} aria-label="EcoMigo: WhatsApp indisponível, aguardando número oficial" onClick={() => ctx.action('WhatsApp indisponível', node, ancestors)}>{renderChildren(true)}</button>;
     if (!inert && (/^(Abrir menu|menu|Menu)$/.test(name) && !isLeaf(node)))
         return <button {...props} type="button" className={`${className} design-button`} aria-label="Abrir menu" aria-haspopup="true" onClick={() => ctx.action('Menu', node, ancestors)}>{renderChildren(true)}</button>;
     if (!inert && /Minimizar assistente|Fechar assistente/.test(name))
@@ -309,6 +323,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (!inert && /Vínculo de plano/.test(name) && ctx.search && !value.toLowerCase().includes(ctx.search.toLowerCase()))
         return null;
     const label = value.replace(/ ✓$/, '').trim();
+    if (!inert && bookingContext && !isLeaf(node) && ['←', '→'].includes(label)) return <button {...props} type="button" className={`${className} design-button`} aria-label={label === '←' ? 'Mês anterior' : 'Próximo mês'} disabled={ctx.bookingIntegrated && label === '←' && ctx.monthOffset <= currentBookingMonthOffset()} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
     if (!inert && ctx.dailyActivities && name === 'Filtro de concluídos') {
         return <button {...props} type="button" className={`${className} design-button`} aria-label="CONCLUÍDOS" aria-pressed={ctx.dailyActivities.completed} onClick={() => ctx.action('CONCLUÍDOS', node, ancestors)}>{childNodes.map(child => child.name === 'Seleção' ? <span key={child.id} className={child.className} aria-hidden="true">{ctx.dailyActivities.completed ? '✓' : ''}</span> : recurse(child))}</button>;
     }
@@ -319,7 +334,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         return <button {...props} type="button" className={`${className} design-button`} aria-label={pet} aria-pressed={selected} onClick={() => ctx.action(`Pet ${pet}`, node, ancestors)}>{selected ? '×' : '○'}</button>;
     }
     const canAct = !inert && !isLeaf(node) && (labels.has(label) || ['CADASTRAR', 'Quero agendar', 'Agendar visita', 'Saiba mais', 'Como funciona'].includes(label)) && childNodes.length <= 3 && !/Coluna|Registro|Data|Resumo|cta-agendar/.test(name);
-    if (!inert && ctx.screen === 'TL11' && label === 'Feed do Monitor' && !isLeaf(node))
+    if (!inert && ctx.screen === 'TL11' && ['Feed do Monitor', 'Diário do Pet'].includes(label) && !isLeaf(node))
         return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
     const inlineLink = !inert && isLeaf(node) && /Já tem|Não tem login|Clique aqui|Conheça|Saiba mais|NOSSO ESPAÇO|SOBRE NÓS/.test(value);
     if (canAct || inlineLink) {
@@ -340,7 +355,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (!inert && isLeaf(node) && bookingContext && ['Disponível', 'Indisponível'].includes(value))
         return <div {...props}>{ctx.bookingIntegrated ? value : value === 'Disponível' ? 'Selecionável no protótipo' : 'Bloqueado no protótipo'}</div>;
     if (!inert && ctx.screen === 'TL03' && isLeaf(node) && (/^Etapa \d de 4/.test(value) || value.startsWith('Um novo dia de auventuras')))
-        return <div {...props}>{value}{!ctx.bookingIntegrated && <p role="status">{bookingSelectionNotice}</p>}</div>;
+        return <div {...props}>{value}{!ctx.service && <p role="status">Selecione um serviço</p>}{!ctx.bookingIntegrated && <p role="status">{bookingSelectionNotice}</p>}</div>;
     if (!inert && ctx.screen === 'TL09' && isLeaf(node) && value === 'Veja nossas vagas')
         return <div {...props}>{ctx.bookingIntegrated ? 'Veja nossas vagas' : 'Calendário ilustrativo'}</div>;
     if (!inert && ctx.screen === 'TL09' && isLeaf(node) && value.startsWith('Verifique os dias disponíveis'))
@@ -399,7 +414,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         const pageTitles = {
             TL01: /^Oi aumigo/i, TL02: /^Bem-vindo de volta/i, TL03: /^Agendamento de aulunos/i,
             TL04: /^Cadastro$/, TL05: /^Meus Pets$/, TL06: /^Cadastro de pet$/, TL07: /^Diário de/,
-            TL08: /^Sobre n[oó]s$/i, TL09: /^Nosso espa[cç]o$/i, TL10: /^Feed do Monitor$/,
+             TL08: /^Sobre n[oó]s$/i, TL09: /^Nosso espa[cç]o$/i, TL10: /^Diário do Pet$/,
             TL11: /^Check-in e check-out dos Pets$/, TL12: /^Atividades do dia$/,
             TL13: /^Dashboard geral$/, TL14: /^Gerenciamento de calendário$/,
             TL15: /^Gerenciamento de usuários$/, TL16: /^Gerenciamento de Clientes$/i,
@@ -407,5 +422,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         };
         tag = !ctx.modal && pageTitles[ctx.screen]?.test(value) ? 'h1' : 'h2';
     }
-    return createElement(tag, props, renderChildren());
+    const footerLinkKind = insideFooter && (name === 'Localização' && childNodes.length ? 'maps' : name === 'Redes' ? 'instagram' : name === 'Informações institucionais' ? content(childNodes[0]) === 'Localização' ? 'maps' : content(childNodes[0]) === 'Nossas Redes' ? 'instagram' : null : null);
+    if (insideFooter && name === 'Redes' && frontendLinks.instagram) return <div {...props}>{childNodes.filter(child => content(child) === 'Nossas Redes').map(child => <DesignRenderer key={child.id} node={child} ancestors={[...ancestors, node]} inert/>)}<a className="institutional-instagram-link" href={frontendLinks.instagram} target="_blank" rel="noopener noreferrer" aria-label="EcoDog Park no Instagram">{childNodes.filter(child => content(child) !== 'Nossas Redes').map(child => <DesignRenderer key={child.id} node={child} ancestors={[...ancestors, node]} inert/>)}</a></div>;
+    if (footerLinkKind) props.className += ' institutional-footer-section';
+    return createElement(institutionalFooter ? 'footer' : tag, props, renderChildren(), institutionalFooter && !ctx.mobile && <InstitutionalLinks kind="maps"/>, footerLinkKind && !(footerLinkKind === 'maps' && !ctx.mobile) && <InstitutionalLinks kind={footerLinkKind}/>);
 }

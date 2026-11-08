@@ -1,4 +1,12 @@
 import { content, nodes } from './types';
+export const currentBookingMonthOffset = (today = new Date()) => (today.getFullYear() - 2026) * 12 + today.getMonth() - 7;
+export function navigateBookingMonth(offset, direction, today = new Date()) {
+    return Math.max(currentBookingMonthOffset(today), offset + direction);
+}
+export function isPastBookingDate(date, today = new Date()) {
+    const current = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    return date < current;
+}
 export function calendarDay(node) {
     const number = nodes(node).find(child => child.name === 'Número do dia');
     if (!number)

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { screens } from './views/screens/catalog';
 import { ScreenPage } from './views/screens/ScreenPage';
+import { RegistrationPage, ForgotPasswordPage } from './views/screens/AccountPages';
 import { DevelopmentNav } from './views/components/DevelopmentNav';
 import { authApi } from './models/auth';
 import { unconfiguredHolidayCalendar } from './models/holidays';
@@ -32,7 +33,8 @@ export function App({ api = authApi, holidayCalendar = unconfiguredHolidayCalend
     return <>
     {import.meta.env.DEV && <DevelopmentNav />}
     <Routes>
-    {screens.map(screen => <Route key={screen.id} path={screen.path} element={screen.profile && loading ? <p role="status">Carregando…</p> : screen.profile && session?.profile !== screen.profile ? <Navigate to="/entrar" replace/> : <ScreenPage id={screen.id} api={api} session={session} holidayCalendar={holidayCalendar} dashboardSource={dashboardSource} calendarSource={session?.profile === 'admin' ? calendarSource : undefined} petHealthCatalogSource={petHealthCatalogSource} tutorScheduleSource={tutorScheduleSource} onSession={setSession}/>}/>)}
+    <Route path="/esqueceu-senha" element={<ForgotPasswordPage/>}/>
+    {screens.map(screen => <Route key={screen.id} path={screen.path} element={screen.id === 'TL04' ? <RegistrationPage api={api}/> : screen.profile && loading ? <p role="status">Carregando…</p> : screen.profile && session?.profile !== screen.profile ? <Navigate to="/entrar" replace/> : <ScreenPage id={screen.id} api={api} session={session} holidayCalendar={holidayCalendar} dashboardSource={dashboardSource} calendarSource={session?.profile === 'admin' ? calendarSource : undefined} petHealthCatalogSource={petHealthCatalogSource} tutorScheduleSource={tutorScheduleSource} onSession={setSession}/>}/>)}
 
     <Route path="*" element={<Navigate to="/" replace/>}/>
     </Routes>

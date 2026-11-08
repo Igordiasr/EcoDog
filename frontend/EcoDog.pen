@@ -178996,6 +178996,854 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "IqXXV",
+      "x": -17297,
+      "y": -16360,
+      "name": "Esqueci minha senha • Institucional • Desktop",
+      "width": 1440,
+      "fill": "#add9ccff",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "oPC8Q",
+          "name": "Cabeçalho",
+          "width": "fill_container",
+          "height": 88,
+          "fill": "#247346ff",
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000026",
+            "offset": {
+              "x": 0,
+              "y": 4
+            },
+            "blur": 7
+          },
+          "padding": [
+            0,
+            64
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "xtKo9",
+              "name": "menu",
+              "width": 44,
+              "height": 44,
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "path",
+                  "id": "r83Y1f",
+                  "name": "Vector",
+                  "geometry": "M16 0l-16 0m16 6l-16 0m16 6l-16 0",
+                  "width": 27,
+                  "height": 24,
+                  "stroke": "#fefefeff",
+                  "strokeWidth": 3,
+                  "strokeAlignment": "inner"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "TwIZb",
+              "layoutPosition": "absolute",
+              "x": 599,
+              "y": 24,
+              "name": "EcoDog Park",
+              "fill": "#f25835ff",
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#000000",
+                "offset": {
+                  "x": 2,
+                  "y": 3
+                }
+              },
+              "content": "EcoDog Park",
+              "fontFamily": "Luckiest Guy",
+              "fontSize": 40,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "x7lUL",
+              "layoutPosition": "absolute",
+              "x": 64,
+              "y": 100,
+              "name": "Menu de navegação • Recolhido",
+              "enabled": false,
+              "clip": true,
+              "width": 248,
+              "fill": "#fefefeff",
+              "cornerRadius": 16,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#17472a26",
+                "offset": {
+                  "x": 0,
+                  "y": 5
+                },
+                "blur": 14
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mJuBM",
+                  "name": "Opção atual",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#fefefeff",
+                  "cornerRadius": 10,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ooJLW",
+                      "name": "Página",
+                      "fill": "#247346ff",
+                      "content": "INÍCIO",
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "E7d3lu",
+                      "x": 0,
+                      "y": 0,
+                      "name": "check",
+                      "enabled": false,
+                      "clip": true,
+                      "width": 20,
+                      "height": 20,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "path",
+                          "id": "nKEzX",
+                          "x": 3.3340001106262207,
+                          "y": 5,
+                          "name": "Vector",
+                          "geometry": "M16 0l-11 11-5-5",
+                          "width": 13.331999778747559,
+                          "height": 9.166000366210938,
+                          "stroke": "#fefefeff",
+                          "strokeWidth": 2,
+                          "strokeLinecap": "round"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "iEJJc",
+                  "name": "Opção de navegação",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#fefefeff",
+                  "cornerRadius": 10,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sNbM2",
+                      "name": "Página",
+                      "fill": "#247346ff",
+                      "content": "SOBRE",
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "NcwEy",
+                  "name": "Opção de navegação",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#fefefeff",
+                  "cornerRadius": 10,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lZmg9",
+                      "name": "Página",
+                      "fill": "#247346ff",
+                      "content": "ESTRUTURA",
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lD1Wm",
+                  "name": "Opção de navegação",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#247346ff",
+                  "cornerRadius": 10,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CyPnc",
+                      "name": "Página",
+                      "fill": "#fefefeff",
+                      "content": "ENTRAR",
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "n65ea",
+                  "name": "Opção de navegação",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#fefefeff",
+                  "cornerRadius": 10,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "VhgR5",
+                      "name": "Página",
+                      "fill": "#247346ff",
+                      "content": "CADASTRE-SE",
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XJGSF",
+          "name": "Acesso",
+          "clip": true,
+          "width": "fill_container",
+          "layout": "vertical",
+          "padding": [
+            72,
+            80,
+            80,
+            80
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "svU90",
+              "name": "Painel de recuperação",
+              "clip": true,
+              "width": 1040,
+              "height": 660,
+              "fill": "#fefefeff",
+              "cornerRadius": 24,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#17472a14",
+                "offset": {
+                  "x": 0,
+                  "y": 5
+                },
+                "blur": 14
+              },
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wDNTq",
+                  "name": "Painel do formulário",
+                  "clip": true,
+                  "width": 612,
+                  "height": 660,
+                  "layout": "vertical",
+                  "padding": 40,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "A3vFC",
+                      "name": "Formulário de recuperação",
+                      "clip": true,
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 24,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "BEgdB",
+                          "name": "Apresentação",
+                          "clip": true,
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xMllz",
+                              "name": "Rótulo",
+                              "fill": "#247346ff",
+                              "content": "RECUPERE SEU ACESSO",
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal",
+                              "letterSpacing": 1
+                            },
+                            {
+                              "type": "text",
+                              "id": "hLVcU",
+                              "name": "Título",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Esqueci minha senha",
+                              "lineHeight": 1.1799999475479126,
+                              "fontFamily": "Luckiest Guy",
+                              "fontSize": 40,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "R5EPyA",
+                              "name": "Descrição",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Tudo bem, aumigo! Informe o e-mail da sua conta para receber um link de redefinição de senha.",
+                              "lineHeight": 1.4500000476837158,
+                              "fontFamily": "Roboto",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "lFego",
+                          "name": "Campo de e-mail",
+                          "clip": true,
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "nhphx",
+                              "name": "Rótulo",
+                              "fill": "#247346ff",
+                              "content": "E-mail",
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "SrCYr",
+                              "name": "Entrada",
+                              "clip": true,
+                              "width": "fill_container",
+                              "height": 48,
+                              "fill": "#fefefeff",
+                              "cornerRadius": 10,
+                              "stroke": "#6b8f7dff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": [
+                                0,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Yv2Mp",
+                                  "name": "Exemplo de e-mail",
+                                  "fill": "#364d40ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "seuemail@exemplo.com",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "hKTzJ",
+                          "name": "Ações",
+                          "clip": true,
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "alignItems": "end",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "cxvoi",
+                              "name": "Enviar link de recuperação",
+                              "clip": true,
+                              "width": 280,
+                              "height": 48,
+                              "fill": "#247346ff",
+                              "cornerRadius": 10,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "iWJ7J",
+                                  "name": "Ação",
+                                  "fill": "#fefefeff",
+                                  "content": "Enviar link de recuperação",
+                                  "fontFamily": "Lilita One",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zIUu4",
+                              "name": "Voltar para entrar",
+                              "clip": true,
+                              "width": "fill_container",
+                              "justifyContent": "end",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "f1sIQ",
+                                  "name": "Alternativa de acesso",
+                                  "fill": "#247346ff",
+                                  "content": "Voltar para entrar",
+                                  "fontFamily": "Lilita One",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Bemoc",
+                          "name": "Retorno de recuperação",
+                          "clip": true,
+                          "width": "fill_container",
+                          "fill": "#eef7f2ff",
+                          "cornerRadius": 10,
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "IahAt",
+                              "name": "Orientação",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Confira seu e-mail",
+                              "fontFamily": "Lilita One",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "lI6lE",
+                              "name": "Mensagem de privacidade",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Se houver uma conta com esse e-mail, você receberá um link para redefinir sua senha.",
+                              "lineHeight": 1.4500000476837158,
+                              "fontFamily": "Roboto",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "oiLeB",
+                              "name": "Orientação de spam",
+                              "fill": "#364d40ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Não encontrou? Verifique também a pasta de spam.",
+                              "lineHeight": 1.4500000476837158,
+                              "fontFamily": "Roboto",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dXC5j",
+                  "name": "Aumigos EcoDog Park",
+                  "clip": true,
+                  "width": 428,
+                  "height": 660,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "mode": "stretch",
+                    "transform": [
+                      1.428163,
+                      0,
+                      0,
+                      1.234568,
+                      -0.067695,
+                      0
+                    ]
+                  },
+                  "cornerRadius": 24,
+                  "stroke": "#67b344ff",
+                  "strokeWidth": 3,
+                  "strokeAlignment": "inner",
+                  "layout": "vertical"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "hOhe8",
+          "layoutPosition": "absolute",
+          "x": 1360,
+          "y": 888,
+          "name": "EcoMigo • Acesso",
+          "clip": true,
+          "width": 56,
+          "height": 56,
+          "cornerRadius": 100,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#17472a26",
+            "offset": {
+              "x": 0,
+              "y": 5
+            },
+            "blur": 14
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "PtCYA",
+              "x": 0,
+              "y": 0,
+              "name": "Abrir Assistente EcoMigo",
+              "clip": true,
+              "width": 56,
+              "height": 56,
+              "layout": "none",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "JGfDP",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Fundo circular • vetor original",
+                  "sweepAngle": -360.00001001791264,
+                  "fill": "#247346ff",
+                  "width": 56,
+                  "height": 56
+                },
+                {
+                  "type": "ellipse",
+                  "id": "f2hG5p",
+                  "x": 2.380000114440918,
+                  "y": 2.380000114440918,
+                  "name": "Círculo interno • vetor original",
+                  "sweepAngle": -360.00001001791264,
+                  "fill": "#eef7f2ff",
+                  "width": 51.2400016784668,
+                  "height": 51.2400016784668
+                },
+                {
+                  "type": "group",
+                  "id": "V7TED",
+                  "x": 6.014400005340576,
+                  "y": 10.779999732971191,
+                  "name": "Cachorro e balão • vetores originais",
+                  "children": [
+                    {
+                      "type": "group",
+                      "id": "xzD5o",
+                      "x": 24.395599842071533,
+                      "y": 0,
+                      "name": "Group",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "BMpEJ",
+                          "x": 0,
+                          "y": 0,
+                          "name": "chat-round-dots-svgrepo-com 1",
+                          "clip": true,
+                          "width": 17.920000076293945,
+                          "height": 17.920000076293945,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "path",
+                              "id": "B9FEJB",
+                              "x": 1.4927359819412231,
+                              "y": 1.4927359819412231,
+                              "name": "Vector",
+                              "geometry": "M10 20c5.5228 0 10-4.4772 10-10 0-5.52285-4.4772-10-10-10-5.52285 0-10 4.47715-10 10 0 1.5997 0.37562 3.1116 1.04346 4.4525 0.17748 0.3563 0.23655 0.7636 0.13366 1.1481l-0.59561 2.2261c-0.25856 0.9663 0.6255 1.8503 1.59184 1.5918l2.22604-0.5956c0.38454-0.1029 0.79182-0.0438 1.14814 0.1336 1.34084 0.6679 2.85277 1.0435 4.45247 1.0435z",
+                              "width": 14.934528350830078,
+                              "height": 14.934528350830078,
+                              "stroke": "#000000ff",
+                              "strokeWidth": 1.4500000476837158
+                            },
+                            {
+                              "type": "path",
+                              "id": "RAfBV",
+                              "x": 5.97273588180542,
+                              "y": 8.960000038146973,
+                              "name": "Vector",
+                              "opacity": 0.5,
+                              "geometry": "M0.009 0l-0.009 0m4 0l-0.009 0m4.009 0l-0.009 0",
+                              "width": 5.974527835845947,
+                              "height": 0.00009999999747378752,
+                              "stroke": "#000000ff",
+                              "strokeWidth": 1.590000033378601,
+                              "strokeLinecap": "round"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "group",
+                      "id": "is3Kh",
+                      "x": 0,
+                      "y": 8.92080020904541,
+                      "name": "Group",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "sBYBk",
+                          "x": 0,
+                          "y": 0,
+                          "name": "dog-face-svgrepo-com (1) 1",
+                          "clip": true,
+                          "width": 27.176799774169922,
+                          "height": 27.176799774169922,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "path",
+                              "id": "eZVCn",
+                              "x": 5.076626300811768,
+                              "y": 4.236863136291504,
+                              "name": "Vector",
+                              "geometry": "M39.84785 0.01829c-29.09-0.75-38.51 21.77-39.23 30.22-0.56 6.57-3.38 30.6 10.32 46.74 7.07 8.33 18.4 12.48 30.41 12.19999 12.11-0.28 23.05-2.69 30.41-12.39 12.39-16.33 11.07-40.73 9.39-48.61999-1.58-7.34-7.71-27.29-41.3-28.15z",
+                              "fill": "#ffeac8ff",
+                              "width": 17.455657958984375,
+                              "height": 18.93679428100586
+                            },
+                            {
+                              "type": "path",
+                              "id": "f9wAIs",
+                              "x": 15.26520824432373,
+                              "y": 11.006604194641113,
+                              "name": "Vector",
+                              "geometry": "M24.92695 12.59543c1.03 7.81-2.36 15.26-11.29 15.79-8.17 0.49-13.21-4.72-13.61-12.39-0.41-7.86 3.89-15.17 10.72-15.92 7.21-0.79 13.16 4.71 14.18 12.52z",
+                              "fill": "#d27856ff",
+                              "width": 5.329370498657227,
+                              "height": 6.033249378204346
+                            },
+                            {
+                              "type": "path",
+                              "id": "i9NAEb",
+                              "x": 1.0218477249145508,
+                              "y": 5.008684158325195,
+                              "name": "Vector",
+                              "geometry": "M14.08083 3.13082c0 0-9.83 3.85-12.2 9.57-3.19 7.7-1.72 22.98 0 28.90999 1.69 5.82 6.19 11.83 13.13999 11.64 6.95-0.19 13.05-7.23 15.20001-16.42 2.16-9.2 2.63-24.96 3.27999-27.78 0.65-2.82 1.78-5.07 1.78-5.06999 0 0-8.63-8.36-21.2-0.85z",
+                              "fill": "#d27856ff",
+                              "width": 7.4926438331604,
+                              "height": 11.305548667907715
+                            },
+                            {
+                              "type": "path",
+                              "id": "zjQfV",
+                              "x": 18.534578323364258,
+                              "y": 5.092932224273682,
+                              "name": "Vector",
+                              "geometry": "M13.91808 1.51019c0 0 13.33 0.47 16.52 1.88 3.19 1.41 6.1 7.79 5.82 16.33-0.28 8.54-0.84 22.35-5.16 27.12-3.57 3.94-10.79 4.22-14.83-0.66-4.04-4.88-6.57-13.14-7.51-18.49-0.94-5.35-2.53-12.29-3.57-15.39-1.03-3.1-3.57001-9.29-4.88-10.7-1.32-1.4 1.31-2.72 13.61-0.09z",
+                              "fill": "#d27856ff",
+                              "width": 7.701905250549316,
+                              "height": 10.577210426330566
+                            },
+                            {
+                              "type": "path",
+                              "id": "SuB5x",
+                              "x": 1.5055947303771973,
+                              "y": 4.731481075286865,
+                              "name": "Vector",
+                              "geometry": "M22.87374 0.026c-7.23-0.46-19.15 5.26-21.59 11.17-2.44 5.91-1.01 25.09 1.04 30.68999 2.16 5.91 6.66 13.33001 14.45 6.95001 7.79-6.38 9.85-22.43 10.61-27.59 0.75-5.16 1.78-11.45 2.91-12.76 1.13-1.31 2.72-3.19 2.72-3.19 0 0-1.22-4.71-10.14-5.27z",
+                              "fill": "#865b51ff",
+                              "width": 7.0116143226623535,
+                              "height": 10.88974380493164
+                            },
+                            {
+                              "type": "path",
+                              "id": "pqhD8",
+                              "x": 18.4394588470459,
+                              "y": 4.454277515411377,
+                              "name": "Vector",
+                              "geometry": "M15.95001 0.11062c6.79 0.47 14.17 3 16.88999 8.92 2.72 5.91 1.68999 19.9 0.66 26.55999-1.03 6.66-3.47 13.61-9.57 12.86001-6.1-0.75-9.2-9.01-11.07-16.8-1.88-7.79-3.85-15.58-6.29-21.21-1.47-3.4-6.57-5.91-6.57-5.91 0 0 2.25-5.36 15.95001-4.42z",
+                              "fill": "#865b51ff",
+                              "width": 7.343171119689941,
+                              "height": 10.300006866455078
+                            },
+                            {
+                              "type": "path",
+                              "id": "l4hd3",
+                              "x": 8.563409805297852,
+                              "y": 12.887238502502441,
+                              "name": "Vector",
+                              "geometry": "M10.16507 6.99108c-0.4 3.42-2.16 6.18-5.98 5.77999-2.71-0.29-4.53-3.52-4.13-6.95 0.4-3.42 1.59-5.88 4.79-5.82 4.97 0.09 5.72 3.56 5.32 6.99001z",
+                              "fill": "#2f2f2fff",
+                              "width": 2.179579257965088,
+                              "height": 2.720397710800171
+                            },
+                            {
+                              "type": "path",
+                              "id": "FXbDo",
+                              "x": 16.814285278320312,
+                              "y": 12.854626655578613,
+                              "name": "Vector",
+                              "geometry": "M10.55029 6.18147c0.16 3.44-1.2 6.38-5.17 6.67-3.45 0.25-5.22-2.74-5.37-6.18-0.16-3.44 1.55-6.2 4.84-6.61 4.27-0.55 5.54 2.68 5.7 6.12z",
+                              "fill": "#2f2f2fff",
+                              "width": 2.2420859336853027,
+                              "height": 2.7312684059143066
+                            },
+                            {
+                              "type": "path",
+                              "id": "jhu4h",
+                              "x": 11.881696701049805,
+                              "y": 16.474576950073242,
+                              "name": "Vector",
+                              "geometry": "M19.15463 6.47885c0.16 3.44-2.16 6.66-9.38999 6.57-7.04-0.09-9.6-2.94-9.76001-6.37999-0.16-3.44 3.84-6.53 9.57-6.66001 7.89-0.2 9.42 3.02 9.58 6.47z",
+                              "fill": "#2f2f2fff",
+                              "width": 4.068367004394531,
+                              "height": 2.7693159580230713
+                            },
+                            {
+                              "type": "path",
+                              "id": "JVrYo",
+                              "x": 12.561117172241211,
+                              "y": 20.341835021972656,
+                              "name": "Vector",
+                              "geometry": "M0 2.15c0 0 0.85 8.17 1.69 10.61 1.78 5.16 9.28 4.3 10.61-0.55999 1.13-4.13 0.38-11.26 0.38-11.26001l-6.66-0.94-6.02 2.15z",
+                              "fill": "#e94b8cff",
+                              "width": 2.744856834411621,
+                              "height": 3.451453685760498
+                            },
+                            {
+                              "type": "path",
+                              "id": "jQJvx",
+                              "x": 13.76504898071289,
+                              "y": 21.374553680419922,
+                              "name": "Vector",
+                              "geometry": "M1.13016 0.00089c-1.17 0.05-1.13 1.13-1.13 3.61 0 2.49 0.14 3.99 1.27 3.94 1.13-0.05 0.99-1.97 0.99-3.75 0-1.78 0.09-3.85-1.13-3.8z",
+                              "fill": "#ef87b2ff",
+                              "width": 0.48102936148643494,
+                              "height": 1.6061488389968872
+                            },
+                            {
+                              "type": "path",
+                              "id": "iWUa7",
+                              "x": 10.56905746459961,
+                              "y": 18.62425994873047,
+                              "name": "Vector",
+                              "geometry": "M0.36993 2.49c-1.35 1.99 1.27 3.75 3.43001 5.21 2.16 1.45 4.78 3.66 7.87999 3.61 3.47-0.05 4.41-2.39 4.41001-2.39 0 0 1.13 2.77 6.04999 2.25 2.63-0.28 5.87-3.23 6.85-3.89 1.88-1.27 4.13001-2.86 3.14001-4.18-1.13-1.51-3.52001 0.52-5.96001 1.78-2.44 1.27-3.28 1.88-5.11 1.88-1.83 0-3.09999-0.75-3.19-3.8-0.08-2.49-0.05-2.96-0.05-2.96l-4.18 0c0 0 0.14 2.63 0.14001 3.38 0 1.97-1.03 2.82-3 2.91-1.97 0.09-4.08-1.55-5.12001-2.16-1.02-0.6-4.21-3.23-5.29-1.64z",
+                              "fill": "#2f2f30ff",
+                              "width": 6.873012542724609,
+                              "height": 2.4024291038513184
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "fileToken": "2862dc8d-01f7-4e42-8615-347681ab8d9b"

@@ -16,7 +16,7 @@ import java.util.List;
 
 @Tag(name = "Requisições API externa", description = "Endpoints para realizar a integração da API Twilio ao back-end da aplicação")
 @RestController
-@RequestMapping("/api/whatsapp")
+@RequestMapping("/whatsapp")
 public class WhatsAppController {
     private final TwilioService twilioService;
     private final ChatbotService chatbotService;

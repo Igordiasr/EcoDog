@@ -23941,6 +23941,7 @@
                               ],
                               "gap": 16,
                               "padding": 16,
+                              "alignItems": "center",
                               "children": [
                                 {
                                   "type": "text",
@@ -23979,16 +23980,126 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "dRpD5",
-                                  "name": "Dado",
-                                  "fill": "#182d21ff",
-                                  "textGrowth": "fixed-width",
+                                  "type": "frame",
+                                  "id": "pJRwS",
+                                  "name": "Datas agendadas no mês",
                                   "width": "fill_container",
-                                  "content": "5/10 - 7/10 - 12/10 - 14/10",
-                                  "fontFamily": "Roboto",
-                                  "fontSize": 16,
-                                  "fontWeight": "normal"
+                                  "gap": 8,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "K9t0QB",
+                                      "name": "Data agendada • 5/10",
+                                      "fill": "#FEFEFE",
+                                      "cornerRadius": 8,
+                                      "stroke": "#247346",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        8,
+                                        12
+                                      ],
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "Ik2cB",
+                                          "name": "Data • 5/10",
+                                          "fill": "#247346",
+                                          "content": "5/10",
+                                          "fontFamily": "Roboto",
+                                          "fontSize": 16,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "N731J",
+                                      "name": "Data agendada • 7/10",
+                                      "fill": "#FEFEFE",
+                                      "cornerRadius": 8,
+                                      "stroke": "#247346",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        8,
+                                        12
+                                      ],
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "xYbvU",
+                                          "name": "Data • 7/10",
+                                          "fill": "#247346",
+                                          "content": "7/10",
+                                          "fontFamily": "Roboto",
+                                          "fontSize": 16,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "Gl1mY",
+                                      "name": "Data agendada • 12/10",
+                                      "fill": "#FEFEFE",
+                                      "cornerRadius": 8,
+                                      "stroke": "#247346",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        8,
+                                        12
+                                      ],
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "XRvvM",
+                                          "name": "Data • 12/10",
+                                          "fill": "#247346",
+                                          "content": "12/10",
+                                          "fontFamily": "Roboto",
+                                          "fontSize": 16,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "B6LtWG",
+                                      "name": "Data agendada • 14/10",
+                                      "fill": "#FEFEFE",
+                                      "cornerRadius": 8,
+                                      "stroke": "#247346",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        8,
+                                        12
+                                      ],
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "FiH8f",
+                                          "name": "Data • 14/10",
+                                          "fill": "#247346",
+                                          "content": "14/10",
+                                          "fontFamily": "Roboto",
+                                          "fontSize": 16,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -26025,16 +26136,126 @@
                               "fontWeight": "normal"
                             },
                             {
-                              "type": "text",
-                              "id": "AwXSp",
-                              "name": "Descrição",
-                              "fill": "#182d21ff",
-                              "textGrowth": "fixed-width",
+                              "type": "frame",
+                              "id": "FdNIo",
+                              "name": "Datas agendadas no mês",
                               "width": "fill_container",
-                              "content": "5/10 - 7/10 - 12/10 - 14/10",
-                              "fontFamily": "Roboto",
-                              "fontSize": 16,
-                              "fontWeight": "normal"
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "X8NHu",
+                                  "name": "Data agendada • 5/10",
+                                  "fill": "#FEFEFE",
+                                  "cornerRadius": 8,
+                                  "stroke": "#247346",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    8,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "T1tD7",
+                                      "name": "Data • 5/10",
+                                      "fill": "#247346",
+                                      "content": "5/10",
+                                      "fontFamily": "Roboto",
+                                      "fontSize": 16,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Upxzf",
+                                  "name": "Data agendada • 7/10",
+                                  "fill": "#FEFEFE",
+                                  "cornerRadius": 8,
+                                  "stroke": "#247346",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    8,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "x6HsWN",
+                                      "name": "Data • 7/10",
+                                      "fill": "#247346",
+                                      "content": "7/10",
+                                      "fontFamily": "Roboto",
+                                      "fontSize": 16,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Xta5F",
+                                  "name": "Data agendada • 12/10",
+                                  "fill": "#FEFEFE",
+                                  "cornerRadius": 8,
+                                  "stroke": "#247346",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    8,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "i12KZI",
+                                      "name": "Data • 12/10",
+                                      "fill": "#247346",
+                                      "content": "12/10",
+                                      "fontFamily": "Roboto",
+                                      "fontSize": 16,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "j7lAQb",
+                                  "name": "Data agendada • 14/10",
+                                  "fill": "#FEFEFE",
+                                  "cornerRadius": 8,
+                                  "stroke": "#247346",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    8,
+                                    12
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "gBuhK",
+                                      "name": "Data • 14/10",
+                                      "fill": "#247346",
+                                      "content": "14/10",
+                                      "fontFamily": "Roboto",
+                                      "fontSize": 16,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }

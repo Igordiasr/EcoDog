@@ -102,6 +102,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         const selected = ctx.pets.includes(String(pet.idPet));
         return <button {...props} type="button" aria-label={pet.nome} aria-pressed={selected} onClick={() => ctx.action(`Booking pet ${pet.idPet}`, node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     }
+    if (node.viewPetDiary) return <button {...props} type="button" aria-label="Ver diário" onClick={() => ctx.action('Ver diário', node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
+    if (node.onDeletePet) return <button {...props} type="button" aria-label={`Excluir ${node.deletePetName}`} disabled={node.deletePetBusy} onClick={node.onDeletePet}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     if (node.editPetId) return <button {...props} type="button" aria-label="Editar pet" onClick={() => ctx.action('Editar pet integrado', node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     if (ctx.screen === 'TL05' && name === 'Pets cadastrados')
         return <TutorPets model={ctx.tutorPets} session={ctx.session} node={node} renderCard={card => <DesignRenderer key={card.id} node={card} ancestors={[...ancestors, node]} inert/>}/>;

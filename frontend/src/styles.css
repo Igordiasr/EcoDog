@@ -228,8 +228,8 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .radio-option input { width: 20px; height: 20px; accent-color: var(--brand); }
   .scheduled-pet-days { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; font: 14px/1.4 Roboto, sans-serif; }
   .scheduled-days-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; }
-  .scheduled-day-card { flex: 0 0 auto; max-width: 100%; padding: 8px 12px; border: 1px solid var(--brand); border-radius: 10px; background: var(--background); color: var(--primary-accessible); box-shadow: 0 5px 14px #17472a14; }
-  .scheduled-day-card time { white-space: nowrap; font: 16px/1.2 "Lilita One", sans-serif; }
+   .scheduled-day-card { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; max-width: 100%; padding: 8px 12px; border: 1px solid var(--brand); border-radius: 8px; background: var(--surface); color: var(--brand); }
+   .scheduled-day-card time { white-space: nowrap; font: 500 16px/1.2 Roboto, sans-serif; }
  .pet-allergies select, .pet-catalog-dialog .design-input { width: 100%; min-height: 44px; border: 1px solid #6b8f7d; border-radius: 10px; padding: 12px; background: var(--surface); color: #182d21; font: 16px Roboto, sans-serif; }
  .pet-catalog-dialog h2 { color: var(--brand); font-family: "Lilita One", sans-serif; }
  .pet-catalog-dialog label { display: flex; flex-direction: column; gap: 8px; }
@@ -417,7 +417,23 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 @media (max-width: 600px) { .design-mobile { max-width: 100%; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
 .tutor-pets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; width: 100%; }
-.tutor-pet-card { padding: 24px; background: var(--surface); border: 2px solid var(--brand); border-radius: 24px; color: var(--brand); }
+ .tutor-pets-list { min-width: 0; }
+ .tutor-pets-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; width: 100%; min-width: 0; }
+ .tutor-pet-entry { display: flex; flex-direction: column; align-items: stretch; gap: 12px; min-width: 0; }
+ .tutor-pet-entry > [data-design-name="Pet cadastrado"] { width: 100%; min-width: 0; flex: 1; }
+ .tutor-pet-entry > .management-button { white-space: normal; overflow-wrap: anywhere; }
+ .design-page [data-design-name="Pet cadastrado"] [data-design-name="Dados do pet"] { min-width: 0; overflow: visible; }
+ .design-page [data-design-name="Pet cadastrado"] :is([data-design-name="Nome"], [data-design-name="Descrição"]) { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+ .design-page [data-design-name="Pet cadastrado"] [data-design-name="Ações do pet"] { flex-wrap: wrap; overflow: visible; }
+ .design-mobile .tutor-pets-grid { grid-template-columns: minmax(0, 1fr); }
+ @media (max-width: 1100px) {
+   .tutor-pets-grid { grid-template-columns: minmax(0, 1fr); }
+ }
+ @media (max-width: 380px) {
+   .design-page [data-design-name="Pet cadastrado"] [data-design-name="Resumo do pet"] { flex-direction: column; align-items: stretch; }
+   .design-page [data-design-name="Pet cadastrado"] [data-design-name="Dados do pet"] { flex: auto; width: 100%; }
+ }
+ .tutor-pet-card { padding: 24px; background: var(--surface); border: 2px solid var(--brand); border-radius: 24px; color: var(--brand); }
 .tutor-pet-card h2 { font-size: 24px; margin-bottom: 16px; }
 .tutor-pet-card dl { display: grid; gap: 8px; }
 .tutor-pet-card dl > div { display: flex; justify-content: space-between; gap: 16px; }

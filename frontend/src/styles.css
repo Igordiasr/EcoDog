@@ -473,6 +473,36 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 }
 
 /* Registration follows TL04: original header, aumigo photo, card and fonts. */
+.forgot-password-page { position: relative; flex: 1; min-height: 100dvh; background: #add9cc; color: var(--brand); }
+.forgot-password-content { padding: 72px 80px 80px; }
+.forgot-password-card { display: flex; width: 100%; max-width: 1040px; min-height: 660px; margin: 0 auto; background: var(--surface); border-radius: 24px; box-shadow: 0 5px 14px #17472a14; overflow: hidden; }
+.account-page.forgot-password-form { flex: 1; min-width: 0; max-width: none; margin: 0; padding: 40px; display: flex; flex-direction: column; gap: 24px; }
+.forgot-password-intro { display: flex; flex-direction: column; gap: 12px; }
+.forgot-password-intro span { color: var(--brand); font: 14px/normal 'Lilita One', sans-serif; letter-spacing: 1px; }
+.forgot-password-form h1 { margin: 0; font: 40px/1.18 'Luckiest Guy', sans-serif; }
+.forgot-password-form p { margin: 0; font: 16px/1.45 Roboto, sans-serif; }
+.forgot-password-form form { gap: 24px; }
+.forgot-password-form label { gap: 8px; color: var(--brand); font: 14px/normal 'Lilita One', sans-serif; }
+.forgot-password-form input { height: 48px; padding: 0 16px; border-color: #6b8f7d; border-radius: 10px; font: 16px/1.4 Roboto, sans-serif; }
+.forgot-password-form input::placeholder { color: #364d40; opacity: 1; }
+.forgot-password-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
+.forgot-password-actions button { width: 280px; max-width: 100%; min-height: 48px; border-radius: 10px; background: var(--brand); color: var(--surface); font: 16px/normal 'Lilita One', sans-serif; }
+.forgot-password-actions a { color: var(--brand); font: 16px/normal 'Lilita One', sans-serif; text-decoration: none; }
+.forgot-password-actions a:hover { text-decoration: underline; }
+.forgot-password-notice { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 10px; background: #eef7f2; }
+.forgot-password-notice h2 { margin: 0; font: 16px/normal 'Lilita One', sans-serif; }
+.forgot-password-notice p, .forgot-password-form .forgot-password-status { font-size: 14px; }
+.forgot-password-notice p:last-child { color: #364d40; }
+.forgot-password-photo { flex: 0 0 41.154%; min-height: 660px; border: 3px solid #67b344; border-radius: 24px; background: url('/images/image-import-26.jpg') center / cover no-repeat; }
+@media (max-width: 767px) {
+  .forgot-password-page { padding-bottom: 128px; }
+  .forgot-password-content { padding: 32px 20px; }
+  .forgot-password-card { min-height: 0; }
+  .account-page.forgot-password-form { padding: 28px 24px; }
+  .forgot-password-form h1 { font-size: 30px; }
+  .forgot-password-photo { display: none; }
+  .forgot-password-actions button { width: 100%; }
+}
 .registration-page { position: relative; flex: 1; background: var(--background); color: var(--brand); }
 .registration-page::before { content: ''; position: absolute; inset: 0; background: url('/design-assets/scheduling-paws-spaced.svg') center / 720px 108px repeat; opacity: .06; pointer-events: none; }
 .registration-header { position: relative; height: 88px; padding: 0 64px; display: flex; align-items: center; background: var(--brand); box-shadow: 0 4px 7px #00000026; }

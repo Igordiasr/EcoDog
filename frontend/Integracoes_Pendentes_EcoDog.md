@@ -19,6 +19,27 @@ Desktop, mobile e etapas de revisão estão agrupados pela funcionalidade. **Int
 
 ## 1. Telas com pendências
 
+### Revisão de imagens dos pets — 08/11/2026
+
+Conferência dos layouts desktop/mobile e edição em `src/views/design/*.json`, derivados do protótipo. **Requisito futuro de retorno:** as consultas abaixo devem devolver a referência persistida `fotoUrl` para preencher a foto do pet. Isso não afirma que o DTO Java ou o adaptador visual atual já aceita/exibe o campo. Nenhum endpoint foi alterado por esta revisão.
+
+**Convenção única:** `fotoUrl` é `string` com URL HTTP(S) absoluta acessível pelo navegador, ou `null` quando não houver foto. Exemplo: `http://localhost:5173/arquivos/pets/<uuid>.webp`, obtido pelo fluxo local do TL06. Retornar o campo também quando nulo; usar placeholder neutro na ausência/erro de imagem, nunca a foto fictícia de outro pet. Não retornar arquivo, base64, caminho de disco, URL `blob:` ou URL relativa ao backend. O backend persiste a referência, não os bytes, e as consultas leem a foto atual do cadastro, sem duplicar o arquivo por diário/agendamento/atividade. A origem local deve permanecer acessível; `localhost` não funciona para outros dispositivos.
+
+| Tela / uso no protótipo | Consulta que deve fornecer a imagem | Local do campo no retorno esperado |
+| --- | --- | --- |
+| TL03 — Agendamento, foto do pet selecionado | `GET /calendario/pets?idUsuario=4` | `fotoUrl` em cada objeto do array, junto de `idPet`, `nomePet` |
+| TL05 — Meus Pets, foto de cada cartão | `GET /pets/{idTutor}` | `fotoUrl` em cada pet, junto dos seis campos atuais |
+| TL06 — Cadastro/revisão e edição, foto e identificação | `GET /pets/{idTutor}/{idPet}` (leitura sugerida); POST/PUT existentes | No objeto de detalhe; no DTO de gravação quando retornar o cadastro. Na criação/revisão antes de salvar, usar o arquivo/preview local, sem nova consulta |
+| TL07 — Diário do Pet, foto no resumo | `GET /api/diario/{idPet}` e `GET /api/diario/{idPet}/historico` | `fotoUrl` na raiz, junto de `idPet`, `data`, preservando resumo e registros |
+| TL10 — Diário/Feed do Monitor, identificação do pet | `GET /feed-monitor/pet/{id}` | `fotoUrl` na raiz, junto de `nome`, `raca`, `nomeTutor`, `observacao` |
+| TL11 — Check-in/check-out, foto dos pets previstos | `GET /checkin-checkout?data=2026-11-03` | `fotoUrl` em cada agendamento do array, associado ao seu `idPet` |
+| TL12 — Atividades do dia, cartões dos grupos | `GET /atividades` | `atividadesDoDia[].grupos[].petsDoGrupo[].fotoUrl` |
+| TL14 — Calendário administrativo, alunos agendados | `GET /calendario/dia?data=2026-11-10` | `alunosAgendados[].fotoUrl`; também no `CalendarioDiaResponse` retornado por PUT de vagas |
+
+**Sem acréscimo indiscriminado:** serviços, disponibilidade, catálogos, login, usuários, metas, gráficos e respostas 204 não precisam de `fotoUrl`. Orçamento/confirmação do TL03 pode reutilizar os pets obtidos pela consulta, sem mudar o array atual de nomes. Agenda mensal do tutor pode associar `idPet` à listagem do TL05; não exige duplicar `fotoUrl` no DTO mensal. TL16/vínculo de plano e registro de receitas não apresentam foto individual nos formulários conferidos; IDs/nomes continuam suficientes. Fotos institucionais TL01/TL04/TL08/TL09, fotos de atividades e avatares de usuário/assistente não são a foto cadastral do pet.
+
+**Pendência transversal:** atualizar DTOs de leitura, persistência de `fotoUrl`, adaptadores e renderizadores dessas telas; validar autorização e imagem ausente/indisponível em desktop/mobile. Não tornar uma foto obrigatória para cadastrar ou consultar o pet. A inclusão de campos não muda caminhos, parâmetros ou métodos dos endpoints existentes.
+
 ### Auditoria dos retornos — 06/11/2026
 
 Conferência estática dos consumidores em `src/models/auth.js`, `src/models/pet-registration.js`, `src/api/pets-api.js`, `src/api/tutor-booking.js`, `src/api/dashboard-api.js`, `src/api/dashboard-source.js`, `src/api/calendar-api.js` e dos DTOs correspondentes. **Não é possível garantir que todos os corpos sugeridos serão utilizados:** várias ações ainda não têm consumidor HTTP. Os exemplos futuros abaixo são formatos possíveis, não uma exigência de devolver todos os campos enviados.
@@ -28,8 +49,8 @@ Conferência estática dos consumidores em `src/models/auth.js`, `src/models/pet
 | Fluxo | Retorno necessário e uso | Dados condicionais / que não devem ser exigidos |
 | --- | --- | --- |
 | TL04 — criação de tutor | O consumidor atual em `createAuthApi.register` valida `id`, `nome`, `email`; esses campos precisam permanecer ao migrar para `/tutores`, ou o consumidor deve ser adaptado para confirmação por status. Sucesso permite encaminhar ao login. | Telefone, sobrenome e endereço completo não são usados por essa validação. Persistir endereço é obrigatório pelo requisito, **devolvê-lo não**. Consultá-lo posteriormente em Meus Dados. Nunca retornar senha. |
-| TL06 — gravação de pet | `registerTutorPet` exige `idPet` positivo para confirmar o cadastro; o mesmo ID viabiliza o futuro upload de foto. | O restante do cadastro devolvido hoje não é necessário à confirmação. Os campos e listas completos são necessários na **leitura de edição**, não obrigatoriamente na resposta de gravação. |
-| TL06 — saúde e foto | Catálogos precisam de ID e rótulo para selecionar/enviar itens; detalhe do pet precisa de campos editáveis e listas completas para evitar perda. Criação de alergia precisa devolver seu ID se for seguida do cadastro do pet. | `tipo` só é necessário se exibido/usado para seleção. `fotoUrl` só será consumida após implementar exibição/persistência da referência da foto; upload pode confirmar por status seguido de consulta. |
+| TL06 — gravação de pet | `registerTutorPet` exige `idPet` positivo para confirmar o cadastro. Foto é salva no frontend antes do POST; o JSON envia `fotoUrl`, não arquivo. | O restante do cadastro devolvido hoje não é necessário à confirmação. Retorno futuro do cadastro inclui `fotoUrl`; campos e listas completos são necessários na **leitura de edição**. |
+| TL06 — saúde e foto | Catálogos precisam de ID e rótulo; detalhe do pet precisa de campos editáveis, listas completas e `fotoUrl` para preencher a foto sem perda. Criação de alergia precisa devolver seu ID se seguida do cadastro. | `tipo` só é necessário se exibido/usado para seleção. Persistência e leitura de `fotoUrl` no Java e exibição nas consultas permanecem pendentes; foto ausente retorna `null`. |
 | TL05/TL03 — pets e agenda | Listagem de pets usa os seis campos resumidos do contrato atual. Consulta mensal precisa de data, pet, serviço, situação e **`idAgendamento` para cancelar**. Orçamento atual valida `valorTotal` e `datasUtilizacao`; criação valida `valorTotal` e `aguardandoAprovacao`. | IDs dos agendamentos não são necessários à confirmação atual, mas precisam estar disponíveis na consulta para ações posteriores. Mensagem do cancelamento pode ser substituída por status apenas com adaptação do futuro consumidor. Propostas de datas como objetos exigem adaptar o validador atual de strings. |
 | TL15 — funcionários | Consulta futura precisa de ID, dados efetivamente exibidos e `ativo` para ação reversível. Criação/edição pode confirmar por status e recarregar a lista. | Não exigir eco de CPF/endereço nas gravações. `perfil` pode ser derivado da rota quando as listas são separadas; `dataCadastro` só se exibida/ordenada. CPF/endereço apenas em leitura autorizada para formulário que os use. Nenhuma dessas ações futuras está integrada. |
 | TL16/TL17 — contratos e planos | Consultas futuras precisam de IDs para ações/seleção, nomes para exibição, condições mostradas/editadas e situação para ativar/desativar. | Objetos completos nas respostas POST/PUT só se a tela atualizar o estado diretamente; com recarga, status basta. PATCH de situação pode retornar 204 com recarga, sem eco de ID/`ativo`. Não exigir objetos aninhados completos onde ID/rótulo resolve. |
@@ -97,7 +118,7 @@ Limites anteriores, a reconfirmar nos novos DTOs: nome 60, sobrenome 120, e-mail
 
 **Retorno existente:** ambos devolvem `CadastroPetResponse`: `idPet`, `idTutor`, `nome`, `raca`, `sexo`, `castrado`, `dataNascimento`, `observacao`, `relacaoComOutros`, `veterinario`, `telefoneVeterinario`, `convenio`, `medicacoesDoPet`, `vacinasDoPet`, `alergiasDoPet`. As listas retornam objetos de catálogo aninhados: medicação com `emUso`, `dosagem`, `frequencia`; vacina com `dataAplicacao`, `dataValidade`; alergia com seu objeto `alergia`. POST envia `idTutor` no caminho; PUT envia também `idPet`; ambos enviam o JSON abaixo. POST retorna 201 e PUT 200, com o cadastro persistido, não somente um ID.
 
-**Falta:** catálogos de saúde, leitura completa para editar e upload de foto. Frontend bloqueia saúde preenchida e edição para evitar perda de informações. O PUT substitui todas as listas de saúde; lista desconhecida não pode ser enviada como vazia.
+**Falta:** catálogos de saúde, leitura completa para editar e persistência de `fotoUrl` no backend. O armazenamento local de foto no frontend está implementado conforme abaixo. Frontend bloqueia saúde preenchida e edição para evitar perda de informações. O PUT substitui todas as listas de saúde; lista desconhecida não pode ser enviada como vazia.
 
 **Envio existente — cadastro/edição, após obter IDs reais de saúde:**
 
@@ -136,6 +157,8 @@ Listas obrigatórias, `[]` somente se realmente não houver itens. Nascimento pa
 | `GET /catalogos/alergias` | Sem parâmetros e sem corpo | `[{"idAlergias":1,"descricao":"Alergia a frango"}]` |
 | `GET /pets/{idTutor}/{idPet}` | IDs do tutor e pet no caminho; sem corpo | Objeto com `idPet`, `idTutor`, todos os campos do envio acima e nomes/descrições dos itens de saúde; listas completas, inclusive vazias quando não houver itens |
 
+**Retorno esperado para edição — acréscimo ao objeto acima:** `fotoUrl: string | null`, para preencher “Foto do pet”/“Alterar foto”. POST 201 e PUT 200, quando devolverem `CadastroPetResponse`, devem incluir a referência persistida no mesmo campo. Exemplo de campo adicional: `"fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"`. A gravação atual confirma pelo `idPet`; a referência no retorno é requisito futuro, não validação já implementada. O envio futuro de edição deve preservar a referência quando não houver troca de foto.
+
 **“Outros” em alergias — sugestão `POST /catalogos/alergias`:**
 
 ```json
@@ -150,13 +173,17 @@ Resposta 201:
 
 Usar o ID retornado no envio final do pet. Definir permissões/duplicidade e se a descrição é catálogo compartilhado ou informação exclusiva do pet.
 
-**Foto — sugestão:** `POST /pets/{idTutor}/{idPet}/foto`, multipart com campo `arquivo`, após receber `idPet`; não JSON. Resposta 201:
+**Foto — armazenamento local implementado no frontend:** ao cadastrar com foto, o frontend envia o arquivo binário para `POST /local-api/pet-images` no servidor Vite (não no backend Java), com `Content-Type: image/jpeg`, `image/png` ou `image/webp`. Limite: 5 MB, com verificação de assinatura do arquivo. Arquivos ficam em `frontend/.local-storage/pets/`, ignorada pelo Git, com nomes UUID. Resposta 201:
 
 ```json
-{ "idPet": 9, "fotoUrl": "/arquivos/pets/9/foto.webp" }
+{ "fotoUrl": "/arquivos/pets/<uuid>.webp" }
 ```
 
-Definir tamanho/formato e tratar falha de upload separadamente do cadastro.
+O frontend converte o caminho em URL absoluta da origem atual (ex.: `http://localhost:5173/arquivos/pets/<uuid>.webp`) e envia **somente `fotoUrl`**, junto dos campos já existentes, no JSON de `POST /pets/{idTutor}`. Não envia arquivo, base64 ou URL `blob:` ao Java e não usa `/pets/{idTutor}/{idPet}/foto`.
+
+**Alteração pendente no backend, sem mudanças de endpoints:** aceitar/persistir `fotoUrl` opcional no `CadastroPetRequest` e devolver esse campo em `CadastroPetResponse`, detalhe e listagem do pet. Resposta esperada continua com `idPet` positivo e os dados do cadastro; acrescentar `"fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"` quando houver foto. O frontend não exige esse campo na resposta de gravação enquanto o backend não for atualizado; a persistência da referência ainda não está garantida pelo Java atual.
+
+As imagens são servidas por GET/HEAD `/arquivos/pets/<arquivo>` no frontend, com `npm run dev` ou `npm run preview`. Hospedagem estática de `dist` não suporta gravação; produção precisará de armazenamento/servidor próprio. A URL depende da origem/porta do frontend; os arquivos não acompanham clones do Git. Falha no armazenamento impede o envio do cadastro. Falha posterior no cadastro pode deixar arquivo sem pet associado na pasta local. Não há exclusão automática desses arquivos nesta implementação.
 
 ### TL05 — Meus Pets | Parcial
 
@@ -167,6 +194,14 @@ Definir tamanho/formato e tratar falha de upload separadamente do cadastro.
 ```json
 [{ "idPet": 9, "nome": "Bob", "raca": "Labrador", "sexo": "M", "castrado": true, "dataNascimento": "2020-05-10" }]
 ```
+
+**Retorno esperado — GET 200 com foto, mantendo os campos atuais:**
+
+```json
+[{ "idPet": 9, "nome": "Bob", "raca": "Labrador", "sexo": "M", "castrado": true, "dataNascimento": "2020-05-10", "fotoUrl": "http://localhost:5173/arquivos/pets/<uuid>.webp" }]
+```
+
+Sem foto: `fotoUrl: null`; sem pets: `[]`. Acréscimo pendente no DTO e no consumidor dos cartões. DELETE permanece 204 sem corpo.
 
 **Falta:** ligar dias agendados à fonte operacional (`tutorScheduleSource` não criada no App padrão). Edição depende da leitura completa descrita no TL06.
 
@@ -196,6 +231,14 @@ Plano vigente não é nova contratação: valida saldo/limite semanal. Cancelame
 | `POST /calendario/agendamentos` | Query `idUsuario=4` e mesmo JSON existente | 201, `{"valorTotal":300.00,"aguardandoAprovacao":true}`; não retorna IDs dos agendamentos |
 | `POST /calendario/planos/agendamentos` | Query `idUsuario=4`, JSON com `idsPet:[9]`, `datasUtilizacao:["2026-11-10"]`; DTO compartilhado, `idServico`/`dataInicioPlano` não representam nova contratação nesse fluxo | 201, objeto com `pets` (nomes), `datas` (datas), `saldos` (objetos com `pet`, `inicioSemana`, `usados`, `restantes`) e `aguardandoAprovacao` |
 | Consulta mensal / cancelamento | Parâmetros e ausência de corpo descritos no TL05 | 200 com array mensal / 200 com objeto `mensagem`, conforme TL05 |
+
+**Retorno esperado — pets disponíveis para seleção, GET `/calendario/pets` 200:**
+
+```json
+[{ "idPet": 9, "nomePet": "Bob", "fotoUrl": "http://localhost:5173/arquivos/pets/<uuid>.webp" }]
+```
+
+Adicionar `fotoUrl: string | null` ao DTO atual para a foto dos pets selecionados no protótipo. Array vazio continua `[]`. Orçamento e confirmação reutilizam essa consulta para as imagens; seus retornos atuais não precisam mudar.
 
 **Envio existente — serviço por dia:**
 
@@ -425,6 +468,8 @@ Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obriga
 
 No retorno do dia, `atividades` contém os campos de programação acima; `alunosAgendados` contém `idAgendamento`, `idPet`, `nome`, `raca`, `idade`, `tutor`, `situacao`. Dia não configurado retorna ID nulo, vagas zeradas e atividades vazias.
 
+**Retorno esperado com foto — GET do dia 200 / PUT de vagas 200:** acrescentar `fotoUrl: string | null` a cada item de `alunosAgendados`, preservando todos os campos atuais. Exemplo de aluno: `{"idAgendamento":15,"idPet":9,"nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"CONFIRMADO","fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Foto preenche o espaço “Foto a preencher” do aluno; não pertence ao catálogo de atividades. A coleção vazia continua `[]`. Tipos/valores dos demais campos devem seguir o DTO existente; a única inclusão proposta aqui é `fotoUrl`.
+
 **Falta:** criar/conectar `calendarSource` no App padrão. Edição de horários, lote e aprovação administrativa não têm endpoints equivalentes.
 
 **Envios e respostas sugeridos, se essas ações forem mantidas:**
@@ -578,9 +623,21 @@ Próximas mensagens usam o ID retornado. Não inventar telefone WhatsApp a parti
 
 **Envio existente:** `idPet` no caminho e `data` na query, sem corpo, em ambas as consultas. Data opcional no diário, obrigatória no histórico. **Retorno existente — 200 em ambas:** objeto com `idPet`, `data`, `resumo:{"statusRefeicao":"<status do servidor>","statusEngajamento":"<status do servidor>"}`, `atividades:[{"descricao":"<descrição>"}]`, `medicacoes:[{"nome":"<medicação>","status":"TOMOU"}]`, `observacoes` (texto). Listas vazias sem registros; não são arrays de IDs de catálogo.
 
-**Falta:** nenhuma integração adicional identificada; validar em execução. Tutor não grava registros nessa tela.
+**Retorno esperado com foto — 200 em ambas as consultas:**
 
-**Sugestão:** nenhum endpoint novo proposto; não há envio/retorno adicional.
+```json
+{
+  "idPet": 9,
+  "fotoUrl": "http://localhost:5173/arquivos/pets/<uuid>.webp",
+  "data": "2026-11-03",
+  "resumo": { "statusRefeicao": "Todas as refeições do dia foram concluídas.", "statusEngajamento": "O pet participou em todas as atividades do dia." },
+  "atividades": [{ "descricao": "Brincadeiras" }],
+  "medicacoes": [{ "nome": "Medicação prescrita", "status": "TOMOU" }],
+  "observacoes": "Descansou após as atividades."
+}
+```
+
+**Falta:** incluir `fotoUrl: string | null` no DTO diário/histórico e adaptar a foto no resumo. Mesmo num dia sem registros, retornar a referência cadastral atual do pet autorizado; listas continuam vazias. O frontend já consulta a listagem do tutor para identificar o pet e pode reutilizar sua `fotoUrl` após atualização do DTO, mas o retorno esperado do diário também explicita a referência. Validar em execução. Tutor não grava registros nessa tela; métodos/rotas permanecem GET.
 
 ### TL10 — Feed do Monitor | Integrada
 
@@ -602,9 +659,9 @@ Próximas mensagens usam o ID retornado. Não inventar telefone WhatsApp a parti
 
 Atualizações retornam 200 com registro; observação retorna 201. Participação: `PARTICIPOU`/`NAO_PARTICIPOU`; medicação: `TOMOU`/`NAO_TOMOU`. Negativas exigem justificativa; observação geral até 200 caracteres. IDs são dos registros diários, não do catálogo.
 
-**Falta:** nenhuma integração adicional identificada; validar regras de agendamento confirmado do dia em execução.
+**Retorno esperado com foto — GET `/feed-monitor/pet/{id}` 200:** `{"nome":"Bob","raca":"Labrador","nomeTutor":"Maria Silva","observacao":"Atenção à alimentação","fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Acrescentar `fotoUrl: string | null` na identificação para preencher “Foto de Thor” com o pet real. Consultas/atualizações de atividades, medicações e observações mantêm seus corpos; não repetir foto em cada registro.
 
-**Sugestão:** nenhum endpoint novo proposto; não há envio/retorno adicional.
+**Falta:** incluir a referência no DTO/consumidor da identificação e validar regras de agendamento confirmado do dia em execução. Nenhum endpoint novo necessário.
 
 ### TL11 — Check-in / check-out | Integrada
 
@@ -622,7 +679,7 @@ Resposta 204. Responsável obrigatório até 100 caracteres; ID do agendamento, 
 
 **Falta:** nenhuma integração adicional identificada; validar execução.
 
-**Sugestão:** nenhum endpoint novo proposto para check-in/check-out; não há envio/retorno adicional.
+**Retorno esperado com foto — GET 200:** acrescentar `fotoUrl: string | null` em cada agendamento, preservando `idAgendamento`, `idPet`, `nomePet`, `dataEntrada`, `dataSaida`, `tutorCheckin`, `tutorCheckout`, `pertences`, `racaoMarca`, `quantidade`. Exemplo de acréscimo no item: `"fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"`. Necessário para a foto de cada pet previsto; atualizar DTO e consumidor. Sem agendamentos: `[]`; sem foto: `null`. PATCH de entrada/saída continua 204 sem corpo, sem campo de imagem. Nenhum endpoint novo necessário.
 
 ### TL12 — Atividades do dia | Integrada
 
@@ -634,7 +691,7 @@ Resposta 204. Responsável obrigatório até 100 caracteres; ID do agendamento, 
 | `PUT /atividades` | JSON abaixo, sem parâmetros no caminho/query | 204, sem corpo |
 | `PUT /atividades/atualizarPets` | JSON array de IDs de **participação**, exemplo `[21,22]`; sem parâmetros na URL | 204, sem corpo; atualiza participações pendentes para `PARTICIPOU` |
 
-**Sugestão:** nenhum endpoint novo proposto; não há envio/retorno adicional.
+**Retorno esperado com foto — GET `/atividades` 200:** manter o objeto/agrupamento atual e acrescentar `fotoUrl: string | null` em `atividadesDoDia[].grupos[].petsDoGrupo[]`. Exemplo de pet do grupo: `{"idPet":9,"nome":"Bob","idParticipacaoDoPet":21,"idAgendamento":15,"fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Necessário para “Foto do pet” nos cartões dos grupos; atualizar DTO e consumidor. Sem foto: `null`; coleções vazias permanecem vazias. Os PUTs continuam com os envios atuais e 204 sem corpo. Nenhum endpoint novo necessário.
 
 **Envio existente (`AtualizarAtividadeRequest`):**
 

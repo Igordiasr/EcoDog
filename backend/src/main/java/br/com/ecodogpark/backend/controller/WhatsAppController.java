@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.service.EnviarMensagemService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,11 +22,18 @@ public class WhatsAppController {
     private final TwilioService twilioService;
     private final ChatbotService chatbotService;
     private final AtendimentosPendentesService atendimentosPendentesService;
+    private final EnviarMensagemService enviarMensagemService;
 
-    public WhatsAppController(TwilioService twilioService, ChatbotService chatbotService, AtendimentosPendentesService atendimentosPendentesService) {
+    public WhatsAppController(
+            TwilioService twilioService,
+            ChatbotService chatbotService,
+            AtendimentosPendentesService atendimentosPendentesService,
+            EnviarMensagemService enviarMensagemService
+    ) {
         this.twilioService = twilioService;
         this.chatbotService = chatbotService;
         this.atendimentosPendentesService = atendimentosPendentesService;
+        this.enviarMensagemService = enviarMensagemService;
     }
 
     @Operation(summary = "Listar atendimentos pendentes", description = "Requisição que retorna uma lista com as solicitações de atendimentos humano")

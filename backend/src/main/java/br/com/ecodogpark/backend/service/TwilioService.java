@@ -21,19 +21,14 @@ public class TwilioService {
     @Value("${twilio.content-sid}")
     private String contentSid;
 
-    public void enviarMensagem(String remetente, String mensagem) {
+    public void enviarMensagem(String destinatario, String mensagem) {
         Twilio.init(accountSid, authToken);
 
         try {
-            String resposta = """
-                        Olá!
-                        🐶 Bem-vindo à EcoDog Park!
-                        Como posso ajudar?
-                """;
             Message message = Message.creator(
-                            new PhoneNumber(remetente),
+                            new PhoneNumber(destinatario),
                             new PhoneNumber(whatsappNumber),
-                            resposta
+                            mensagem
                     ).setContentSid(contentSid)
                     .create();
         } catch (ApiException e) {

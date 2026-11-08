@@ -1092,7 +1092,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         return;
                     }
                     setPetPhoto(file);
-                    setMessage('A foto será exibida apenas nesta prévia; o backend não possui endpoint para salvá-la.');
+                    setMessage('Foto selecionada. Ao cadastrar, ela será salva localmente e somente a URL será enviada ao backend.');
                 }
                 if (photoRef.current)
                     URL.revokeObjectURL(photoRef.current);

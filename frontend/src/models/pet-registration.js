@@ -1,5 +1,6 @@
 import { HttpError, requestJson } from '../api/http';
 import { sessionFromToken } from './auth';
+import { saveLocalPetImage } from '../api/local-pet-images';
 
 export function petRegistrationBody(draft) {
     if (draft.vacinas?.length || draft.medicamentos?.length || draft.allergies?.length) throw new Error('O catálogo de saúde ainda não está integrado. Nenhum item preenchido será descartado ou enviado como lista vazia.');
@@ -12,6 +13,7 @@ export function petRegistrationBody(draft) {
         medicacoesDoPet: [],
         vacinasDoPet: [],
         alergiasDoPet: [],
+        ...(draft.fotoUrl ? { fotoUrl: draft.fotoUrl } : {}),
     };
 }
 
@@ -21,6 +23,10 @@ export async function registerTutorPet(baseUrl, session, draft, catalog, request
     const body = petRegistrationBody(draft, catalog);
     if (petId !== undefined && (!Number.isSafeInteger(petId) || petId <= 0)) throw new Error('Identificador do pet inválido.');
     if (petId !== undefined) throw new Error('Edição indisponível: a consulta não retorna os registros completos de saúde. Nenhum dado será apagado.');
+    if (draft.photo && !draft.fotoUrl) {
+        draft.fotoUrl = await saveLocalPetImage(draft.photo);
+        body.fotoUrl = draft.fotoUrl;
+    }
     try {
         const result = await requestJson(baseUrl, `/pets/${encodeURIComponent(authenticated.id)}${petId === undefined ? '' : `/${petId}`}`, { method: petId === undefined ? 'POST' : 'PUT', headers: { Authorization: `Bearer ${authenticated.token}` }, body }, undefined, request);
         if (!Number.isSafeInteger(result?.idPet) || result.idPet <= 0) throw new Error('Resposta do cadastro inesperada. Confira Meus Pets antes de tentar novamente.');

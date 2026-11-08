@@ -10,7 +10,7 @@ function parseDiary(raw, id, requestedDate) {
 export function createPetDiaryApi(baseUrl, request, token) {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     return {
-        /** DIA-01 / SEC-01: read prepared, but UI must not publish unverified global participation summaries. */
+        /** Consulta somente leitura do resumo calculado pelo backend. */
         async day(petId, day, signal) {
             positiveId(petId, 'pet');
             date(day, 'dia');

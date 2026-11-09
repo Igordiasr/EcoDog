@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "pets")
@@ -16,8 +17,8 @@ import java.time.LocalDate;
 @SQLRestriction("deletado = false")
 public class PetsEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idPet;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID idPet;
     @NotBlank
     private String nome;
     @NotBlank
@@ -40,6 +41,8 @@ public class PetsEntity {
     private String telefoneVeterinario;
     @NotNull
     private Boolean convenio;
+    @NotNull
+    private Boolean statusAdaptacao = false;
 
     @Column(nullable = false)
     private Boolean deletado = false;
@@ -48,11 +51,11 @@ public class PetsEntity {
     @JoinColumn(name = "fk_usuario")
     private UsuariosEntity fkUsuario;
 
-    public Long getIdPet() {
+    public UUID getIdPet() {
         return idPet;
     }
 
-    public void setIdPet(Long idPet) {
+    public void setIdPet(UUID idPet) {
         this.idPet = idPet;
     }
 
@@ -134,6 +137,14 @@ public class PetsEntity {
 
     public void setConvenio(Boolean convenio) {
         this.convenio = convenio;
+    }
+
+    public Boolean getStatusAdaptacao() {
+        return statusAdaptacao;
+    }
+
+    public void setStatusAdaptacao(Boolean statusAdaptacao) {
+        this.statusAdaptacao = statusAdaptacao;
     }
 
     public Boolean getDeletado() { return deletado; }

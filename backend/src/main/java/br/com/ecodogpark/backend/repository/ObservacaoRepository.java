@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface ObservacaoRepository extends JpaRepository<ObservacaoDoDiaEntity, Long> {
 
@@ -20,6 +21,6 @@ public interface ObservacaoRepository extends JpaRepository<ObservacaoDoDiaEntit
               AND c.data = :data
             ORDER BY o.horario, o.id_observacoes
             """, nativeQuery = true)
-    List<ObservacaoDoDiaEntity> buscarPorPetEData(@Param("idPet") Long idPet,
+    List<ObservacaoDoDiaEntity> buscarPorPetEData(@Param("idPet") UUID idPet,
                                                   @Param("data") LocalDate data);
 }

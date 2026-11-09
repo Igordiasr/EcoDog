@@ -1,6 +1,5 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.config.TokenConfig;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginRequest;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,8 +16,9 @@ import br.com.ecodogpark.backend.service.UsuarioService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Requisições usuários", description = "Endpoints para cadastro e gestão de tutores, monitores e administradores")
@@ -72,8 +72,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> buscarTutorPorId(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> buscarTutorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id) {
         UsuarioResponse usuario = usuarioService.buscarTutorPorId(id);
         if (usuario == null) {
             return ResponseEntity.notFound().build();
@@ -89,8 +89,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
     })
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizarTutor(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id, @Valid @RequestBody UsuarioRequest usuarioRequest) {
+    public ResponseEntity<UsuarioResponse> atualizarTutor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id, @Valid @RequestBody UsuarioRequest usuarioRequest) {
         UsuarioResponse usuarioAtualizado = usuarioService.atualizarTutor(id, usuarioRequest);
         return ResponseEntity.ok().body(usuarioAtualizado);
     }
@@ -101,8 +101,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirTutor(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<Void> excluirTutor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id) {
         usuarioService.excluirTutor(id);
         return ResponseEntity.noContent().build();
     }
@@ -138,8 +138,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
     @GetMapping("/monitores/{id}")
-    public ResponseEntity<MonitorResponse> buscarMonitorPorId(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<MonitorResponse> buscarMonitorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarMonitorPorId(id));
     }
 
@@ -151,8 +151,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
     @PutMapping("/monitores/{id}")
-    public ResponseEntity<MonitorResponse> atualizarMonitor(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id, @Valid @RequestBody MonitorRequest monitorRequest) {
+    public ResponseEntity<MonitorResponse> atualizarMonitor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id, @Valid @RequestBody MonitorRequest monitorRequest) {
         return ResponseEntity.ok(usuarioService.atualizarMonitor(id, monitorRequest));
     }
 
@@ -162,8 +162,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
     @DeleteMapping("/monitores/{id}")
-    public ResponseEntity<Void> excluirMonitor(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<Void> excluirMonitor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id) {
         usuarioService.excluirMonitor(id);
         return ResponseEntity.noContent().build();
     }
@@ -199,8 +199,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
     @GetMapping("/administradores/{id}")
-    public ResponseEntity<UsuarioResponse> buscarAdministradorPorId(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> buscarAdministradorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarAdministradorPorId(id));
     }
 
@@ -213,8 +213,8 @@ public class UsuarioController {
     })
     @PutMapping("/administradores/{id}")
     public ResponseEntity<UsuarioResponse> atualizarAdministrador(
-            @Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
+            @Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id, @Valid @RequestBody UsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.atualizarAdministrador(id, request));
     }
 
@@ -224,8 +224,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
     @DeleteMapping("/administradores/{id}")
-    public ResponseEntity<Void> excluirAdministrador(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<Void> excluirAdministrador(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID id) {
         usuarioService.excluirAdministrador(id);
         return ResponseEntity.noContent().build();
     }

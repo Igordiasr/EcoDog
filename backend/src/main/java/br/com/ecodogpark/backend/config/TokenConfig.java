@@ -16,7 +16,7 @@ public class TokenConfig {
     public String gerarToken(UsuariosEntity usuario) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
-                .withClaim("roles", usuario.getTipo())
+                .withClaim("roles", usuario.getTipo().name())
                 .withSubject(usuario.getIdUsuario().toString())
                 .withExpiresAt(Instant.now().plusSeconds(600))
                 .withIssuedAt(Instant.now())

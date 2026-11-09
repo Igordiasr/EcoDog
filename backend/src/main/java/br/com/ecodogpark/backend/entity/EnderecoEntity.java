@@ -16,6 +16,7 @@ public class EnderecoEntity {
     @NotBlank
     @Size(max = 10)
     private String numero;
+    private String complemento;
     @NotBlank
     private String bairro;
     @NotBlank
@@ -46,6 +47,14 @@ public class EnderecoEntity {
 
     public void setNumero(String numero) {
         this.numero = numero;
+    }
+
+    public String getComplemento() {
+        return complemento;
+    }
+
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
     }
 
     public String getBairro() {

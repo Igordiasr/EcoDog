@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface MedicacaoRepository extends JpaRepository<MedicacaoDoDiaEntity, Long> {
 
@@ -23,6 +24,6 @@ public interface MedicacaoRepository extends JpaRepository<MedicacaoDoDiaEntity,
               AND c.data = :data
             ORDER BY m.nome, md.id_medicacao_do_dia
             """, nativeQuery = true)
-    List<MedicacaoDoDiaEntity> buscarPorPetEData(@Param("idPet") Long idPet,
+    List<MedicacaoDoDiaEntity> buscarPorPetEData(@Param("idPet") UUID idPet,
                                                  @Param("data") LocalDate data);
 }

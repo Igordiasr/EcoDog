@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +37,7 @@ public class DiarioPetService {
     }
 
     @Transactional(readOnly = true)
-    public DiarioPetResponse obterDiarioDoPet(Long idPet, LocalDate dataReferencia) {
+    public DiarioPetResponse obterDiarioDoPet(UUID idPet, LocalDate dataReferencia) {
 
         // Consultas executadas sequencialmente dentro da mesma transação,
         // de modo a permitir o carregamento das associações LAZY usadas no mapeamento.

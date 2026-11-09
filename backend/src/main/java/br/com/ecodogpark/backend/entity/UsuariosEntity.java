@@ -1,10 +1,12 @@
 package br.com.ecodogpark.backend.entity;
 
+import br.com.ecodogpark.backend.enums.TipoUsuario;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
@@ -12,25 +14,27 @@ import java.time.LocalDate;
 @SQLRestriction("deletado = false")
 public class UsuariosEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUsuario;
-    @Column(nullable = false, length = 120) // posso adicionar o nome da coluna do banco de dados3
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID idUsuario;
+    @Column(nullable = false, length = 120)
     private String nome;
+    @Column(nullable = false, length = 100)
+    private  String sobrenome;
     @Column(nullable = false, length = 11, unique = true)
     private String cpf;
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 11)
     private String telefone;
     @Column(nullable = false, unique = true, length = 150)
     private String email;
     @Column(nullable = false)
     private String senha;
     @Column(nullable = false)
-    private String tipo;
+    @Enumerated(EnumType.STRING)
+    private TipoUsuario tipo;
     @Column(nullable = false)
     private LocalDate dataCadastro = LocalDate.now();
     @Column(nullable = false)
     private Boolean statusUsuario = true;
-
     @Column(nullable = false)
     private Boolean deletado = false;
 
@@ -38,11 +42,11 @@ public class UsuariosEntity {
     @JoinColumn(name = "fk_endereco")
     private EnderecoEntity endereco;
 
-    public Long getIdUsuario() {
+    public UUID getIdUsuario() {
         return idUsuario;
     }
 
-    public void setIdUsuario(Long idUsuario) {
+    public void setIdUsuario(UUID idUsuario) {
         this.idUsuario = idUsuario;
     }
 
@@ -52,6 +56,14 @@ public class UsuariosEntity {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getSobrenome() {
+        return sobrenome;
+    }
+
+    public void setSobrenome(String sobrenome) {
+        this.sobrenome = sobrenome;
     }
 
     public String getCpf() {
@@ -86,11 +98,11 @@ public class UsuariosEntity {
         this.senha = senha;
     }
 
-    public String getTipo() {
+    public TipoUsuario getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(TipoUsuario tipo) {
         this.tipo = tipo;
     }
 
@@ -102,7 +114,7 @@ public class UsuariosEntity {
         this.dataCadastro = dataCadastro;
     }
 
-    public Boolean isStatusUsuario() {
+    public Boolean getStatusUsuario() {
         return statusUsuario;
     }
 

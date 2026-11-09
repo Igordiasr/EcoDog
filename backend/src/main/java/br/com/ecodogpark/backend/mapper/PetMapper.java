@@ -3,7 +3,6 @@ package br.com.ecodogpark.backend.mapper;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.*;
 import br.com.ecodogpark.backend.entity.*;
-import br.com.ecodogpark.backend.repository.MedicacoesDoPetRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface AtividadeRepository extends JpaRepository<AtividadesDoDiaEntity, Long> {
 
@@ -23,7 +24,7 @@ public interface AtividadeRepository extends JpaRepository<AtividadesDoDiaEntity
               AND ca.data = :data
             ORDER BY ad.hora_inicio, ad.id_atividade_do_dia
             """, nativeQuery = true)
-    List<AtividadesDoDiaEntity> buscarPorPetEData(@Param("idPet") Long idPet,
+    List<AtividadesDoDiaEntity> buscarPorPetEData(@Param("idPet") UUID idPet,
                                                   @Param("data") LocalDate data);
 
     // Todas as atividades de um dia (data exata).

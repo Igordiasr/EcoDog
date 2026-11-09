@@ -22,8 +22,8 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
         return User.withUsername(usuario.getEmail())
                 .password(usuario.getSenha())
-                .roles(usuario.getTipo())
-                .disabled(!Boolean.TRUE.equals(usuario.isStatusUsuario()))
+                .roles(usuario.getTipo().name())
+                .disabled(!Boolean.TRUE.equals(usuario.getStatusUsuario()))
                 .build();
     }
 }

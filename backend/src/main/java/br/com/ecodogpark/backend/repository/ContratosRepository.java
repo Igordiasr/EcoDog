@@ -8,9 +8,10 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ContratosRepository extends JpaRepository<ContratosEntity, Long> {
-    boolean existsByPetFkUsuarioIdUsuarioAndSituacaoIn(Long idUsuario, List<String> situacoes);
+    boolean existsByPetFkUsuarioIdUsuarioAndSituacaoIn(UUID idUsuario, List<String> situacoes);
 
     @Query("""
         SELECT COUNT(c) > 0 FROM ContratosEntity c
@@ -21,7 +22,7 @@ public interface ContratosRepository extends JpaRepository<ContratosEntity, Long
           AND c.dataFim >= :inicio
     """)
 
-    boolean existePlanoSobreposto(@Param("idPet") Long idPet,
+    boolean existePlanoSobreposto(@Param("idPet") UUID idPet,
                                   @Param("inicio")LocalDate inicio,
                                   @Param("fim") LocalDate fim);
 
@@ -33,7 +34,7 @@ public interface ContratosRepository extends JpaRepository<ContratosEntity, Long
           AND c.situacao IN('ATIVO', 'PENDENTE')
           AND :data BETWEEN c.dataInicio AND c.dataFim
     """)
-    Optional<ContratosEntity> buscarPlanoVigente(@Param("idPet") Long idPet,
+    Optional<ContratosEntity> buscarPlanoVigente(@Param("idPet") UUID idPet,
                                                  @Param("data") LocalDate data);
 
     @Query("""
@@ -46,7 +47,7 @@ public interface ContratosRepository extends JpaRepository<ContratosEntity, Long
         ORDER BY c.dataInicio DESC
         LIMIT 1
     """)
-    Optional<ContratosEntity> buscarContratoDoDia(@Param("idPet") Long idPet,
+    Optional<ContratosEntity> buscarContratoDoDia(@Param("idPet") UUID idPet,
                                                   @Param("categoria") String categoria,
                                                   @Param("data") LocalDate data);
 
@@ -58,8 +59,7 @@ public interface ContratosRepository extends JpaRepository<ContratosEntity, Long
           AND c.situacao IN ('PENDENTE', 'ATIVO')
           AND :data BETWEEN c.dataInicio AND c.dataFim
     """)
-    List<ContratosEntity> buscarContratosPorDia(@Param("idPet") Long idPet,
+    List<ContratosEntity> buscarContratosPorDia(@Param("idPet") UUID idPet,
                                                 @Param("categoria") String categoria,
                                                 @Param("data") LocalDate data);
-
 }

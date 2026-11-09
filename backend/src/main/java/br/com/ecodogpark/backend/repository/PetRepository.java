@@ -5,13 +5,14 @@ import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface PetRepository extends JpaRepository<PetsEntity, Long> {
+public interface PetRepository extends JpaRepository<PetsEntity, UUID> {
     List<PetsEntity> findByFkUsuario(UsuariosEntity idUsuario);
     Boolean existsByFkUsuarioAndNome(UsuariosEntity fkUsuario, String nome);
-    Boolean existsByIdPetAndFkUsuario(Long idPet, UsuariosEntity fkUsuario);
+    Boolean existsByIdPetAndFkUsuario(UUID idPet, UsuariosEntity fkUsuario);
 
-    List<PetsEntity> findByFkUsuarioIdUsuario(Long idTutor);
+    List<PetsEntity> findByFkUsuarioIdUsuario(UUID idTutor);
 
-    List<PetsEntity> findByIdPetInAndFkUsuarioIdUsuario(List<Long> ids, Long idUsuario);
+    List<PetsEntity> findByIdPetInAndFkUsuarioIdUsuario(List<UUID> ids, UUID idUsuario);
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.UUID;
 
 @Tag(name = "Requisições diário do pet", description = "Endpoints para consulta do diário e histórico dos pets")
 @RestController
@@ -35,8 +36,8 @@ public class DiarioPetController {
     })
     @GetMapping("/{idPet}")
     public ResponseEntity<DiarioPetResponse> obterDiarioDoPet(
-            @Parameter(description = "Identificador do pet", example = "1")
-            @PathVariable Long idPet,
+            @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet,
             @Parameter(description = "Data de referência (yyyy-MM-dd); quando omitida, utiliza o dia atual em America/Sao_Paulo", example = "2026-10-26")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
 
@@ -56,8 +57,8 @@ public class DiarioPetController {
     })
     @GetMapping("/{idPet}/historico")
     public ResponseEntity<DiarioPetResponse> obterHistoricoDoPet(
-            @Parameter(description = "Identificador do pet", example = "1")
-            @PathVariable Long idPet,
+            @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet,
             @Parameter(description = "Data de referência (yyyy-MM-dd)", example = "2026-10-26")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
 

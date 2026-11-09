@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Requisições feed do monitor", description = "Endpoints para acompanhamento de atividades, medicações e observações dos pets")
 @RestController
@@ -32,10 +33,10 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Pet, tutor ou agendamento confirmado do dia não encontrado", content = @Content)
     })
-    @GetMapping("/pet/{id}")
-    public ResponseEntity<PetFeedMonitorResponse> buscarPetParaMonitor(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
-        PetFeedMonitorResponse pet = feedMonitorService.buscarPetParaMonitor(id);
+    @GetMapping("/pet/{idPet}")
+    public ResponseEntity<PetFeedMonitorResponse> buscarPetParaMonitor(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet) {
+        PetFeedMonitorResponse pet = feedMonitorService.buscarPetParaMonitor(idPet);
         return ResponseEntity.ok(pet);
     }
 
@@ -43,10 +44,10 @@ public class FeedMonitorController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Busca concluída; retorna lista vazia quando não há registros")
     })
-    @GetMapping("/pet/{id}/atividades")
-    public ResponseEntity<List<AtividadeDoPetResponse>> atividadesDoPet(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
-        List<AtividadeDoPetResponse> atividades = feedMonitorService.buscarAtividades(id);
+    @GetMapping("/pet/{idPet}/atividades")
+    public ResponseEntity<List<AtividadeDoPetResponse>> atividadesDoPet(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet) {
+        List<AtividadeDoPetResponse> atividades = feedMonitorService.buscarAtividades(idPet);
 
         return ResponseEntity.ok(atividades);
     }
@@ -55,10 +56,10 @@ public class FeedMonitorController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Busca concluída; retorna lista vazia quando não há registros")
     })
-    @GetMapping("/pet/{id}/medicacoes")
-    public ResponseEntity<List<MedicacaoDoDiaResponse>> medicacaoDoPet(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id) {
-        List<MedicacaoDoDiaResponse> medicacoes = feedMonitorService.buscarMedicacao(id);
+    @GetMapping("/pet/{idPet}/medicacoes")
+    public ResponseEntity<List<MedicacaoDoDiaResponse>> medicacaoDoPet(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet) {
+        List<MedicacaoDoDiaResponse> medicacoes = feedMonitorService.buscarMedicacao(idPet);
 
         return ResponseEntity.ok(medicacoes);
     }
@@ -69,11 +70,11 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "400", description = "Observação inválida", content = @Content),
             @ApiResponse(responseCode = "404", description = "Agendamento não encontrado ou não confirmado", content = @Content)
     })
-    @PostMapping("/pet/{id}/observacoes")
-    public ResponseEntity<ObservacaoDoDiaResponse> criarObservacao(@Parameter(description = "Identificador do registro", example = "1")
-            @PathVariable Long id,
-                                                                   @Valid @RequestBody ObservacaoDoDiaRequest request) {
-        ObservacaoDoDiaResponse observacao = feedMonitorService.criarObservacao(id, request);
+    @PostMapping("/pet/{idPet}/observacoes")
+    public ResponseEntity<ObservacaoDoDiaResponse> criarObservacao(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet,
+            @Valid @RequestBody ObservacaoDoDiaRequest request) {
+        ObservacaoDoDiaResponse observacao = feedMonitorService.criarObservacao(idPet, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(observacao);
     }
@@ -85,8 +86,8 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "404", description = "Agendamento ou participação não encontrado", content = @Content)
     })
     @PutMapping("/pet/{idPet}/atividades/{idParticipacao}")
-    public ResponseEntity<AtividadeDoPetResponse> atualizarAtividade(@Parameter(description = "Identificador do pet", example = "1")
-            @PathVariable Long idPet,
+    public ResponseEntity<AtividadeDoPetResponse> atualizarAtividade(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet,
                                                                      @Parameter(description = "Identificador da participação do pet", example = "1")
             @PathVariable Long idParticipacao,
                                                                      @Valid @RequestBody AtividadeDoPetRequest request) {
@@ -103,11 +104,11 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "404", description = "Agendamento ou medicação não encontrado", content = @Content)
     })
     @PutMapping("/pet/{idPet}/medicacoes/{idMedicacao}")
-    public ResponseEntity<MedicacaoDoDiaResponse> atualizarMedicacao(@Parameter(description = "Identificador do pet", example = "1")
-            @PathVariable Long idPet,
+    public ResponseEntity<MedicacaoDoDiaResponse> atualizarMedicacao(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+                                                                      @PathVariable UUID idPet,
                                                                      @Parameter(description = "Identificador da medicação do dia", example = "1")
-            @PathVariable Long idMedicacao,
-                                                                     @Valid @RequestBody MedicacaoDoDiaRequest request) {
+                                                                      @PathVariable Long idMedicacao,
+                                                                      @Valid @RequestBody MedicacaoDoDiaRequest request) {
         MedicacaoDoDiaResponse medicacao = feedMonitorService.atualizarMedicacao(idMedicacao, idPet, request);
 
         return ResponseEntity.ok(medicacao);

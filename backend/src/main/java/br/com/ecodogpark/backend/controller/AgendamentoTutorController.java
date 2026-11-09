@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Requisições agendamentos do tutor", description = "Endpoints para consulta de vagas, orçamento, contratação, agendamento pelo plano e cancelamento pelo tutor")
 @RestController
@@ -32,8 +33,8 @@ public class AgendamentoTutorController {
     })
     @GetMapping("/pets")
     public ResponseEntity<List<PetsDoTutorResponse>> buscarPets(
-            @Parameter(description = "Identificador do tutor", example = "4")
-            @RequestParam Long idUsuario) {
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @RequestParam UUID idUsuario) {
         return ResponseEntity.ok(agendamentoTutorService.buscarPets(idUsuario));
     }
 
@@ -60,8 +61,8 @@ public class AgendamentoTutorController {
     })
     @GetMapping("/tutor/agendamentos")
     public ResponseEntity<List<AgendamentosTutorResponse>> buscarAgendamentos(
-            @Parameter(description = "Identificador do tutor", example = "4")
-            @RequestParam Long idUsuario,
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @RequestParam UUID idUsuario,
             @Parameter(description = "Ano da consulta", example = "2026")
             @RequestParam Integer ano,
             @Parameter(description = "Mês da consulta, de 1 a 12", example = "11")
@@ -91,8 +92,8 @@ public class AgendamentoTutorController {
     })
     @PostMapping("/orcamentos")
     public ResponseEntity<OrcamentoResponse> criarOrcamento(@RequestBody @Valid OrcamentoRequest request,
-            @Parameter(description = "Identificador do tutor", example = "4")
-            @RequestParam Long idUsuario) {
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @RequestParam UUID idUsuario) {
         return ResponseEntity.ok(agendamentoTutorService.calcularOrcamento(request, idUsuario));
     }
 
@@ -106,8 +107,8 @@ public class AgendamentoTutorController {
     })
     @PostMapping("/agendamentos")
     public ResponseEntity<AgendamentoCriadoResponse> agendar(@RequestBody @Valid OrcamentoRequest request,
-            @Parameter(description = "Identificador do tutor", example = "4")
-            @RequestParam Long idUsuario) {
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @RequestParam UUID idUsuario) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(agendamentoTutorService.criarAgendamento(request, idUsuario));
     }
@@ -121,8 +122,8 @@ public class AgendamentoTutorController {
     })
     @PostMapping("/planos/agendamentos")
     public ResponseEntity<AgendamentoPlanoResponse> agendarPeloPlano(@RequestBody @Valid OrcamentoRequest request,
-            @Parameter(description = "Identificador do tutor", example = "4")
-            @RequestParam Long idUsuario) {
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @RequestParam UUID idUsuario) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(agendamentoTutorService.agendarPeloPlano(request, idUsuario));
     }
@@ -139,8 +140,8 @@ public class AgendamentoTutorController {
     public ResponseEntity<CancelamentoResponse> cancelar(
             @Parameter(description = "Identificador do agendamento a cancelar", example = "1")
             @PathVariable Long idAgendamento,
-            @Parameter(description = "Identificador do tutor", example = "4")
-            @RequestParam Long idUsuario) {
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @RequestParam UUID idUsuario) {
         return ResponseEntity.ok(agendamentoTutorService.cancelarAgendamento(idAgendamento, idUsuario));
     }
 }

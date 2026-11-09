@@ -14,10 +14,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +41,7 @@ public class AgendamentoTutorService {
         this.movimentacoesRepository = movimentacoesRepository;
     }
 
-    public List<PetsDoTutorResponse> buscarPets(Long idUsuario) {
+    public List<PetsDoTutorResponse> buscarPets(UUID idUsuario) {
         List<PetsEntity> pets = petRepository.findByFkUsuarioIdUsuario(idUsuario);
         List<PetsDoTutorResponse> petsDoTutor = new ArrayList<>();
 
@@ -85,7 +82,7 @@ public class AgendamentoTutorService {
         return responses;
     }
 
-    public List<AgendamentosTutorResponse> buscarAgendamentosDoTutor(Long idUsuario, Integer ano, Integer mes) {
+    public List<AgendamentosTutorResponse> buscarAgendamentosDoTutor(UUID idUsuario, Integer ano, Integer mes) {
         YearMonth mesEscolhido = YearMonth.of(ano, mes);
         LocalDate primeiroDia = mesEscolhido.atDay(1);
         LocalDate ultimoDia = mesEscolhido.atEndOfMonth();
@@ -105,7 +102,7 @@ public class AgendamentoTutorService {
         return servicosRepository.buscarServicosAtivos(servico);
     }
 
-    public OrcamentoResponse calcularOrcamento(OrcamentoRequest request, Long idUsuario) {
+    public OrcamentoResponse calcularOrcamento(OrcamentoRequest request, UUID idUsuario) {
         ServicosEntity servico = buscarServicoEscolhido(request.idServico());
         List<LocalDate> datas = definirDatasEscolhidas(servico, request);
         List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
@@ -122,7 +119,7 @@ public class AgendamentoTutorService {
     }
 
     @Transactional
-    public AgendamentoCriadoResponse criarAgendamento(OrcamentoRequest request, Long idUsuario) {
+    public AgendamentoCriadoResponse criarAgendamento(OrcamentoRequest request, UUID idUsuario) {
         ServicosEntity servico = buscarServicoEscolhido(request.idServico());
 
         if ("PLANO".equals(servico.getModalidade())) {
@@ -132,7 +129,7 @@ public class AgendamentoTutorService {
     }
 
     @Transactional
-    public AgendamentoPlanoResponse agendarPeloPlano(OrcamentoRequest request, Long idUsuario) {
+    public AgendamentoPlanoResponse agendarPeloPlano(OrcamentoRequest request, UUID idUsuario) {
         List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
         List<LocalDate> datas = validarDatasEscolhidas(request.datasUtilizacao());
 
@@ -167,7 +164,7 @@ public class AgendamentoTutorService {
     }
 
     @Transactional
-    public CancelamentoResponse cancelarAgendamento(Long idAgendamento, Long idUsuario) {
+    public CancelamentoResponse cancelarAgendamento(Long idAgendamento, UUID idUsuario) {
         AgendamentosEntity agendamento = buscarAgendamentoDoTutor(idAgendamento, idUsuario);
         PetsEntity pet = agendamento.getFkPet();
         LocalDate data = agendamento.getDataEntrada().toLocalDate();
@@ -193,7 +190,7 @@ public class AgendamentoTutorService {
         return new CancelamentoResponse("Agendamento cancelado.");
     }
 
-    private AgendamentosEntity buscarAgendamentoDoTutor(Long idAgendamento, Long idUsuario) {
+    private AgendamentosEntity buscarAgendamentoDoTutor(Long idAgendamento, UUID idUsuario) {
         AgendamentosEntity agendamento = agendamentoRepository.findById(idAgendamento)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
 
@@ -226,7 +223,7 @@ public class AgendamentoTutorService {
     }
 
 
-    private AgendamentoCriadoResponse agendarPorDia(ServicosEntity servico, OrcamentoRequest request, Long idUsuario) {
+    private AgendamentoCriadoResponse agendarPorDia(ServicosEntity servico, OrcamentoRequest request, UUID idUsuario) {
         List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
         List<LocalDate> datas = definirDatasEscolhidas(servico, request);
         String servicoCategoria = servico.getCategoria();
@@ -256,7 +253,7 @@ public class AgendamentoTutorService {
         );
     }
 
-    private AgendamentoCriadoResponse contratarPlano(ServicosEntity servico, OrcamentoRequest request, Long idUsuario) {
+    private AgendamentoCriadoResponse contratarPlano(ServicosEntity servico, OrcamentoRequest request, UUID idUsuario) {
         List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
         LocalDate inicio = validarDataInicioPlano(request.dataInicioPlano());
         LocalDate fim = inicio.plusMonths(1).minusDays(1);
@@ -311,12 +308,12 @@ public class AgendamentoTutorService {
                 : calendario.getVagasCreche();
     }
 
-    private List<PetsEntity> buscarPetsEscolhidos(List<Long> ids, Long idUsuario) {
+    private List<PetsEntity> buscarPetsEscolhidos(List<UUID> ids, UUID idUsuario) {
         if (ids == null || ids.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione ao menos um pet");
         }
 
-        List<Long> idsDistintos = ids.stream().distinct().toList();
+        List<UUID> idsDistintos = ids.stream().distinct().toList();
         List<PetsEntity> pets = petRepository.findByIdPetInAndFkUsuarioIdUsuario(idsDistintos, idUsuario);
 
         if (pets.size() != idsDistintos.size()) {

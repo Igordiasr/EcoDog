@@ -8,13 +8,14 @@ import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Schema(description = "Dados de retorno de checkin checkout")
 public record CheckinCheckoutResponse(
         @Schema(description = "Identificador do agendamento", example = "1")
         Long idAgendamento,
-        @Schema(description = "Identificador do pet", example = "1")
-        Long idPet,
+        @Schema(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+        UUID idPet,
         @Schema(description = "Nome do pet", example = "Thor")
         String nomePet,
         @Schema(description = "Data e horário de realização do check-in; nulo antes da entrada", example = "2026-10-26T08:00:00")

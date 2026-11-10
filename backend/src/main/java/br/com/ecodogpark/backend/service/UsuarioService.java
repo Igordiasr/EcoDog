@@ -2,7 +2,7 @@ package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.config.TokenConfig;
 import br.com.ecodogpark.backend.dto.MonitorRequest;
-import br.com.ecodogpark.backend.dto.MonitorResponse;
+import br.com.ecodogpark.backend.dto.FuncionarioResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginRequest;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioRequest;
@@ -110,14 +110,14 @@ public class UsuarioService {
 
     // -------------------------- Regras de negócio para Gestão de Usuários --------------------------------------
 
-    public List<MonitorResponse> listarMonitores() {
+    public List<FuncionarioResponse> listarMonitores() {
         return usuarioRepository.findByTipo(TipoUsuario.MONITOR)
                 .stream()
-                .map(this::paraMonitorResponse)
+                .map(this::paraFuncionarioResponse)
                 .toList();
     }
 
-    public MonitorResponse cadastrarMonitor(MonitorRequest request) {
+    public FuncionarioResponse cadastrarMonitor(MonitorRequest request) {
         if (usuarioRepository.existsByEmail(request.email())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
         }
@@ -127,17 +127,17 @@ public class UsuarioService {
         UsuariosEntity usuario = new UsuariosEntity();
         usuario.setStatusUsuario(true);
         paraUsuarioEntity(usuario, request);
-        return paraMonitorResponse(usuarioRepository.save(usuario));
+        return paraFuncionarioResponse(usuarioRepository.save(usuario));
     }
 
-    public MonitorResponse buscarMonitorPorId(UUID id) {
+    public FuncionarioResponse buscarMonitorPorId(UUID id) {
         UsuariosEntity monitor = usuarioRepository.findById(id)
                 .filter(usuario -> "MONITOR".equals(usuario.getTipo().name()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
-        return paraMonitorResponse(monitor);
+        return paraFuncionarioResponse(monitor);
     }
 
-    public MonitorResponse atualizarMonitor(UUID id, MonitorRequest request) {
+    public FuncionarioResponse atualizarMonitor(UUID id, MonitorRequest request) {
         UsuariosEntity monitorParaAtualizar = usuarioRepository.findById(id)
                 .filter(usuario -> "MONITOR".equals(usuario.getTipo().name()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
@@ -148,7 +148,7 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
         }
         paraUsuarioEntity(monitorParaAtualizar, request);
-        return paraMonitorResponse(usuarioRepository.save(monitorParaAtualizar));
+        return paraFuncionarioResponse(usuarioRepository.save(monitorParaAtualizar));
     }
 
     public void excluirMonitor(UUID id) {
@@ -164,27 +164,27 @@ public class UsuarioService {
 
     // -------------------------- Regras de negócio para Gestão de Administradores -------------------------------
 
-    public List<UsuarioResponse> listarAdministradores() {
-        return usuarioRepository.findByTipo(TipoUsuario.ADMINISTRADOR).stream().map(this::paraUsuarioResponse).toList();
+    public List<FuncionarioResponse> listarAdministradores() {
+        return usuarioRepository.findByTipo(TipoUsuario.ADMINISTRADOR).stream().map(this::paraFuncionarioResponse).toList();
     }
 
-    public UsuarioResponse cadastrarAdministrador(UsuarioRequest request) {
+    public FuncionarioResponse cadastrarAdministrador(UsuarioRequest request) {
         validarEmailECpfDisponiveis(request.email(), request.cpf(), null);
         UsuariosEntity administrador = new UsuariosEntity();
         administrador.setStatusUsuario(true);
         preencherUsuarioAdministrativo(administrador, request);
-        return paraUsuarioResponse(usuarioRepository.save(administrador));
+        return paraFuncionarioResponse(usuarioRepository.save(administrador));
     }
 
-    public UsuarioResponse buscarAdministradorPorId(UUID id) {
-        return paraUsuarioResponse(buscarPorTipo(id, TipoUsuario.ADMINISTRADOR, "Administrador não encontrado"));
+    public FuncionarioResponse buscarAdministradorPorId(UUID id) {
+        return paraFuncionarioResponse(buscarPorTipo(id, TipoUsuario.ADMINISTRADOR, "Administrador não encontrado"));
     }
 
-    public UsuarioResponse atualizarAdministrador(UUID id, UsuarioRequest request) {
+    public FuncionarioResponse atualizarAdministrador(UUID id, UsuarioRequest request) {
         UsuariosEntity administrador = buscarPorTipo(id, TipoUsuario.ADMINISTRADOR, "Administrador não encontrado");
         validarEmailECpfDisponiveis(request.email(), request.cpf(), id);
         preencherUsuarioAdministrativo(administrador, request);
-        return paraUsuarioResponse(usuarioRepository.save(administrador));
+        return paraFuncionarioResponse(usuarioRepository.save(administrador));
     }
 
     public void excluirAdministrador(UUID id) {
@@ -198,7 +198,7 @@ public class UsuarioService {
 
     private UsuariosEntity buscarPorTipo(UUID id, TipoUsuario tipo, String mensagem) {
         return usuarioRepository.findById(id)
-                .filter(usuario -> tipo.equals(usuario.getTipo().name()))
+                .filter(usuario -> tipo == usuario.getTipo())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, mensagem));
     }
 
@@ -222,12 +222,13 @@ public class UsuarioService {
         usuario.setTipo(TipoUsuario.ADMINISTRADOR);
     }
 
-    private MonitorResponse paraMonitorResponse(UsuariosEntity usuario) {
-        return new MonitorResponse(
+    private FuncionarioResponse paraFuncionarioResponse(UsuariosEntity usuario) {
+        return new FuncionarioResponse(
                 usuario.getIdUsuario(),
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getTelefone(),
+                usuario.getStatusUsuario(),
                 usuario.getDataCadastro()
         );
     }

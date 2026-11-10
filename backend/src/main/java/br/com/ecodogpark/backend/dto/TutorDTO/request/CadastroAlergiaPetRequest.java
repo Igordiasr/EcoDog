@@ -7,6 +7,6 @@ import br.com.ecodogpark.backend.entity.AlergiasEntity;
 @Schema(description = "Dados de entrada para cadastro alergia pet")
 public record CadastroAlergiaPetRequest(
         @Schema(description = "Alergia associada ao pet")
-        AlergiasEntity alergia
+        Integer idAlergia
 ) {
 }

@@ -49,13 +49,13 @@ public record CadastroPetRequest(
         @Schema(description = "Indica se o pet possui convênio veterinário", example = "true")
         Boolean convenio,
         @NotNull
-        @Schema(description = "Medicações associadas ao pet")
-        List<CadastroMedicacaoPetRequest> medicacoesDoPet,
-        @NotNull
         @Schema(description = "Vacinas associadas ao pet")
         List<CadastroVacinaPetRequest> vacinasDoPet,
         @NotNull
         @Schema(description = "Alergias associadas ao pet")
-        List<CadastroAlergiaPetRequest> alergiasDoPet
+        List<CadastroAlergiaPetRequest> alergiasDoPet,
+        @NotNull
+        @Schema(description = "Medicações associadas ao pet")
+        List<CadastroMedicacaoPetRequest> medicacoesDoPet
 ) {
 }

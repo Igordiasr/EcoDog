@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import br.com.ecodogpark.backend.dto.MonitorRequest;
-import br.com.ecodogpark.backend.dto.MonitorResponse;
+import br.com.ecodogpark.backend.dto.FuncionarioResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioRequest;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioResponse;
 import br.com.ecodogpark.backend.service.UsuarioService;
@@ -114,8 +114,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado", content = @Content)
     })
     @GetMapping("/monitores")
-    public ResponseEntity<List<MonitorResponse>> listarMonitores() {
-        List<MonitorResponse> monitores = usuarioService.listarMonitores();
+    public ResponseEntity<List<FuncionarioResponse>> listarMonitores() {
+        List<FuncionarioResponse> monitores = usuarioService.listarMonitores();
         if (monitores.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(monitores);
     }
@@ -127,8 +127,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content)
     })
     @PostMapping("/monitores")
-    public ResponseEntity<MonitorResponse> cadastrarMonitor(@Valid @RequestBody MonitorRequest monitorRequest) {
-        MonitorResponse monitor = usuarioService.cadastrarMonitor(monitorRequest);
+    public ResponseEntity<FuncionarioResponse> cadastrarMonitor(@Valid @RequestBody MonitorRequest monitorRequest) {
+        FuncionarioResponse monitor = usuarioService.cadastrarMonitor(monitorRequest);
         return ResponseEntity.created(URI.create("/usuarios/monitores/" + monitor.id())).body(monitor);
     }
 
@@ -138,7 +138,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
     @GetMapping("/monitores/{id}")
-    public ResponseEntity<MonitorResponse> buscarMonitorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+    public ResponseEntity<FuncionarioResponse> buscarMonitorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarMonitorPorId(id));
     }
@@ -151,7 +151,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
     @PutMapping("/monitores/{id}")
-    public ResponseEntity<MonitorResponse> atualizarMonitor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+    public ResponseEntity<FuncionarioResponse> atualizarMonitor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id, @Valid @RequestBody MonitorRequest monitorRequest) {
         return ResponseEntity.ok(usuarioService.atualizarMonitor(id, monitorRequest));
     }
@@ -175,8 +175,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado", content = @Content)
     })
     @GetMapping("/administradores")
-    public ResponseEntity<List<UsuarioResponse>> listarAdministradores() {
-        List<UsuarioResponse> administradores = usuarioService.listarAdministradores();
+    public ResponseEntity<List<FuncionarioResponse>> listarAdministradores() {
+        List<FuncionarioResponse> administradores = usuarioService.listarAdministradores();
         if (administradores.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(administradores);
     }
@@ -188,8 +188,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content)
     })
     @PostMapping("/administradores")
-    public ResponseEntity<UsuarioResponse> cadastrarAdministrador(@Valid @RequestBody UsuarioRequest request) {
-        UsuarioResponse administrador = usuarioService.cadastrarAdministrador(request);
+    public ResponseEntity<FuncionarioResponse> cadastrarAdministrador(@Valid @RequestBody UsuarioRequest request) {
+        FuncionarioResponse administrador = usuarioService.cadastrarAdministrador(request);
         return ResponseEntity.created(URI.create("/usuarios/administradores/" + administrador.id())).body(administrador);
     }
 
@@ -199,7 +199,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
     @GetMapping("/administradores/{id}")
-    public ResponseEntity<UsuarioResponse> buscarAdministradorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+    public ResponseEntity<FuncionarioResponse> buscarAdministradorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarAdministradorPorId(id));
     }
@@ -212,7 +212,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
     @PutMapping("/administradores/{id}")
-    public ResponseEntity<UsuarioResponse> atualizarAdministrador(
+    public ResponseEntity<FuncionarioResponse> atualizarAdministrador(
             @Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id, @Valid @RequestBody UsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.atualizarAdministrador(id, request));

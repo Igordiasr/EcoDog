@@ -1,9 +1,15 @@
 package br.com.ecodogpark.backend.mapper;
 
+import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroAlergiaPetRequest;
+import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroMedicacaoPetRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
+import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroVacinaPetRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.*;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.repository.MedicacoesDoPetRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,48 +59,33 @@ public class PetMapper {
         );
     }
 
-    public static List<AlergiasDoPetEntity> alergiaDoPetParaEntity(CadastroPetRequest petRequest, PetsEntity pet) {
-        List<AlergiasDoPetEntity> alergiasDoPet = new ArrayList<>();
-        petRequest.alergiasDoPet().forEach(
-                alergia -> {
-                    AlergiasDoPetEntity novaAlergia = new AlergiasDoPetEntity();
-                    novaAlergia.setAlergia(alergia.alergia());
-                    novaAlergia.setPet(pet);
-                    alergiasDoPet.add(novaAlergia);
-                }
-        );
-        return alergiasDoPet;
+    public static AlergiasDoPetEntity alergiaDoPetParaEntity(PetsEntity pet, AlergiasEntity alergia) {
+        AlergiasDoPetEntity associacao = new AlergiasDoPetEntity();
+        associacao.setPet(pet);
+        associacao.setAlergia(alergia);
+
+        return associacao;
     }
 
-    public static List<VacinasDoPetEntity> vacinasDoPetParaEntity(CadastroPetRequest petRequest, PetsEntity pet) {
-        List<VacinasDoPetEntity> vacinasDoPet = new ArrayList<>();
-        petRequest.vacinasDoPet().forEach(
-                vacina -> {
-                    VacinasDoPetEntity novaVacina = new VacinasDoPetEntity();
-                    novaVacina.setVacina(vacina.vacina());
-                    novaVacina.setPet(pet);
-                    novaVacina.setDataAplicacao(vacina.dataAplicacao());
-                    novaVacina.setDataValidade(vacina.dataValidade());
-                    vacinasDoPet.add(novaVacina);
-                }
-        );
-        return vacinasDoPet;
+    public static VacinasDoPetEntity vacinasDoPetParaEntity(CadastroVacinaPetRequest request, PetsEntity pet, VacinasEntity vacina) {
+        VacinasDoPetEntity associacao = new VacinasDoPetEntity();
+        associacao.setPet(pet);
+        associacao.setVacina(vacina);
+        associacao.setDataAplicacao(request.dataAplicacao());
+        associacao.setDataValidade(request.dataValidade());
+
+        return associacao;
     }
 
-    public static List<MedicacoesDoPetEntity> medicacoesDoPetParaEntity(CadastroPetRequest petRequest, PetsEntity pet) {
-        List<MedicacoesDoPetEntity> medicacoesDoPet = new ArrayList<>();
-        petRequest.medicacoesDoPet().forEach(
-                medicacao -> {
-                    MedicacoesDoPetEntity novaMedicacao = new MedicacoesDoPetEntity();
-                    novaMedicacao.setFkMedicacao(medicacao.medicacao());
-                    novaMedicacao.setFkPet(pet);
-                    novaMedicacao.setFrequencia(medicacao.frequencia());
-                    novaMedicacao.setDosagem(medicacao.dosagem());
-                    novaMedicacao.setEmUso(medicacao.emUso());
-                    medicacoesDoPet.add(novaMedicacao);
-                }
-        );
-        return medicacoesDoPet;
+    public static MedicacoesDoPetEntity medicacoesDoPetParaEntity(CadastroMedicacaoPetRequest request, PetsEntity pet, MedicacoesEntity medicacao) {
+        MedicacoesDoPetEntity associacao = new MedicacoesDoPetEntity();
+        associacao.setFkPet(pet);
+        associacao.setFkMedicacao(medicacao);
+        associacao.setFrequencia(request.frequencia());
+        associacao.setDosagem(request.dosagem());
+        associacao.setEmUso(request.emUso());
+
+        return associacao;
     }
 
     public static CadastroPetResponse consolidarCadastroPet(
@@ -122,19 +113,6 @@ public class PetMapper {
         );
     }
 
-    public static void AtualizarEntity(PetsEntity pet, CadastroPetRequest request) {
-        pet.setNome(request.nome());
-        pet.setRaca(request.raca());
-        pet.setSexo(request.sexo());
-        pet.setCastrado(request.castrado());
-        pet.setDataNascimento(request.dataNascimento());
-        pet.setObservacao(request.observacao());
-        pet.setRelacaoComOutros(request.relacaoComOutros());
-        pet.setVeterinario(request.veterinario());
-        pet.setTelefoneVeterinario(request.telefoneVeterinario());
-        pet.setConvenio(request.convenio());
-    }
-
     public static AlergiaParaListaResponse entityParaAlergiaParaLista(AlergiasDoPetEntity alergia) {
         return new AlergiaParaListaResponse(
                 alergia.getAlergia()
@@ -156,5 +134,29 @@ public class PetMapper {
                 vacina.getDataAplicacao(),
                 vacina.getDataValidade()
         );
+    }
+
+    public static void AtualizarEntity(PetsEntity pet, CadastroPetRequest request) {
+        pet.setNome(request.nome());
+        pet.setRaca(request.raca());
+        pet.setSexo(request.sexo());
+        pet.setCastrado(request.castrado());
+        pet.setDataNascimento(request.dataNascimento());
+        pet.setObservacao(request.observacao());
+        pet.setRelacaoComOutros(request.relacaoComOutros());
+        pet.setVeterinario(request.veterinario());
+        pet.setTelefoneVeterinario(request.telefoneVeterinario());
+        pet.setConvenio(request.convenio());
+    }
+
+    public static void atualizarMedicacao(CadastroMedicacaoPetRequest request, MedicacoesDoPetEntity associacao) {
+        associacao.setFrequencia(request.frequencia());
+        associacao.setDosagem(request.dosagem());
+        associacao.setEmUso(request.emUso());
+    }
+
+    public static void atualizarVacina(CadastroVacinaPetRequest request, VacinasDoPetEntity associacao) {
+        associacao.setDataAplicacao(request.dataAplicacao());
+        associacao.setDataValidade(request.dataValidade());
     }
 }

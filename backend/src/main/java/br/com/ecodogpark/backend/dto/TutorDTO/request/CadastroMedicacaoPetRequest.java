@@ -7,7 +7,7 @@ import br.com.ecodogpark.backend.entity.MedicacoesEntity;
 @Schema(description = "Dados de entrada para cadastro medicacao pet")
 public record CadastroMedicacaoPetRequest(
         @Schema(description = "Medicação associada ao pet")
-        MedicacoesEntity medicacao,
+        Long idMedicacao,
         @Schema(description = "Frequência", example = "A cada 12 horas")
         String frequencia,
         @Schema(description = "Dosagem prescrita para a medicação", example = "1 comprimido")

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Schema(description = "Dados de entrada para cadastro vacina pet")
 public record CadastroVacinaPetRequest(
         @Schema(description = "Vacina associada ao pet")
-        VacinasEntity vacina,
+        Integer idVacina,
         @Schema(description = "Data de aplicação da vacina", example = "2026-10-26")
         LocalDate dataAplicacao,
         @Schema(description = "Data de validade da vacina", example = "2026-10-26")

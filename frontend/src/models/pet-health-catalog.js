@@ -32,7 +32,7 @@ export function usePetHealthCatalog(enabled, preview, source) {
             setLoading(false); });
         return () => { active = false; };
     }, [enabled, example, source]);
-    const open = (kind, callback) => { onCreated.current = callback; setError(''); setEditor({ kind, name: '' }); };
+    const open = (kind, callback, inline = false) => { onCreated.current = callback; setError(''); setEditor({ kind, name: '', inline }); };
     const save = async () => {
         if (!editor || inFlight.current)
             return;

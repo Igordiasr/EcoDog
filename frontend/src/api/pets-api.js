@@ -1,5 +1,12 @@
 import { requestJson } from './http';
 import { date, enumValue, list, object, positiveId, text } from '../models/integration-contracts';
+import { sessionFromToken } from '../models/auth';
+export async function deleteTutorPet(baseUrl, session, petId, request) {
+    const auth = sessionFromToken(session?.token);
+    if (!auth || auth.profile !== 'tutor' || auth.id !== String(session.id)) throw new Error('Sua sessão expirou. Entre novamente.');
+    positiveId(petId, 'pet');
+    return requestJson(baseUrl, `/pets/${encodeURIComponent(auth.id)}/${petId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${auth.token}` } }, undefined, request);
+}
 export function createPetsApi(baseUrl, request) {
     return {
         /** SEC-01: caller must supply a server-authorized tutor ID; never guess it. */

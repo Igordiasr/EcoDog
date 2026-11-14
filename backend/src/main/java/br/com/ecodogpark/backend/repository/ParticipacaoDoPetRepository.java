@@ -75,4 +75,18 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
     @Modifying
     @Query("UPDATE ParticipacaoDoPetEntity p SET p.situacao = :situacao WHERE p.idParticipacaoDoPet IN :ids AND p.situacao = 'PENDENTE'")
     void concluirAtividadeTodosPets(@Param("situacao") SituacaoAtividade situacao, @Param("ids") List<Long> idsParticipacoes);
+
+    @Transactional
+    @Modifying
+    @Query("""
+    UPDATE ParticipacaoDoPetEntity p
+    SET p.situacao = :situacao
+    WHERE p.idParticipacaoDoPet = :idParticipacao
+""")
+    int atualizarSituacaoParticipacao(
+            @Param("situacao") SituacaoAtividade situacao,
+            @Param("idParticipacao") Long idParticipacao
+    );
+
 }
+

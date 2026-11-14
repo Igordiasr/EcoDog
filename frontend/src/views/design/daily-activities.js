@@ -3,9 +3,9 @@ import { content, nodes } from './types';
 export const dailyActivityStatus = situation => ({ PENDENTE: 'Pendente', CONCLUIDA: 'Concluída', NAO_CONCLUIDA: 'Não concluída' }[situation]);
 const time = value => value?.match(/^\d{2}:\d{2}/)?.[0] || 'Não informado';
 export function activityDuration(activity) {
-    const minutes = value => /^\d{2}:\d{2}/.test(value || '') ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3, 5)) : null;
+    const minutes = value => /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?$/.test(value || '') ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3, 5)) : null;
     const start = minutes(activity.horaInicio), end = minutes(activity.horaFim);
-    return start !== null && end !== null && end > start ? `${end - start} Min` : 'não informada';
+    return start !== null && end !== null ? `${(end - start + 1440) % 1440} min` : 'não informada';
 }
 
 function petCard(template, pet, key) {
@@ -29,7 +29,7 @@ function activityCard(template, activity) {
         const map = node => {
             if (typeof node === 'string') return node;
             const copy = { ...node, id: `${node.id}-${key}-${index}` };
-            if (node.name === 'Grupo e duração') return { ...copy, children: [`${group.grupo === 0 ? 'Sem grupo' : `Grupo Pet${group.grupo}`} - Duração ${activityDuration(activity)}`] };
+            if (node.name === 'Grupo e duração') return { ...copy, children: [`${group.grupo === 0 ? 'Sem grupo' : `Grupo ${group.grupo}`} • Duração ${activityDuration(activity)}`] };
             if (node.name === 'Quantidade') return { ...copy, children: [`${group.petsDoGrupo.length} aulunos`] };
             if (node.name === 'Aulunos do grupo') return { ...copy, children: group.petsDoGrupo.map(pet => petCard(nodes(node)[0], pet, `${key}-${index}-${pet.idParticipacaoDoPet}`)) };
             return { ...copy, children: node.children?.map(map) };
@@ -53,7 +53,7 @@ function activityCard(template, activity) {
             if (typeof child !== 'string' && child.name === 'Grupo de pets') {
                 if (insertedGroups) return [];
                 insertedGroups = true;
-                return activity.grupos.map(groupCard);
+                return [...activity.grupos].sort((a, b) => a.grupo - b.grupo).map(groupCard);
             }
             return [map(child, [...ancestors, node])];
         }) };

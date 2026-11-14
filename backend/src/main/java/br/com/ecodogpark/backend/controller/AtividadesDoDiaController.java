@@ -39,15 +39,11 @@ public class AtividadesDoDiaController {
     })
     @PutMapping
     public ResponseEntity<Void> concluirAtividade(@RequestBody @Valid AtualizarAtividadeRequest atividade) {
-        atividadesDoDiaService.concluirAtividade(atividade.situacao(), atividade.idAtividadeDoDia());
+        atividadesDoDiaService.concluirAtividade(atividade.situacao(), atividade.idAtividadeDoDia(), atividade.listaPets());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Atualizar participação dos pets", description = "Requisição que altera a situação da participação dos pets relacionados a uma atividade do dia para 'PARTICIPOU'. A alteração só é realizada caso a situação esteja como 'PENDENTE' e é necessário informar uma lista de identificadores de participação do dia")
-    @ApiResponse(responseCode = "204", description = "Alteração realizada com sucesso")
-    @PutMapping("/atualizarPets")
-    public ResponseEntity<Void> concluirAtividadeTodosPets(@RequestBody List<Long> idsParticipacoes) {
-        atividadesDoDiaService.concluirAtividadeTodosPets(idsParticipacoes);
-        return ResponseEntity.noContent().build();
-    }
+
+
+
 }

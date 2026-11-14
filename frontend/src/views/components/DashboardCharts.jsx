@@ -29,10 +29,10 @@ export function DashboardCharts({ data, kind }) {
         {counts.map((count, index) => {
                 const length = total ? count / total * circumference : 0, offset = start;
                 start += length;
-                return count ? <circle key={index} cx="90" cy="90" r="70" fill="none" stroke={donutColors[index]} strokeWidth="30" strokeDasharray={`${length} ${circumference - length}`} strokeDashoffset={-offset} transform="rotate(-90 90 90)" tabIndex={0} role="button" aria-label={`${categories[index]}: ${count} pets`} onMouseEnter={() => setSelected(index)} onFocus={() => setSelected(index)} onClick={() => setSelected(index)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') {
+                return count ? <circle key={index} cx="90" cy="90" r="70" fill="none" stroke={donutColors[index]} strokeWidth="30" strokeDasharray={`${length} ${circumference - length}`} strokeDashoffset={-offset} transform="rotate(-90 90 90)" tabIndex={0} role="button" aria-label={`${categories[index]}: ${count} ${unit}`} onMouseEnter={() => setSelected(index)} onFocus={() => setSelected(index)} onClick={() => setSelected(index)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     setSelected(index);
-                } }}><title>{categories[index]}: {count} pets</title></circle> : null;
+                } }}><title>{categories[index]}: {count} {unit}</title></circle> : null;
             })}
         <text x="90" y="95" textAnchor="middle" textLength={String(total).length > 3 ? 100 : undefined} lengthAdjust="spacingAndGlyphs" className="dashboard-donut-total">{total} {unit}</text>
       </svg>

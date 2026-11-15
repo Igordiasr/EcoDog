@@ -140,4 +140,27 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
                                                   @Param("servico") String servico,
                                                   @Param("inicio") LocalDateTime inicio,
                                                   @Param("fim") LocalDateTime fim);
+
+    @Query(value = """
+    SELECT
+        c.id_contrato AS idContrato,
+        COUNT(DISTINCT a.id_agendamentos) AS quantidade
+    FROM contratos c
+    JOIN pets p
+        ON p.id_pet = c.fk_pet
+    JOIN servicos s
+        ON s.id_servico = c.fk_servico
+    LEFT JOIN agendamentos a
+        ON a.fk_pet = p.id_pet
+        AND a.servico = s.categoria
+        AND DATE(a.data_entrada)
+            BETWEEN c.data_inicio AND c.data_fim
+        AND a.situacao <> 'CANCELADO'
+    WHERE c.id_contrato IN (:idsContratos)
+      AND s.categoria IN ('HOTEL', 'DAYUSE')
+    GROUP BY c.id_contrato
+    """, nativeQuery = true)
+    List<QuantidadeDiariasProjection> contarDiariasPorContrato(
+            @Param("idsContratos") List<Long> idsContratos
+    );
 }

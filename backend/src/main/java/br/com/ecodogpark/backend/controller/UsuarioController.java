@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.dto.UsuarioDTO.ClienteResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,82 +31,17 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-//    @Operation(summary = "Autenticar usuário", description = "Autentica o usuário por e-mail e senha e retorna um token JWT com validade de 10 minutos. Nas requisições seguintes, envie o token no cabeçalho Authorization no formato Bearer <token>")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Usuário autenticado; retorna o token de acesso"),
-//            @ApiResponse(responseCode = "400", description = "Dados de login inválidos", content = @Content)
-//    })
-//    @PostMapping("/login")
-//    public ResponseEntity<LoginResponse> entrar(@Valid @RequestBody LoginRequest dadosLogin) {
-//        return ResponseEntity.ok(authService.entrar(dadosLogin));
-//    }
-
-//    @Operation(summary = "Cadastrar tutor", description = "Cadastrar os dados do tutor.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "201", description = "Operação realizada com sucesso"),
-//            @ApiResponse(responseCode = "400", description = "Dados do usuário inválidos", content = @Content),
-//            @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content)
-//    })
-//    @PostMapping
-//    public ResponseEntity<UsuarioResponse> cadastrarTutor(@Valid @RequestBody UsuarioRequest usuarioRequest) {
-//        UsuarioResponse usuario = usuarioService.cadastrarTutor(usuarioRequest);
-//        return ResponseEntity.created(URI.create("/usuarios/" + usuario.id())).body(usuario);
-//    }
-
-//    @Operation(summary = "Listar tutores", description = "Lista os usuários do tipo tutor. Retorna 204 quando não há registros.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
-//            @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado", content = @Content)
-//    })
-//    @GetMapping
-//    public ResponseEntity<List<UsuarioResponse>> listarTutores() {
-//        List<UsuarioResponse> tutores = usuarioService.listarTutores();
-//        if (tutores.isEmpty()) return ResponseEntity.noContent().build();
-//        return ResponseEntity.ok(tutores);
-//    }
-
-    @Operation(summary = "Buscar tutor", description = "Buscar os dados do tutor identificado pelo ID.")
+    @Operation(summary = "Listar clientes", description = "Lista os tutores, seus Pets e respectivos contratos, incluindo informações de diárias e dias da semana contratados.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Lista de clientes retornada com sucesso")
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> buscarTutorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-            @PathVariable UUID id) {
-        UsuarioResponse usuario = usuarioService.buscarTutorPorId(id);
-        if (usuario == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(usuario);
+    @GetMapping("/clientes")
+    public ResponseEntity<List<ClienteResponse>> buscarClientes() {
+        return ResponseEntity.ok(usuarioService.buscarClientes());
     }
 
-//    @Operation(summary = "Atualizar tutor", description = "Atualizar os dados do tutor identificado pelo ID.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
-//            @ApiResponse(responseCode = "400", description = "Dados do usuário inválidos", content = @Content),
-//            @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content),
-//            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
-//    })
-//    @PutMapping("/{id}")
-//    public ResponseEntity<UsuarioResponse> atualizarTutor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-//            @PathVariable UUID id, @Valid @RequestBody UsuarioRequest usuarioRequest) {
-//        UsuarioResponse usuarioAtualizado = usuarioService.atualizarTutor(id, usuarioRequest);
-//        return ResponseEntity.ok().body(usuarioAtualizado);
-//    }
+    // ------------------------------- Endpoints para Gestão de Monitores --------------------------------------------
 
-    @Operation(summary = "Excluir tutor", description = "Excluir os dados do tutor identificado pelo ID.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Operação realizada com sucesso", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirTutor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-            @PathVariable UUID id) {
-        usuarioService.excluirTutor(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ------------------------------- Endpoints para Gestão de Usuários --------------------------------------------
     @Operation(summary = "Listar monitores", description = "Lista os usuários do tipo monitor. Retorna 204 quando não há registros.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
@@ -167,6 +103,7 @@ public class UsuarioController {
     }
 
     // ------------------------------- Endpoints para Gestão de Administradores -----------------------------------
+
     @Operation(summary = "Listar administradores", description = "Lista os usuários do tipo administrador. Retorna 204 quando não há registros.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),

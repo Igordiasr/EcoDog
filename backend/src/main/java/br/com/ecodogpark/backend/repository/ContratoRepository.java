@@ -3,7 +3,6 @@ package br.com.ecodogpark.backend.repository;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.GraficoContratosPorServicoResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.NovosServicosMensaisResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.PlanosAtivosResponse;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.ClienteResponse;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -65,29 +64,6 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     """)
     Long contarContratosInativos();
 
-
-    @Query("""
-        SELECT new br.com.ecodogpark.backend.dto.UsuarioDTO.ClienteResponse(
-            tutor.idUsuario,
-            CONCAT(tutor.nome, ' ', tutor.sobrenome),
-            pet.idPet,
-            pet.nome,
-            contrato.idContrato,
-            servico.nome,
-            contrato.valor,
-            CASE
-                WHEN contrato.situacao = 'ATIVO' THEN true
-                ELSE false
-            END
-        )
-        FROM ContratosEntity contrato
-        JOIN contrato.pet pet
-        JOIN pet.fkUsuario tutor
-        JOIN contrato.servico servico
-        ORDER BY tutor.nome, pet.nome
-    """)
-    List<ClienteResponse> listaCliente();
-
     boolean existsByPetFkUsuarioIdUsuarioAndSituacaoIn(UUID idUsuario, List<String> situacoes);
 
     @Query("""
@@ -139,4 +115,15 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     List<ContratosEntity> buscarContratosPorDia(@Param("idPet") UUID idPet,
                                                 @Param("categoria") String categoria,
                                                 @Param("data") LocalDate data);
+
+    @Query("""
+        SELECT c FROM ContratosEntity c
+        JOIN FETCH c.pet p
+        JOIN FETCH p.fkUsuario u
+        JOIN FETCH c.servico s
+        WHERE c.situacao = 'ATIVO'
+          AND c.dataInicio <= :hoje
+          AND c.dataFim >= :hoje
+    """)
+    List<ContratosEntity> buscarContratosParaListaClientes(@Param("hoje") LocalDate hoje);
 }

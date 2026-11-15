@@ -1,0 +1,88 @@
+package br.com.ecodogpark.backend.service;
+
+import br.com.ecodogpark.backend.entity.PlanosEntity;
+import br.com.ecodogpark.backend.entity.ServicosEntity;
+import br.com.ecodogpark.backend.repository.PlanosRepository;
+import br.com.ecodogpark.backend.repository.ServicoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class PlanosService {
+
+    private final PlanosRepository planosRepository;
+    private final ServicoRepository servicoRepository;
+
+    @Autowired
+    public PlanosService(PlanosRepository planosRepository, ServicoRepository servicoRepository) {
+        this.planosRepository = planosRepository;
+        this.servicoRepository = servicoRepository;
+    }
+
+    public List<PlanosEntity> listarTodos() {
+        return planosRepository.findAllByOrderByNomeAsc();
+    }
+
+    public PlanosEntity criar(PlanosEntity plano) {
+        validarServicoExistente(plano.getServico());
+        return planosRepository.save(plano);
+    }
+
+    public PlanosEntity atualizar(Long id, PlanosEntity planoAtualizado) {
+        PlanosEntity planoExistente = planosRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Plano não encontrado"));
+        validarServicoExistente(planoAtualizado.getServico());
+        planoExistente.setNome(planoAtualizado.getNome());
+        planoExistente.setServico(planoAtualizado.getServico());
+        planoExistente.setDiarias(planoAtualizado.getDiarias());
+        planoExistente.setValor(planoAtualizado.getValor());
+        planoExistente.setAtivo(planoAtualizado.getAtivo());
+        return planosRepository.save(planoExistente);
+    }
+
+    public void deletar(Long id) {
+        PlanosEntity plano = planosRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Plano não encontrado"));
+        // Verifica se há vinculos antes de excluir
+        // Verifica através de agendamentos que possam referenciar o plano
+        boolean temVinculo = verificaVinculoExclusao(id);
+        if (temVinculo) {
+            throw new ResponseStatusException(
+                    org.springframework.http.HttpStatus.CONFLICT,
+                    "Não é possível excluir este plano pois há registros vinculados (ex: contratos, agendamentos).");
+        }
+        planosRepository.deleteById(id);
+    }
+
+    public PlanosEntity toggularAtivo(Long id) {
+        PlanosEntity plano = planosRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Plano não encontrado"));
+        plano.setAtivo(!plano.getAtivo());
+        return planosRepository.save(plano);
+    }
+
+    public List<ServicosEntity> listarServicosAtivos() {
+        return servicoRepository.findAllByStatusTrueOrderByNomeAsc();
+    }
+
+    private void validarServicoExistente(ServicosEntity servico) {
+        if (servico == null || !servicoRepository.existsById(servico.getIdServico().longValue())) {
+            throw new ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "Serviço inválido");
+        }
+    }
+
+    private boolean verificaVinculoExclusao(Long idPlano) {
+        // Placeholder: verificar se há entidades relacionadas que impedem a exclusão
+        // Implementação futura conforme modelo de domínio
+        return false;
+    }
+}

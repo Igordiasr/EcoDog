@@ -38,7 +38,7 @@ public class UsuariosEntity {
     @Column(nullable = false)
     private Boolean deletado = false;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "fk_endereco")
     private EnderecoEntity endereco;
 

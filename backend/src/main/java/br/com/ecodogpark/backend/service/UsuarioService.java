@@ -3,13 +3,12 @@ package br.com.ecodogpark.backend.service;
 import br.com.ecodogpark.backend.config.TokenConfig;
 import br.com.ecodogpark.backend.dto.MonitorRequest;
 import br.com.ecodogpark.backend.dto.FuncionarioResponse;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginRequest;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginResponse;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioRequest;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioResponse;
+import br.com.ecodogpark.backend.dto.UsuarioDTO.*;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
 import br.com.ecodogpark.backend.enums.TipoUsuario;
 import br.com.ecodogpark.backend.exception.CredenciaisIncorretasException;
+import br.com.ecodogpark.backend.exception.DadoJaCadastradoException;
+import br.com.ecodogpark.backend.repository.ContratoRepository;
 import br.com.ecodogpark.backend.repository.UsuarioRepository;
 import java.util.List;
 import java.util.UUID;
@@ -25,56 +24,27 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
+    private final ContratoRepository contratoRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final TokenConfig tokenConfig;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenConfig tokenConfig) {
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          ContratoRepository contratoRepository,
+                          PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.contratoRepository = contratoRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.tokenConfig = tokenConfig;
     }
 
-    public LoginResponse entrar(LoginRequest dadosLogin) {
-        UsernamePasswordAuthenticationToken usuarioESenha = new UsernamePasswordAuthenticationToken(dadosLogin.email(), dadosLogin.senha());
-        Authentication authentication = authenticationManager.authenticate(usuarioESenha);
-        UsuariosEntity usuario = usuarioRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new CredenciaisIncorretasException("Email ou senha inválidos"));
-        return new LoginResponse(tokenConfig.gerarToken(usuario));
+    public List<ClienteResponse> listarClientes() {
+        return contratoRepository.listaCliente();
     }
 
-    public UsuarioResponse cadastrarTutor(UsuarioRequest usuarioRequest) {
-        if (usuarioRepository.existsByEmail(usuarioRequest.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
-        }
-        if (usuarioRepository.existsByCpf(usuarioRequest.cpf())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
-        }
-        UsuariosEntity usuario = new UsuariosEntity();
-        usuario.setStatusUsuario(true);
-        preencher(usuario, usuarioRequest);
-        return paraUsuarioResponse(usuarioRepository.save(usuario));
-    }
-
-    public List<UsuarioResponse> listarTutores() {
-        return usuarioRepository.findByTipo(TipoUsuario.TUTOR).stream().map(this::paraUsuarioResponse).toList();
-    }
+//    public List<UsuarioResponse> listarTutores() {
+//        return usuarioRepository.findByTipo(TipoUsuario.TUTOR).stream().map(this::paraUsuarioResponse).toList();
+//    }
 
     public UsuarioResponse buscarTutorPorId(UUID id) {
         return paraUsuarioResponse(buscarTutor(id));
-    }
-
-    public UsuarioResponse atualizarTutor(UUID id, UsuarioRequest usuarioRequest) {
-        if (usuarioRepository.existsByEmailAndIdUsuarioNot(usuarioRequest.email(), id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
-        }
-        if (usuarioRepository.existsByCpfAndIdUsuarioNot(usuarioRequest.cpf(), id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
-        }
-        UsuariosEntity usuario = buscarTutor(id);
-        preencher(usuario, usuarioRequest);
-        return paraUsuarioResponse(usuarioRepository.save(usuario));
     }
 
     public void excluirTutor(UUID id) {
@@ -119,10 +89,10 @@ public class UsuarioService {
 
     public FuncionarioResponse cadastrarMonitor(MonitorRequest request) {
         if (usuarioRepository.existsByEmail(request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
+            throw new DadoJaCadastradoException("Email já cadastrado");
         }
         if (usuarioRepository.existsByCpf(request.cpf())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
+            throw new DadoJaCadastradoException("CPF já cadastrado");
         }
         UsuariosEntity usuario = new UsuariosEntity();
         usuario.setStatusUsuario(true);
@@ -131,16 +101,13 @@ public class UsuarioService {
     }
 
     public FuncionarioResponse buscarMonitorPorId(UUID id) {
-        UsuariosEntity monitor = usuarioRepository.findById(id)
-                .filter(usuario -> "MONITOR".equals(usuario.getTipo().name()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
+        UsuariosEntity monitor = buscarPorTipo(id, TipoUsuario.MONITOR, "Monitor não encontrado");
         return paraFuncionarioResponse(monitor);
     }
 
     public FuncionarioResponse atualizarMonitor(UUID id, MonitorRequest request) {
-        UsuariosEntity monitorParaAtualizar = usuarioRepository.findById(id)
-                .filter(usuario -> "MONITOR".equals(usuario.getTipo().name()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
+        UsuariosEntity monitorParaAtualizar = buscarPorTipo(id, TipoUsuario.MONITOR, "Monitor não encontrado");
+
         if (usuarioRepository.existsByEmailAndIdUsuarioNot(request.email(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
         }
@@ -152,9 +119,7 @@ public class UsuarioService {
     }
 
     public void excluirMonitor(UUID id) {
-        UsuariosEntity monitor = usuarioRepository.findById(id)
-                .filter(usuario -> "MONITOR".equals(usuario.getTipo().name()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Monitor não encontrado"));
+        UsuariosEntity monitor = buscarPorTipo(id, TipoUsuario.MONITOR, "Monitor não encontrado");
 
         monitor.setStatusUsuario(false);
         usuarioRepository.save(monitor);

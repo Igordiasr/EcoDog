@@ -18,12 +18,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class AgendamentoTutorService {
+public class  AgendamentoTutorService {
     private final AgendamentoRepository agendamentoRepository;
     private final CalendarioRepository calendarioRepository;
     private final PetRepository petRepository;
     private final ServicosRepository servicosRepository;
-    private final ContratosRepository contratosRepository;
+    private final ContratoRepository contratoRepository;
     private final MovimentacoesRepository movimentacoesRepository;
     private static final Integer capacidadePadrao = 10;
 
@@ -31,13 +31,13 @@ public class AgendamentoTutorService {
                                    CalendarioRepository calendarioRepository,
                                    PetRepository petRepository,
                                    ServicosRepository servicosRepository,
-                                   ContratosRepository contratosRepository,
+                                   ContratoRepository contratoRepository,
                                    MovimentacoesRepository movimentacoesRepository) {
         this.agendamentoRepository = agendamentoRepository;
         this.calendarioRepository = calendarioRepository;
         this.petRepository = petRepository;
         this.servicosRepository = servicosRepository;
-        this.contratosRepository = contratosRepository;
+        this.contratoRepository = contratoRepository;
         this.movimentacoesRepository = movimentacoesRepository;
     }
 
@@ -178,7 +178,7 @@ public class AgendamentoTutorService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Este agendamento não pode ser cancelado.");
         }
 
-        Optional<ContratosEntity> contrato = contratosRepository.buscarContratoDoDia(pet.getIdPet(), categoria, data);
+        Optional<ContratosEntity> contrato = contratoRepository.buscarContratoDoDia(pet.getIdPet(), categoria, data);
 
         if (contrato.isEmpty()) {
             agendamento.setSituacao(SituacaoAgendamento.CANCELADO);
@@ -212,7 +212,7 @@ public class AgendamentoTutorService {
         }
 
         contrato.setSituacao("CANCELADO");
-        contratosRepository.save(contrato);
+        contratoRepository.save(contrato);
 
         movimentacoesRepository.findByContrato(contrato)
                 .filter(m -> "PENDENTE".equals(m.getSituacao()))
@@ -232,7 +232,7 @@ public class AgendamentoTutorService {
             validarDia(servicoCategoria, data, pets);
         }
 
-        boolean tutorAprovado = contratosRepository.existsByPetFkUsuarioIdUsuarioAndSituacaoIn(idUsuario, List.of("ATIVO", "ENCERRADO"));
+        boolean tutorAprovado = contratoRepository.existsByPetFkUsuarioIdUsuarioAndSituacaoIn(idUsuario, List.of("ATIVO", "ENCERRADO"));
         String situacaoContrato = tutorAprovado ? "ATIVO" : "PENDENTE";
         BigDecimal valorPorPet = calcularValorTotal(servico, datas, 1);
 
@@ -259,12 +259,12 @@ public class AgendamentoTutorService {
         LocalDate fim = inicio.plusMonths(1).minusDays(1);
 
         for (PetsEntity pet : pets) {
-            if (contratosRepository.existePlanoSobreposto(pet.getIdPet(), inicio, fim)) {
+            if (contratoRepository.existePlanoSobreposto(pet.getIdPet(), inicio, fim)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, pet.getNome() + " já possui um plano nesse período");
             }
         }
 
-        boolean tutorAprovado = contratosRepository.existsByPetFkUsuarioIdUsuarioAndSituacaoIn(idUsuario, List.of("ATIVO", "ENCERRADO"));
+        boolean tutorAprovado = contratoRepository.existsByPetFkUsuarioIdUsuarioAndSituacaoIn(idUsuario, List.of("ATIVO", "ENCERRADO"));
         String situacao =  tutorAprovado ? "ATIVO" : "PENDENTE";
         BigDecimal valorPorPet = calcularValorTotal(servico, List.of(inicio), 1);
 
@@ -340,7 +340,7 @@ public class AgendamentoTutorService {
     }
 
     private ContratosEntity buscarPlanoVigente(PetsEntity pet, LocalDate data) {
-        return contratosRepository.buscarPlanoVigente(pet.getIdPet(), data)
+        return contratoRepository.buscarPlanoVigente(pet.getIdPet(), data)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT,
                         pet.getNome() + " não possui plano vigente em " + data + "."));
     }
@@ -357,7 +357,7 @@ public class AgendamentoTutorService {
         contrato.setDataFim(datas.getLast());
         contrato.setValor(valor);
         contrato.setSituacao(situacao);
-        return contratosRepository.save(contrato);
+        return contratoRepository.save(contrato);
     }
 
     private void salvarMovimentacao(ContratosEntity contrato, BigDecimal valor) {

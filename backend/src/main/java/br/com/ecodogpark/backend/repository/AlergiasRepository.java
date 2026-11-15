@@ -4,4 +4,5 @@ import br.com.ecodogpark.backend.entity.AlergiasEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AlergiasRepository extends JpaRepository<AlergiasEntity, Integer> {
+    Boolean existsByDescricao(String nome);
 }

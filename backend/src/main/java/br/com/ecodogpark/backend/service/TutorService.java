@@ -10,12 +10,11 @@ import br.com.ecodogpark.backend.mapper.TutorMapper;
 import br.com.ecodogpark.backend.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TutorService {
@@ -27,6 +26,8 @@ public class TutorService {
     private final AlergiasRepository alergiasRepository;
     private final VacinasRepository vacinasRepository;
     private final MedicacoesRepository medicacoesRepository;
+    private final PasswordEncoder passwordEncoder;
+//    private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     public TutorService(
             PetRepository petRepository,
@@ -36,9 +37,9 @@ public class TutorService {
             AlergiasDoPetRepository alergiasDoPetRepository,
             AlergiasRepository alergiasRepository,
             VacinasRepository vacinasRepository,
-            MedicacoesRepository medicacoesRepository
-
-
+            MedicacoesRepository medicacoesRepository,
+            PasswordEncoder passwordEncoder
+//            UsuarioAutenticadoService usuarioAutenticadoService
     ) {
         this.petRepository = petRepository;
         this.usuarioRepository = usuarioRepository;
@@ -48,9 +49,25 @@ public class TutorService {
         this.alergiasRepository = alergiasRepository;
         this.vacinasRepository = vacinasRepository;
         this.medicacoesRepository = medicacoesRepository;
+        this.passwordEncoder = passwordEncoder;
+//        this.usuarioAutenticadoService = usuarioAutenticadoService;
     }
 
-    public MeusDadosResponse meusDados(UUID idTutor) {
+    public TutorCadastroResponse cadastrarTutor(CadastroTutorRequest usuarioRequest) {
+        if (usuarioRepository.existsByEmail(usuarioRequest.email())) {
+            throw new DadoJaCadastradoException("E-mail já cadastrado");
+        }
+        if (usuarioRepository.existsByCpf(usuarioRequest.cpf())) {
+            throw new DadoJaCadastradoException("CPF já cadastrado");
+        }
+        UsuariosEntity tutor = TutorMapper.requestParaEntity(usuarioRequest);
+        tutor.setSenha(passwordEncoder.encode(usuarioRequest.senha()));
+
+        return TutorMapper.entityParaCadastroResponse(usuarioRepository.save(tutor));
+    }
+
+    public MeusDadosResponse buscarDados(UUID idTutor) {
+//        UUID idTutor = usuarioAutenticadoService.getIdUsuarioAutenticado();
         UsuariosEntity tutor = buscarTutor(idTutor);
 
         return TutorMapper.entityParaResponse(tutor);
@@ -58,12 +75,35 @@ public class TutorService {
 
     @Transactional
     public MeusDadosResponse atualizarDados(UUID idTutor, AtualizarDadosRequest request) {
+//        UUID idTutor = usuarioAutenticadoService.getIdUsuarioAutenticado();
         UsuariosEntity tutor = buscarTutor(idTutor);
+
+        if (usuarioRepository.existsByEmailAndIdUsuarioNot(request.email(), idTutor)) {
+            throw new DadoJaCadastradoException("E-mail já cadastrado");
+        }
+        if (usuarioRepository.existsByCpfAndIdUsuarioNot(request.cpf(), idTutor)) {
+            throw new DadoJaCadastradoException("CPF já cadastrado");
+        }
 
         TutorMapper.atualizarEntity(tutor, request);
         usuarioRepository.save(tutor);
 
         return TutorMapper.entityParaResponse(tutor);
+    }
+
+    public List<AlergiaResponse> listarAlergias() {
+        List<AlergiasEntity> alergiaCatalago = alergiasRepository.findAll();
+        return alergiaCatalago.stream().map(TutorMapper::entityParaResponse).toList();
+    }
+
+    public List<MedicacaoResponse> listarMedicacoes() {
+        List<MedicacoesEntity> medicacaoCatalogo = medicacoesRepository.findAll();
+        return medicacaoCatalogo.stream().map(TutorMapper::entityParaResponse).toList();
+    }
+
+    public List<VacinaResponse> listarVacinas() {
+        List<VacinasEntity> vacinaCatalogo = vacinasRepository.findAll();
+        return vacinaCatalogo.stream().map(TutorMapper::entityParaResponse).toList();
     }
 
     @Transactional
@@ -89,7 +129,6 @@ public class TutorService {
 
                     return PetMapper.vacinasDoPetParaEntity(vacinaRequest, pet, vacina);
                 }).toList();
-
         List<VacinaParaListaResponse> vacinasDoPet =
                 vacinasDoPetRepository.saveAll(vacinasParaSalvar).stream()
                 .map(PetMapper::entityParaVacinaParaLista).toList();
@@ -102,7 +141,6 @@ public class TutorService {
 
                     return PetMapper.alergiaDoPetParaEntity(pet, alergia);
                 }).toList();
-
         List<AlergiaParaListaResponse> alergiasDoPet = alergiasDoPetRepository.saveAll(alergiasParaSalvar).stream()
                 .map(PetMapper::entityParaAlergiaParaLista).toList();
 
@@ -113,14 +151,13 @@ public class TutorService {
                             .orElseThrow(() -> new MedicacaoNaoEncontradaException("Medicação não encontrada"));
                     return PetMapper.medicacoesDoPetParaEntity(medicacaoRequest, pet, medicacao);
                 }).toList();
-
         List<MedicacaoParaListaResponse> medicacoesDoPet = medicacoesDoPetRepository.saveAll(medicacoesParaSalvar)
                 .stream().map(PetMapper::entityParaMedicacaoParaLista).toList();
 
         return PetMapper.consolidarCadastroPet(novoPet, alergiasDoPet, medicacoesDoPet, vacinasDoPet);
     }
 
-    public List<PetParaListaResponse> buscarPorIdTutor(UUID idTutor) {
+    public List<PetParaListaResponse> listarPets(UUID idTutor) {
         UsuariosEntity tutor = buscarTutor(idTutor);
         return petRepository.findByFkUsuario(tutor)
                 .stream().map(PetMapper::entityParaPetParaLista).toList();
@@ -135,7 +172,7 @@ public class TutorService {
 
         if (!pet.getFkUsuario().getIdUsuario().equals(tutor.getIdUsuario()))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este pet não pertence ao tutor informado");
-        if (petRepository.existsByFkUsuarioAndNome(tutor, cadastroPetRequest.nome()))
+        if (petRepository.existsByFkUsuarioAndNomeAndIdPetNot(tutor, cadastroPetRequest.nome(), idPet))
             throw new ConflitoAoCadastrarException("Pet já cadastrado");
 
         List<AlergiasEntity> alergiasEncontradas = buscarAlergias(cadastroPetRequest);
@@ -155,8 +192,43 @@ public class TutorService {
     @Transactional
     public void excluir(UUID idTutor, UUID idPet) {
         UsuariosEntity tutor = buscarTutor(idTutor);
-        if (!petRepository.existsByIdPetAndFkUsuario(idPet, tutor)) throw new DadosDivergentesException("ID do pet não pertence ao ID do tutor informado");
+        if (!petRepository.existsByIdPetAndFkUsuario(idPet, tutor)) {
+            throw new DadosDivergentesException("ID do pet não pertence ao ID do tutor informado");
+        }
         petRepository.deleteById(idPet);
+    }
+
+    public AlergiaResponse cadastrarNovaAlergia(AlergiaRequest request) {
+        String nomeNormalizado = normalizarNome(request.nome());
+        if (alergiasRepository.existsByDescricao(nomeNormalizado)) {
+            throw new DadoJaCadastradoException("Alergia já existe");
+        }
+        AlergiasEntity alergia = TutorMapper.requestParaEntity(request);
+        alergia.setDescricao(nomeNormalizado);
+
+        return TutorMapper.entityParaResponse(alergiasRepository.save(alergia));
+    }
+
+    public MedicacaoResponse cadastrarNovaMedicacao(MedicacaoRequest request) {
+        String nomeNormalizado = normalizarNome(request.nome());
+        if (medicacoesRepository.existsByNome(nomeNormalizado)) {
+            throw new DadoJaCadastradoException("Medicamento já existe");
+        }
+        MedicacoesEntity medicacao = TutorMapper.requestParaEntity(request);
+        medicacao.setNome(nomeNormalizado);
+
+        return TutorMapper.entityParaResponse(medicacoesRepository.save(medicacao));
+    }
+
+    public VacinaResponse cadastrarNovaVacina(VacinaRequest request) {
+        String nomeNormalizado = normalizarNome(request.nome());
+        if (vacinasRepository.existsByNome(nomeNormalizado)) {
+            throw new DadoJaCadastradoException("Vacina já existe");
+        }
+        VacinasEntity vacina = TutorMapper.requestParaEntity(request);
+        vacina.setNome(nomeNormalizado);
+
+        return TutorMapper.entityParaResponse(vacinasRepository.save(vacina));
     }
 
     private UsuariosEntity buscarTutor(UUID idTutor) {
@@ -174,8 +246,10 @@ public class TutorService {
                 .map(CadastroAlergiaPetRequest::idAlergia)
                 .toList();
 
+        validarIdsDuplicados(ids);
+
         List<AlergiasEntity> alergias = alergiasRepository.findAllById(ids);
-        if (alergias.size() != ids.stream().distinct().count()) {
+        if (alergias.size() != ids.size()) {
             throw new AlergiaNaoEncontradaException("Uma ou mais alergias não foram encontradas");
         }
 
@@ -187,8 +261,10 @@ public class TutorService {
                 .map(CadastroVacinaPetRequest::idVacina)
                 .toList();
 
+        validarIdsDuplicados(ids);
+
         List<VacinasEntity> vacinas = vacinasRepository.findAllById(ids);
-        if (vacinas.size() != ids.stream().distinct().count()) {
+        if (vacinas.size() != ids.size()) {
             throw new VacinaNaoEncontradaException("Uma ou mais vacinas não foram encontradas");
         }
 
@@ -200,8 +276,10 @@ public class TutorService {
                 .map(CadastroMedicacaoPetRequest::idMedicacao)
                 .toList();
 
+        validarIdsDuplicados(ids);
+
         List<MedicacoesEntity> medicacoes = medicacoesRepository.findAllById(ids);
-        if (medicacoes.size() != ids.stream().distinct().count()) {
+        if (medicacoes.size() != ids.size()) {
             throw new MedicacaoNaoEncontradaException("Uma ou mais medicações não forma encontradas");
         }
 
@@ -272,4 +350,16 @@ public class TutorService {
         return medicacoesDoPetRepository.saveAll(paraSalvar).stream()
                 .map(PetMapper::entityParaMedicacaoParaLista).toList();
     }
+
+    private String normalizarNome(String nome) {
+        return nome.trim()
+                .replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    private void validarIdsDuplicados(List<?> ids) {
+        if (ids.size() != new HashSet<>(ids).size()) {
+            throw new ConflitoAoCadastrarException("A lista contém IDs duplicados");
+        }
+    }
+
 }

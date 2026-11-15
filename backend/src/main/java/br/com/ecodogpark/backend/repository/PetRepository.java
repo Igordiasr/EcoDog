@@ -11,6 +11,7 @@ public interface PetRepository extends JpaRepository<PetsEntity, UUID> {
     List<PetsEntity> findByFkUsuario(UsuariosEntity idUsuario);
     Boolean existsByFkUsuarioAndNome(UsuariosEntity fkUsuario, String nome);
     Boolean existsByIdPetAndFkUsuario(UUID idPet, UsuariosEntity fkUsuario);
+    Boolean existsByFkUsuarioAndNomeAndIdPetNot(UsuariosEntity fkUsuario, String nome, UUID idPet);
 
     List<PetsEntity> findByFkUsuarioIdUsuario(UUID idTutor);
 

@@ -5,6 +5,6 @@ import br.com.ecodogpark.backend.entity.MedicacoesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MedicacoesRepository extends JpaRepository<MedicacoesEntity, Long> {
-
+    Boolean existsByNome(String nome);
 
 }

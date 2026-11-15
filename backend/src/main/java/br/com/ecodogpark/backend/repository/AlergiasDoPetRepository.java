@@ -5,6 +5,8 @@ import br.com.ecodogpark.backend.entity.PetsEntity;
 import br.com.ecodogpark.backend.entity.id.AlergiasDoPetId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface AlergiasDoPetRepository extends JpaRepository<AlergiasDoPetEntity, AlergiasDoPetId> {
-    void deleteByPet(PetsEntity pet);
+    List<AlergiasDoPetEntity> findByPet(PetsEntity pet);
 }

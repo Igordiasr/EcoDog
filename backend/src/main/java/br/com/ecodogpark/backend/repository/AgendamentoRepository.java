@@ -14,9 +14,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity, Long> {
-    Optional<AgendamentosEntity> findByFkPetIdPetAndFkCalendarioDataAndSituacao(Long id, LocalDate data, SituacaoAgendamento situacao);
+    Optional<AgendamentosEntity> findByFkPetIdPetAndFkCalendarioDataAndSituacao(UUID idPet, LocalDate data, SituacaoAgendamento situacao);
 
     @Query("""
         SELECT new br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse(
@@ -93,7 +94,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
           AND a.dataEntrada < :fim
           AND a.situacao IN('AGENDADO', 'CONFIRMADO')
     """)
-    boolean petJaAgendado(@Param("idPet")Long idPet,
+    boolean petJaAgendado(@Param("idPet")UUID idPet,
                           @Param("inicio")LocalDateTime inicio,
                           @Param("fim")LocalDateTime fim);
 
@@ -105,7 +106,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
               AND a.dataEntrada < :fim
               AND a.situacao IN('AGENDADO', 'CONFIRMADO', 'RETIRADO')
     """)
-    long contarCrecheNaSemana(@Param("idPet") Long idPet,
+    long contarCrecheNaSemana(@Param("idPet") UUID idPet,
                               @Param("inicio")LocalDateTime inicio,
                               @Param("fim") LocalDateTime fim);
 
@@ -122,7 +123,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
           AND a.situacao IN(:situacoes)
         ORDER BY c.data, p.nome
     """)
-    List<AgendamentosTutorResponse> buscarAgendamentosDoTutor(@Param("idUsuario") Long idUsuario,
+    List<AgendamentosTutorResponse> buscarAgendamentosDoTutor(@Param("idUsuario") UUID idUsuario,
                                                               @Param("inicio") LocalDate inicio,
                                                               @Param("fim") LocalDate fim,
                                                               @Param("situacoes") List<SituacaoAgendamento> situacoes);
@@ -135,8 +136,31 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
           AND a.dataEntrada < :fim
           AND a.situacao IN ('AGENDADO', 'CONFIRMADO')
     """)
-    List<AgendamentosEntity> buscarAtivosNoPerido(@Param("idPet") Long idPet,
+    List<AgendamentosEntity> buscarAtivosNoPerido(@Param("idPet") UUID idPet,
                                                   @Param("servico") String servico,
                                                   @Param("inicio") LocalDateTime inicio,
                                                   @Param("fim") LocalDateTime fim);
+
+    @Query(value = """
+    SELECT
+        c.id_contrato AS idContrato,
+        COUNT(DISTINCT a.id_agendamentos) AS quantidade
+    FROM contratos c
+    JOIN pets p
+        ON p.id_pet = c.fk_pet
+    JOIN servicos s
+        ON s.id_servico = c.fk_servico
+    LEFT JOIN agendamentos a
+        ON a.fk_pet = p.id_pet
+        AND a.servico = s.categoria
+        AND DATE(a.data_entrada)
+            BETWEEN c.data_inicio AND c.data_fim
+        AND a.situacao <> 'CANCELADO'
+    WHERE c.id_contrato IN (:idsContratos)
+      AND s.categoria IN ('HOTEL', 'DAYUSE')
+    GROUP BY c.id_contrato
+    """, nativeQuery = true)
+    List<QuantidadeDiariasProjection> contarDiariasPorContrato(
+            @Param("idsContratos") List<Long> idsContratos
+    );
 }

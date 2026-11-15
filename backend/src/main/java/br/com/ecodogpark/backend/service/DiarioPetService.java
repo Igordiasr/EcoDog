@@ -10,7 +10,7 @@ import br.com.ecodogpark.backend.entity.ObservacaoDoDiaEntity;
 import br.com.ecodogpark.backend.enums.CategoriaAtividade;
 import br.com.ecodogpark.backend.enums.SituacaoAtividade;
 import br.com.ecodogpark.backend.repository.AtividadeRepository;
-import br.com.ecodogpark.backend.repository.MedicacaoRepository;
+import br.com.ecodogpark.backend.repository.MedicacoesDoPetRepository;
 import br.com.ecodogpark.backend.repository.ObservacaoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,30 +18,31 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class DiarioPetService {
 
     private final AtividadeRepository atividadeRepository;
-    private final MedicacaoRepository medicacaoRepository;
+    private final MedicacoesDoPetRepository medicacoesDoPetRepository;
     private final ObservacaoRepository observacaoRepository;
 
     public DiarioPetService(AtividadeRepository atividadeRepository,
-                            MedicacaoRepository medicacaoRepository,
+                            MedicacoesDoPetRepository medicacoesDoPetRepository,
                             ObservacaoRepository observacaoRepository) {
         this.atividadeRepository = atividadeRepository;
-        this.medicacaoRepository = medicacaoRepository;
+        this.medicacoesDoPetRepository = medicacoesDoPetRepository;
         this.observacaoRepository = observacaoRepository;
     }
 
     @Transactional(readOnly = true)
-    public DiarioPetResponse obterDiarioDoPet(Long idPet, LocalDate dataReferencia) {
+    public DiarioPetResponse obterDiarioDoPet(UUID idPet, LocalDate dataReferencia) {
 
         // Consultas executadas sequencialmente dentro da mesma transação,
         // de modo a permitir o carregamento das associações LAZY usadas no mapeamento.
         List<AtividadesDoDiaEntity> atividades = atividadeRepository.buscarPorPetEData(idPet, dataReferencia);
-        List<MedicacaoDoDiaEntity> medicacoes = medicacaoRepository.buscarPorPetEData(idPet, dataReferencia);
+        List<MedicacaoDoDiaEntity> medicacoes = medicacoesDoPetRepository.buscarPorPetEData(idPet, dataReferencia);
         List<ObservacaoDoDiaEntity> observacoes = observacaoRepository.buscarPorPetEData(idPet, dataReferencia);
 
         return new DiarioPetResponse(

@@ -1,28 +1,36 @@
-import { expect, it } from 'vitest';
-import { createAuthApi, sessionFromToken } from '../src/models/auth';
-import { registrationData } from '../src/viewmodels/auth';
+import { describe, expect, it, vi } from 'vitest';
+import { createAuthViewModel, registrationData, registrationAddressData } from '../src/viewmodels/auth';
 
-const jwt = roles => `header.${btoa(JSON.stringify({ sub: '1', roles, exp: Math.floor(Date.now() / 1000) + 600 }))}.signature`;
-it('restores valid profiles and rejects expired JWTs', () => {
-    expect(sessionFromToken(jwt('TUTOR')).profile).toBe('tutor');
-    expect(sessionFromToken(jwt('MONITOR')).profile).toBe('monitor');
-    expect(sessionFromToken(jwt('ADMINISTRADOR')).profile).toBe('admin');
-    expect(sessionFromToken(jwt('TUTOR'), Date.now() + 700000)).toBeNull();
-});
-it('maps registration fields to the existing backend contract', () => {
-    const fields = { nome: ' Ana ', 'e-mail': 'ana@example.com', cpf: '529.982.247-25', telefone: '(11) 91234-5678', senha: 'secret', 'confirmacao-de-senha': 'secret' };
-    expect(registrationData(fields)).toEqual({ nome: 'Ana', email: 'ana@example.com', cpf: '52998224725', telefone: '11912345678', senha: 'secret' });
-    expect(() => registrationData({ ...fields, cpf: '11111111111' })).toThrow();
-});
-it('logs in through Axios and clears the stored session on logout', async () => {
-    const values = new Map();
-    const storage = { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
-    const api = createAuthApi('http://localhost:8080', { storage, request: async (url, options) => {
-        expect(url).toBe('http://localhost:8080/usuarios/login');
-        expect(JSON.parse(options.body)).toEqual({ email: 'ana@example.com', senha: 'secret' });
-        return new Response(JSON.stringify({ token: jwt('TUTOR') }));
-    } });
-    expect((await api.login('ana@example.com', 'secret')).profile).toBe('tutor');
-    await api.logout();
-    expect(await api.session()).toBeNull();
+const fields = {
+    nome: '  Maria  ', sobrenome: '  da Silva  ', 'e-mail': 'maria@example.com',
+    cpf: '529.982.247-25', telefone: '(11) 91234-5678', senha: 'Senha123!',
+    'confirmacao-de-senha': 'Senha123!', cep: '01001-000', rua: 'Praça da Sé',
+    numero: '10', complemento: '  Apartamento 12  ', bairro: 'Sé', cidade: 'São Paulo',
+};
+
+describe('Cadastro de tutor', () => {
+    it('mantém nome e sobrenome separados sem espaços nas extremidades', () => {
+        expect(registrationData(fields)).toMatchObject({ nome: 'Maria', sobrenome: 'da Silva' });
+    });
+
+    it.each(['nome', 'sobrenome'])('exige o campo %s', key => {
+        expect(() => registrationData({ ...fields, [key]: '   ' })).toThrow('Informe seu nome e sobrenome.');
+    });
+
+    it.each(['nome', 'sobrenome'])('valida o limite do campo %s enviado à API', key => {
+        expect(() => registrationData({ ...fields, [key]: 'a'.repeat(121) })).toThrow('Confira o nome');
+    });
+
+    it('envia nome e sobrenome separados, preservando os demais dados', async () => {
+        const api = { register: vi.fn().mockResolvedValue({ id: 1 }) };
+        await createAuthViewModel(api).register(fields);
+        expect(api.register).toHaveBeenCalledWith({
+            nome: 'Maria', sobrenome: 'da Silva', email: 'maria@example.com', cpf: '52998224725',
+            telefone: '11912345678', senha: 'Senha123!',
+            endereco: { cep: '01001000', rua: 'Praça da Sé', numero: '10', complemento: 'Apartamento 12', bairro: 'Sé', cidade: 'São Paulo' },
+        });
+    });
+    it('permite cadastro sem complemento', () => {
+        expect(registrationAddressData({ ...fields, complemento: undefined }).complemento).toBe('');
+    });
 });

@@ -35,7 +35,7 @@ export function PetField({ id, label, fieldKey, className, placeholder, value, o
         else {
             setTouched(true);
             onChange(e.target.value);
-        } }}><option value="">Selecione</option>{value && !options.includes(value) && <option value={value}>{value}</option>}{options.map(option => <option key={option}>{option}</option>)}<option value="__add__">Adicionar novo item…</option></select>
+        } }}><option value="">Selecione</option>{value && !options.includes(value) && <option value={value}>{value}</option>}{options.map(option => <option key={option}>{option}</option>)}{onAdd && <option value="__add__">Adicionar novo item…</option>}</select>
             : textarea ? <textarea {...props} placeholder={placeholder} rows={2}/> : <input {...props} type={phone ? 'tel' : 'text'} inputMode={date || phone ? 'numeric' : undefined} maxLength={date ? 10 : undefined} placeholder={date ? 'dd/mm/aaaa' : placeholder}/>}
     {message && <p id={`${id}-error`} className="pet-field-error" role="status">{message}</p>}
   </div>;

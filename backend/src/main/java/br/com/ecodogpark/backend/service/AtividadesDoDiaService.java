@@ -71,14 +71,12 @@ public class AtividadesDoDiaService {
         return new AtividadesDoDiaResponse(data, atividadesDoDia);
     }
 
-    public void concluirAtividade(String situacao, Long idAtividade) {
+    public void concluirAtividade(String situacao, Long idAtividade, List<Long> idsParticipacoes) {
         if (!atividadeDoDiaRepository.existsById(idAtividade)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada");
         }
+        participacaoDoPetRepository.concluirAtividadeTodosPets(SituacaoAtividade.PARTICIPOU, idsParticipacoes);
         atividadeDoDiaRepository.concluirAtividade(situacao, idAtividade);
     }
 
-    public void concluirAtividadeTodosPets(List<Long> idsParticipacoes) {
-        participacaoDoPetRepository.concluirAtividadeTodosPets(SituacaoAtividade.PARTICIPOU, idsParticipacoes);
-    }
 }

@@ -8,7 +8,7 @@ export const screens = [
     { id: 'TL07', name: 'Diário do Pet', path: '/tutor/diario', profile: 'tutor' },
     { id: 'TL08', name: 'Sobre', path: '/sobre', profile: null },
     { id: 'TL09', name: 'Estrutura', path: '/estrutura', profile: null },
-    { id: 'TL10', name: 'Feed do Monitor', path: '/monitor/feed', profile: 'monitor' },
+    { id: 'TL10', name: 'Diário do Pet', path: '/monitor/feed', profile: 'monitor' },
     { id: 'TL11', name: 'Check-in / out', path: '/monitor/check-in', profile: 'monitor' },
     { id: 'TL12', name: 'Atividades do dia', path: '/monitor/atividades', profile: 'monitor' },
     { id: 'TL13', name: 'Dashboard geral', path: '/admin', profile: 'admin' },
@@ -19,6 +19,6 @@ export const screens = [
 ];
 export const navigation = {
     public: ['TL01', 'TL08', 'TL09', 'TL02', 'TL04'],
-    tutor: ['TL05', 'TL03'], monitor: ['TL11', 'TL12', 'TL10'],
+    tutor: ['TL05', 'TL03'], monitor: ['TL11', 'TL12'],
     admin: ['TL13', 'TL14', 'TL15', 'TL16', 'TL17'],
 };

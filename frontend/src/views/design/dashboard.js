@@ -95,7 +95,7 @@ export function dashboardDesign(node, data) {
                     return { ...child, className: `${child.className} dashboard-distribution-legend dashboard-category-${category}`, children: [`${labels[category]} (${count ?? '—'})${view ? ` • ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(view.distribution.total ? count / view.distribution.total * 100 : 0)}%` : ''}`] };
                 }
                 if (child.name === 'Descrição')
-                    return { ...child, name: 'Pendência de classificação', children: [view?.distribution.unclassified.length ? `${view.distribution.unclassified.length} pet(s) precisam de classificação de serviço; não foram contados duas vezes.` : !view ? 'Dados de distribuição indisponíveis.' : ''] };
+                    return { ...child, name: 'Pendência de classificação', children: [view?.distribution.unit === 'contratos' ? 'Distribuição de Pets indisponível: a API fornece contagens de contratos, não de pets.' : view?.distribution.unclassified.length ? `${view.distribution.unclassified.length} pet(s) precisam de classificação de serviço; não foram contados duas vezes.` : !view ? 'Dados de distribuição indisponíveis.' : ''] };
                 return child;
             }).filter(child => typeof child === 'string' || child.name !== 'Pendência de classificação' || content(child)) };
     }

@@ -21,7 +21,7 @@ export function ManagementCalendar({ calendar, className }) {
   </section>;
 }
 export function ManagementAvailability({ calendar }) {
-    return <label className="management-field">Disponibilidade do dia<select className="design-input" aria-label="Disponibilidade do dia" value={calendar.configuration.available === undefined ? '' : String(calendar.configuration.available)} disabled={!calendar.example || !calendar.data || calendar.saving} onChange={e => calendar.changeAvailability(e.target.value === 'true')}><option value="" disabled>Sem configuração</option><option value="true">Disponível</option><option value="false">Indisponível</option></select></label>;
+    return null;
 }
 export function ManagementCapacity({ calendar, className, service }) {
     const raw = calendar.drafts[service], value = parseCapacity(raw), occupied = calendar.data ? occupiedPlaces(calendar.data, calendar.selectedDate, service) : 0;

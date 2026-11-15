@@ -31,7 +31,7 @@ public class AtendimentosPendentesService {
         return atendimento;
     }
 
-    public synchronized List<AtendimentoPendenteRequest> listar() {
+    public synchronized List<AtendimentoPendenteRequest> listarAtendimentosPendentes() {
         return new ArrayList<>(atendimentos);
     }
 }

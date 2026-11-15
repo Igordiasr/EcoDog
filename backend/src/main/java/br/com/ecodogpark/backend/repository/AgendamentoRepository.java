@@ -31,7 +31,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
             a.tutorCheckout,
             a.pertences,
             a.racaoMarca,
-            a.quantidade
+            a.racaoQuantidade
         )
         FROM AgendamentosEntity a
         JOIN a.fkPet p

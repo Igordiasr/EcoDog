@@ -3,11 +3,12 @@ package br.com.ecodogpark.backend.dto.TutorDTO.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Schema(description = "Dados de retorno de pet para lista")
 public record PetParaListaResponse(
         @Schema(description = "Identificador do pet", example = "1")
-        Long idPet,
+        UUID idPet,
         @Schema(description = "Nome do pet")
         String nome,
         @Schema(description = "Raça do pet", example = "Labrador")

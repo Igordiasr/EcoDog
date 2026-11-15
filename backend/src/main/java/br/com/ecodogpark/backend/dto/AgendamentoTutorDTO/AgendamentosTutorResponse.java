@@ -5,13 +5,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Schema(description = "Agendamento de um pet do tutor no mês consultado")
 public record AgendamentosTutorResponse(
         @Schema(description = "Data de referência no formato yyyy-MM-dd", example = "2026-11-03")
         LocalDate data,
-        @Schema(description = "Identificador do pet", example = "9")
-        Long idPet,
+        @Schema(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+        UUID idPet,
         @Schema(description = "Nome do pet", example = "Thor")
         String nomePet,
         @Schema(description = "Serviço contratado ou selecionado", example = "CRECHE")

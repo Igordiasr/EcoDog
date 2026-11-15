@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoDoPetEntity, Long> {
     boolean existsByFkAtividadesDoDiaIdAtividadeDoDia(Long idAtividadeDoDia);
@@ -24,7 +25,7 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
               AND p.fkAgendamento.fkCalendario.data = :data
               AND p.fkAgendamento.situacao = :situacao
     """)
-    List<ParticipacaoDoPetEntity> buscarAtividadeDoPetAgendadoEConfirmado(Long idPet, LocalDate data, SituacaoAgendamento situacao);
+    List<ParticipacaoDoPetEntity> buscarAtividadeDoPetAgendadoEConfirmado(UUID idPet, LocalDate data, SituacaoAgendamento situacao);
 
     @Query("""
         SELECT p FROM ParticipacaoDoPetEntity p
@@ -34,7 +35,7 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
               AND p.fkAgendamento.situacao = :situacao
     """)
     Optional<ParticipacaoDoPetEntity> buscarAtividadeDoPetNoAgendamento(Long idParticipacao,
-                                                                        Long idPet,
+                                                                        UUID idPet,
                                                                         LocalDate data,
                                                                         SituacaoAgendamento situacao);
 

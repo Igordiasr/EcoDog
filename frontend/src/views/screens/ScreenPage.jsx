@@ -39,7 +39,7 @@ import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
 import { PetCatalogDialog } from '../components/PetCatalogDialog';
 import { addValidityToVaccineRecord, petInsuranceField, vaccineValidityField } from '../design/pet-health';
-import { usePlanos } from '../../viewmodels/use-planos';
+import { PlanosManagement } from '../components/PlanosManagement';
 import { useTutorPets } from '../../viewmodels/use-tutor-pets';
 import { screens } from './catalog';
 import { createAuthViewModel } from '../../viewmodels/auth';
@@ -81,8 +81,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const tutorPets = useTutorPets(id === 'TL05', session);
     const presence = usePresence(id === 'TL11' && !preview, session);
     const dailyActivities = useDailyActivities(id === 'TL12' && !preview, session);
-    const planos = usePlanos(id === 'TL17' && !preview, api, session, preview);
-    const { planos: allPlanos, loading, error } = planos;
     const monitorPetId = Number(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet'));
     const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session);
     const diaryPetId = Number(new URLSearchParams(location.search).get('pet'));
@@ -1074,16 +1072,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }}/>
     {(message || busy) && <div className="status-message" role={busy ? 'status' : 'alert'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
     {id === 'TL14' && <ManagementCalendarDialogs calendar={managementCalendar}/>}
-    {id === 'TL17' && planos && !planos.loading && (
-      <div className="planos-screen">
-        <div className="planos-toolbar">
-          <button onClick={() => openDialog('createPlan')} className="btn-add">
-            + Criar Plano
-          </button>
-        </div>
-        <TablePlanos planos={allPlanos} onToggleAtivo={planos.togglePlanAtivo} onDelete={planos.deletePlan} />
-      </div>
-    )}
+    {id === 'TL17' && <PlanosManagement session={session} enabled={!preview} />}
     {id === 'TL06' && <PetCatalogDialog catalog={petHealthCatalog}/>}
     {id === 'TL12' && !preview && dailyActivities.detailsPet && <Modal title={`Detalhes de ${dailyActivities.detailsPet.nome}`} onClose={dailyActivities.closePet}>
       <div className="dialog-content"><h2>{dailyActivities.detailsPet.nome}</h2>

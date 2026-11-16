@@ -8,12 +8,17 @@ import java.util.Locale;
 @Service
 public class ChatbotService {
     AtendimentosPendentesService atendimentosPendentesService;
+    WhatsAppConversaService whatsAppConversaService;
 
-    public ChatbotService(AtendimentosPendentesService atendimentosPendentesService) {
+    public ChatbotService(
+            AtendimentosPendentesService atendimentosPendentesService,
+            WhatsAppConversaService whatsAppConversaService
+    ) {
         this.atendimentosPendentesService = atendimentosPendentesService;
+        this.whatsAppConversaService = whatsAppConversaService;
     }
 
-    public String responder(String remetente,String mensagem) {
+    public String responder(String remetente, String mensagem, Long id) {
         System.out.println("================================");
         System.out.println("Mensagem recebida!");
         System.out.println("Remetente: " + remetente);
@@ -63,6 +68,7 @@ public class ChatbotService {
                         || texto.contains("falar com alguem")
         ) {
             atendimentosPendentesService.registrar(remetente, mensagem);
+            whatsAppConversaService.solicitarAtendimentoHumando(id);
             System.out.println(
                     "Solicitação registrada. Aguardando atendimento humano."
             );

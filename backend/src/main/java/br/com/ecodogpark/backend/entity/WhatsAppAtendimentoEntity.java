@@ -19,6 +19,7 @@ public class WhatsAppAtendimentoEntity {
     private LocalDateTime encerradoEm;
 
     protected WhatsAppAtendimentoEntity() {
+        this.iniciadoEm = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
     }
 
     public WhatsAppAtendimentoEntity(String numeroTutor) {

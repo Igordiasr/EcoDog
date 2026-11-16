@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.dto.TwilioDTO.WhatsAppAtendimentoResponse;
 import br.com.ecodogpark.backend.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +25,7 @@ public class WhatsAppController {
     @Operation(summary = "Listar atendimentos pendentes", description = "Requisição que retorna uma lista com as solicitações de atendimentos humano")
     @ApiResponse(responseCode = "200", description = "Busca concluída")
     @GetMapping("/atendimentos-pendentes")
-    public ResponseEntity<List<AtendimentoPendenteRequest>> listarAtendimentosPendentes() {
+    public ResponseEntity<List<WhatsAppAtendimentoResponse>> listarAtendimentosPendentes() {
         return ResponseEntity.ok(whatsAppService.listarAtendimentosPendentes());
     }
 
@@ -41,5 +42,17 @@ public class WhatsAppController {
     ) {
         whatsAppService.processarMensagem(remetente, mensagem, messageSid);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/atendimentos/{idAtendimento}/assumir")
+    public ResponseEntity<Void> assumirAtendimento(@PathVariable Long idAtendimento) {
+        whatsAppService.assumirAtendimento(idAtendimento);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/atendimentos/{idAtendimento}/finalizar")
+    public ResponseEntity<Void> finalizarAtendimento(@PathVariable Long idAtendimento) {
+        whatsAppService.finalizarAtendimento(idAtendimento);
+        return ResponseEntity.noContent().build();
     }
 }

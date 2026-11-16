@@ -7,6 +7,7 @@ import br.com.ecodogpark.backend.repository.ServicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,10 +24,12 @@ public class PlanosService {
         this.servicoRepository = servicoRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<PlanosEntity> listarTodos() {
         return planosRepository.findAllByOrderByNomeAsc();
     }
 
+    @Transactional(readOnly = true)
     public PlanosEntity buscarPorId(Long id) {
         return planosRepository.findById(id).orElseThrow(() -> new ResponseStatusException(
                 org.springframework.http.HttpStatus.NOT_FOUND, "Plano não encontrado"));

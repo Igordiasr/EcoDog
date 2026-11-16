@@ -436,3 +436,53 @@ GET {{host}}/api/diario/{{idPet}}
 
 ### 6.5 Limpeza - excluir o tutor criado no fluxo
 DELETE {{host}}/usuarios/{{tutorFluxo.response.body.id}}
+
+### =====================================================================
+### 7. GESTÃO DE PLANOS (requer token de usuário administrador)
+### =====================================================================
+
+### 7.1 Listar planos
+GET {{host}}/api/planos
+Authorization: Bearer {{tokenAdmin}}
+
+### 7.2 Listar serviços ativos para o formulário
+GET {{host}}/api/planos/servicos-ativos
+Authorization: Bearer {{tokenAdmin}}
+
+### 7.3 Criar plano
+# @name planoCriado
+POST {{host}}/api/planos
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nome": "Creche 8 diárias",
+  "idServico": 1,
+  "diarias": 8,
+  "valor": 250.00
+}
+
+### 7.4 Buscar plano criado
+GET {{host}}/api/planos/{{planoCriado.response.body.id}}
+Authorization: Bearer {{tokenAdmin}}
+
+### 7.5 Atualizar plano
+PUT {{host}}/api/planos/{{planoCriado.response.body.id}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nome": "Creche 8 diárias promocional",
+  "idServico": 1,
+  "diarias": 8,
+  "valor": 225.00,
+  "ativo": true
+}
+
+### 7.6 Alternar status ativo/inativo
+PATCH {{host}}/api/planos/{{planoCriado.response.body.id}}/ativo
+Authorization: Bearer {{tokenAdmin}}
+
+### 7.7 Excluir plano sem vínculos
+DELETE {{host}}/api/planos/{{planoCriado.response.body.id}}
+Authorization: Bearer {{tokenAdmin}}

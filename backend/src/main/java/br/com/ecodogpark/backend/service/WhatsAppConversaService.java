@@ -1,11 +1,13 @@
 package br.com.ecodogpark.backend.service;
 
+import br.com.ecodogpark.backend.dto.TwilioDTO.WhatsAppMensagemResponse;
 import br.com.ecodogpark.backend.entity.WhatsAppAtendimentoEntity;
 import br.com.ecodogpark.backend.entity.WhatsAppMensagemEntity;
 import br.com.ecodogpark.backend.enums.OrigemMensagem;
 import br.com.ecodogpark.backend.enums.SituacaoAtendimento;
 import br.com.ecodogpark.backend.exception.AtendimentoComEstadoDivergenteException;
 import br.com.ecodogpark.backend.exception.AtendimentoNaoEncontradoException;
+import br.com.ecodogpark.backend.mapper.WhatsAppMensagemMapper;
 import br.com.ecodogpark.backend.repository.WhatsAppAtendimentoRepository;
 import br.com.ecodogpark.backend.repository.WhatsAppMensagemRepository;
 import jakarta.transaction.Transactional;
@@ -141,5 +143,18 @@ public class WhatsAppConversaService {
         atendimento.setSituacao(SituacaoAtendimento.FINALIZADO);
         atendimento.setEncerradoEm(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
         whatsAppAtendimentoRepository.save(atendimento);
+    }
+
+    public List<WhatsAppMensagemResponse> listarMensagens(Long idAtendimento) {
+        if (!whatsAppAtendimentoRepository.existsById(idAtendimento)) {
+            throw new AtendimentoNaoEncontradoException("Atendimento não encontrado: " + idAtendimento);
+        }
+
+        return WhatsAppMensagemMapper
+                .paraWhatsAppMensagemResponse(
+                        whatsAppMensagemRepository
+                                .findByFkAtendimento_IdAtendimentoOrderByCriadaEmAsc(
+                                        idAtendimento
+                                ));
     }
 }

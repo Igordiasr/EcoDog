@@ -1,7 +1,6 @@
 package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.TwilioDTO.AtendimentoPendenteRequest;
-import br.com.ecodogpark.backend.entity.WhatsAppAtendimentoEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

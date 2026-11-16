@@ -1,6 +1,7 @@
 package br.com.ecodogpark.backend.controller;
 
 import br.com.ecodogpark.backend.dto.TwilioDTO.WhatsAppAtendimentoResponse;
+import br.com.ecodogpark.backend.dto.TwilioDTO.WhatsAppMensagemResponse;
 import br.com.ecodogpark.backend.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -54,5 +55,13 @@ public class WhatsAppController {
     public ResponseEntity<Void> finalizarAtendimento(@PathVariable Long idAtendimento) {
         whatsAppService.finalizarAtendimento(idAtendimento);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Consultar histórico de mensagens", description = "Retorna as mensagens vinculadas a um atendimento")
+    @ApiResponse(responseCode = "200", description = "Histórico consultado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Atendimento não encontrado")
+    @GetMapping("/atendimentos/{idAtendimento}/mensagens")
+    public ResponseEntity<List<WhatsAppMensagemResponse>> listarMensagens(@PathVariable Long idAtendimento) {
+        return ResponseEntity.ok(whatsAppService.listarMensagens(idAtendimento));
     }
 }

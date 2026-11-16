@@ -1,11 +1,9 @@
 package br.com.ecodogpark.backend.controller;
 
-import br.com.ecodogpark.backend.dto.PlanoAtualizacaoRequest;
-import br.com.ecodogpark.backend.dto.PlanoCriacaoRequest;
-import br.com.ecodogpark.backend.dto.PlanoRespostaDTO;
-import br.com.ecodogpark.backend.dto.ServicoRespostaDTO;
-import br.com.ecodogpark.backend.entity.PlanosEntity;
-import br.com.ecodogpark.backend.entity.ServicosEntity;
+import br.com.ecodogpark.backend.dto.PlanoDTO.request.AtualizarPlanoRequest;
+import br.com.ecodogpark.backend.dto.PlanoDTO.request.CriarPlanoRequest;
+import br.com.ecodogpark.backend.dto.PlanoDTO.response.PlanoResponse;
+import br.com.ecodogpark.backend.dto.PlanoDTO.response.ServicoPlanoResponse;
 import br.com.ecodogpark.backend.service.PlanosService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,44 +27,36 @@ import org.springframework.web.server.ResponseStatusException;
 public class PlanosController {
     private final PlanosService planosService;
 
-    public PlanosController(PlanosService planosService) {
-        this.planosService = planosService;
-    }
+    public PlanosController(PlanosService planosService) { this.planosService = planosService; }
 
     @GetMapping
     @Operation(summary = "Listar planos", description = "Retorna todos os planos ordenados pelo nome.")
-    public List<PlanoRespostaDTO> listar() {
-        return planosService.listarTodos().stream().map(this::paraResposta).toList();
-    }
+    public List<PlanoResponse> listar() { return planosService.listarTodos(); }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar plano por identificador", description = "Retorna os dados de um plano cadastrado.")
-    public PlanoRespostaDTO buscar(@PathVariable Long id) {
-        return paraResposta(planosService.buscarPorId(id));
-    }
+    public PlanoResponse buscar(@PathVariable Long id) { return planosService.buscarPorId(id); }
 
     @PostMapping
     @Operation(summary = "Criar plano", description = "Cadastra um plano associado a um serviço existente.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Plano criado", content = @Content(schema = @Schema(implementation = PlanoRespostaDTO.class))),
+            @ApiResponse(responseCode = "201", description = "Plano criado", content = @Content(schema = @Schema(implementation = PlanoResponse.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content)
     })
-    public ResponseEntity<PlanoRespostaDTO> criar(@Valid @RequestBody PlanoCriacaoRequest request) {
-        PlanosEntity criado = planosService.criar(paraEntity(request));
-        return ResponseEntity.created(URI.create("/api/planos/" + criado.getId())).body(paraResposta(criado));
+    public ResponseEntity<PlanoResponse> criar(@Valid @RequestBody CriarPlanoRequest request) {
+        PlanoResponse criado = planosService.criar(request);
+        return ResponseEntity.created(URI.create("/api/planos/" + criado.id())).body(criado);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Editar plano", description = "Atualiza o nome, serviço, quantidade de diárias, valor e status do plano.")
-    public PlanoRespostaDTO atualizar(@PathVariable Long id, @Valid @RequestBody PlanoAtualizacaoRequest request) {
-        return paraResposta(planosService.atualizar(id, paraEntity(request)));
+    public PlanoResponse atualizar(@PathVariable Long id, @Valid @RequestBody AtualizarPlanoRequest request) {
+        return planosService.atualizar(id, request);
     }
 
     @PatchMapping("/{id}/ativo")
     @Operation(summary = "Alternar status do plano", description = "Inverte o estado ativo do plano informado.")
-    public PlanoRespostaDTO alternarAtivo(@PathVariable Long id) {
-        return paraResposta(planosService.toggularAtivo(id));
-    }
+    public PlanoResponse alternarAtivo(@PathVariable Long id) { return planosService.toggularAtivo(id); }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir plano", description = "Remove o plano quando não houver registros relacionados que impeçam a exclusão.")
@@ -86,49 +76,5 @@ public class PlanosController {
 
     @GetMapping("/servicos-ativos")
     @Operation(summary = "Listar serviços ativos para seleção", description = "Retorna os serviços ativos disponíveis no formulário de planos.")
-    public List<ServicoRespostaDTO> listarServicosAtivos() {
-        return planosService.listarServicosAtivos().stream().map(this::paraServicoResposta).toList();
-    }
-
-    private PlanosEntity paraEntity(PlanoCriacaoRequest request) {
-        PlanosEntity entity = new PlanosEntity();
-        entity.setNome(request.getNome());
-        entity.setServico(servicoComId(request.getIdServico()));
-        entity.setDiarias(request.getDiarias());
-        entity.setValor(request.getValor());
-        entity.setAtivo(true);
-        return entity;
-    }
-
-    private PlanosEntity paraEntity(PlanoAtualizacaoRequest request) {
-        PlanosEntity entity = new PlanosEntity();
-        entity.setNome(request.getNome());
-        entity.setServico(servicoComId(request.getIdServico()));
-        entity.setDiarias(request.getDiarias());
-        entity.setValor(request.getValor());
-        entity.setAtivo(request.getAtivo());
-        return entity;
-    }
-
-    private ServicosEntity servicoComId(Long id) {
-        try {
-            ServicosEntity servico = new ServicosEntity();
-            servico.setIdServico(Math.toIntExact(id));
-            return servico;
-        } catch (ArithmeticException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Serviço inválido");
-        }
-    }
-
-    private PlanoRespostaDTO paraResposta(PlanosEntity plano) {
-        return new PlanoRespostaDTO(plano.getId(), plano.getNome(),
-                plano.getServico().getIdServico().longValue(), plano.getServico().getNome(),
-                plano.getDiarias(), plano.getValor(), plano.getAtivo());
-    }
-
-    private ServicoRespostaDTO paraServicoResposta(ServicosEntity servico) {
-        return new ServicoRespostaDTO(servico.getIdServico().longValue(), servico.getNome(),
-                servico.getCategoria(), servico.getModalidade(), servico.getFrequencia(),
-                servico.getValor(), servico.getStatus());
-    }
+    public List<ServicoPlanoResponse> listarServicosAtivos() { return planosService.listarServicosAtivos(); }
 }

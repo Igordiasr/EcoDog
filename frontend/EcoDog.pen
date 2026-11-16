@@ -181044,6 +181044,3164 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "XUhdl",
+      "x": 23138,
+      "y": -17729,
+      "name": "Meu perfil • Desktop • Meus dados",
+      "clip": true,
+      "width": 720,
+      "fill": "#ffffffff",
+      "cornerRadius": 24,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0f2e1a2e",
+        "offset": {
+          "x": 0,
+          "y": 12
+        },
+        "blur": 35
+      },
+      "layout": "vertical",
+      "layoutIncludeStroke": true,
+      "children": [
+        {
+          "type": "frame",
+          "id": "nWoI5",
+          "name": "Título e fechamento",
+          "clip": true,
+          "width": 720,
+          "fill": "#ffffffff",
+          "gap": 16,
+          "padding": [
+            32,
+            32,
+            16,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "jeE9P",
+              "name": "Apresentação",
+              "clip": true,
+              "width": 596,
+              "layout": "vertical",
+              "gap": 2,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lBHRQ",
+                  "name": "Meu perfil",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Meu perfil",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 32,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "f2djLn",
+                  "name": "Cuide dos seus dados por aqui.",
+                  "fill": "#52675aff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Cuide dos seus dados por aqui.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Roboto",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ENhoO",
+              "name": "×",
+              "clip": true,
+              "width": 44,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "hI7Gf",
+                  "name": "×",
+                  "fill": "#247346ff",
+                  "content": "×",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "emDgM",
+          "name": "Abas do perfil",
+          "clip": true,
+          "width": 720,
+          "gap": 8,
+          "padding": [
+            0,
+            32,
+            16,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "x2qtLZ",
+              "name": "Meus dados",
+              "clip": true,
+              "width": 324,
+              "fill": "#247346ff",
+              "cornerRadius": 8,
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VRYkA",
+                  "name": "Meus dados",
+                  "fill": "#ffffffff",
+                  "content": "Meus dados",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "HbpRG",
+              "name": "Segurança",
+              "clip": true,
+              "width": 324,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "F9ZDbz",
+                  "name": "Segurança",
+                  "fill": "#247346ff",
+                  "content": "Segurança",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "m1z87",
+          "name": "Dados • Rolagem vertical",
+          "clip": true,
+          "width": 720,
+          "fill": "#ffffffff",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            0,
+            32,
+            32,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "kJch5",
+              "name": "Informações da conta",
+              "clip": true,
+              "width": 656,
+              "layout": "vertical",
+              "gap": 20,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "GWYgK",
+                  "name": "Identificação da conta",
+                  "clip": true,
+                  "width": 656,
+                  "fill": "#eff7f2ff",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 16,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Fdlba",
+                      "name": "Ana Oliveira",
+                      "fill": "#247346ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Ana Oliveira",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 22,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "bclmH",
+                      "name": "ana.oliveira@email.com",
+                      "fill": "#182d21ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "ana.oliveira@email.com",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RD1bq",
+                      "name": "Nome e e-mail vinculados à sua conta.",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Nome e e-mail vinculados à sua conta.",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "O3h1w",
+                  "name": "Contato",
+                  "clip": true,
+                  "width": 656,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mNz63",
+                      "name": "Telefone",
+                      "fill": "#247346ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Telefone",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aDc56",
+                      "name": "Celular com DDD",
+                      "clip": true,
+                      "width": 656,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FVbXv",
+                          "name": "Celular com DDD",
+                          "fill": "#247346ff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Celular com DDD",
+                          "lineHeight": 1.399999976158142,
+                          "fontFamily": "Lilita One",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "RQ7lP",
+                          "name": "Campo • Celular com DDD",
+                          "clip": true,
+                          "width": 656,
+                          "fill": "#ffffffff",
+                          "cornerRadius": 8,
+                          "stroke": "#96b6a3ff",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "CsSK9",
+                              "name": "(11) 98765-4321",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "(11) 98765-4321",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Roboto",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "QKM66",
+                      "name": "Usaremos este número para entrar em contato.",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Usaremos este número para entrar em contato.",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cQfa6",
+                  "name": "Endereço",
+                  "clip": true,
+                  "width": 656,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MEkPJ",
+                      "name": "Seu endereço",
+                      "fill": "#247346ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Seu endereço",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "StCZY",
+                      "name": "CEP e logradouro",
+                      "clip": true,
+                      "width": 656,
+                      "gap": 16,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Zf0td",
+                          "name": "CEP",
+                          "clip": true,
+                          "width": 160,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "djIKm",
+                              "name": "CEP",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "CEP",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ETjkx",
+                              "name": "Campo • CEP",
+                              "clip": true,
+                              "width": 160,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "KvW8U",
+                                  "name": "01310-100",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "01310-100",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "xHvFN",
+                          "name": "Rua / avenida",
+                          "clip": true,
+                          "width": 480,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "jrZWd",
+                              "name": "Rua / avenida",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Rua / avenida",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "w8Rg4",
+                              "name": "Campo • Rua / avenida",
+                              "clip": true,
+                              "width": 480,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "SAcCw",
+                                  "name": "Avenida Paulista",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Avenida Paulista",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "y0AMR",
+                      "name": "Número, complemento e bairro",
+                      "clip": true,
+                      "width": 656,
+                      "gap": 16,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Lf7RL",
+                          "name": "Número",
+                          "clip": true,
+                          "width": 100,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "S1JOQ",
+                              "name": "Número",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Número",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "N5vnXe",
+                              "name": "Campo • Número",
+                              "clip": true,
+                              "width": 62,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zqLcI",
+                                  "name": "1000",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "1000",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iQJQS",
+                          "name": "Complemento (opcional)",
+                          "clip": true,
+                          "width": 220,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "G3y5o",
+                              "name": "Complemento (opcional)",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Complemento (opcional)",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "X2kJV",
+                              "name": "Campo • Complemento (opcional)",
+                              "clip": true,
+                              "width": 220,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "PuWPT",
+                                  "name": "Apto. 42",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Apto. 42",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "w3gvs",
+                          "name": "Bairro",
+                          "clip": true,
+                          "width": 304,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "z1jVy6",
+                              "name": "Bairro",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Bairro",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "u39tEg",
+                              "name": "Campo • Bairro",
+                              "clip": true,
+                              "width": 304,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "G1xKhQ",
+                                  "name": "Bela Vista",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Bela Vista",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vL9hU",
+                      "name": "Cidade e estado",
+                      "clip": true,
+                      "width": 656,
+                      "gap": 16,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "K9l2po",
+                          "name": "Cidade",
+                          "clip": true,
+                          "width": 544,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WPFtv",
+                              "name": "Cidade",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Cidade",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "a4FaP",
+                              "name": "Campo • Cidade",
+                              "clip": true,
+                              "width": 544,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "H36ed",
+                                  "name": "São Paulo",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "São Paulo",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "shz27",
+                          "name": "UF",
+                          "clip": true,
+                          "width": 96,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "E2bMf",
+                              "name": "UF",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "UF",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "TAxDQ",
+                              "name": "Campo • UF",
+                              "clip": true,
+                              "width": 96,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Z3Ctf",
+                                  "name": "SP",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "SP",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "A2N1h",
+          "name": "Ações do perfil",
+          "clip": true,
+          "width": 720,
+          "fill": "#ffffffff",
+          "stroke": "#dfeae3ff",
+          "strokeWidth": {
+            "top": 1
+          },
+          "strokeAlignment": "inner",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            16,
+            32,
+            32,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "NFPyl",
+              "name": "Cancelar e salvar",
+              "clip": true,
+              "width": 656,
+              "gap": 12,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "d2KSFG",
+                  "name": "Cancelar",
+                  "clip": true,
+                  "width": 160,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "i4NZY",
+                      "name": "Cancelar",
+                      "fill": "#247346ff",
+                      "content": "Cancelar",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eYPhj",
+                  "name": "Salvar alterações",
+                  "clip": true,
+                  "width": 484,
+                  "fill": "#247346ff",
+                  "cornerRadius": 8,
+                  "padding": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PLG2o",
+                      "name": "Salvar alterações",
+                      "fill": "#ffffffff",
+                      "content": "Salvar alterações",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "Hffrf",
+              "name": "As alterações serão aplicadas à sua conta.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "As alterações serão aplicadas à sua conta.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "tB4Yf",
+      "x": 23898,
+      "y": -17729,
+      "name": "Meu perfil • Desktop • Segurança",
+      "clip": true,
+      "width": 720,
+      "fill": "#ffffffff",
+      "cornerRadius": 24,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0f2e1a2e",
+        "offset": {
+          "x": 0,
+          "y": 12
+        },
+        "blur": 35
+      },
+      "layout": "vertical",
+      "layoutIncludeStroke": true,
+      "children": [
+        {
+          "type": "frame",
+          "id": "pdHGE",
+          "name": "Título e fechamento",
+          "clip": true,
+          "width": 720,
+          "gap": 16,
+          "padding": [
+            32,
+            32,
+            16,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "pRXkZ",
+              "name": "Apresentação",
+              "clip": true,
+              "width": 596,
+              "layout": "vertical",
+              "gap": 2,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YjopJ",
+                  "name": "Meu perfil",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Meu perfil",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 32,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "jU7NV",
+                  "name": "Cuide dos seus dados por aqui.",
+                  "fill": "#52675aff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Cuide dos seus dados por aqui.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Roboto",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gHx9e",
+              "name": "×",
+              "clip": true,
+              "width": 44,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "a6yMd",
+                  "name": "×",
+                  "fill": "#247346ff",
+                  "content": "×",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "exiPG",
+          "name": "Abas do perfil",
+          "clip": true,
+          "width": 720,
+          "gap": 8,
+          "padding": [
+            0,
+            32,
+            16,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "G2kOB",
+              "name": "Meus dados",
+              "clip": true,
+              "width": 324,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "z08D4",
+                  "name": "Meus dados",
+                  "fill": "#247346ff",
+                  "content": "Meus dados",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "w9JYu",
+              "name": "Segurança",
+              "clip": true,
+              "width": 324,
+              "fill": "#247346ff",
+              "cornerRadius": 8,
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "oZch2",
+                  "name": "Segurança",
+                  "fill": "#ffffffff",
+                  "content": "Segurança",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "s4rPU7",
+          "name": "Alterar senha",
+          "clip": true,
+          "width": 720,
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            8,
+            32,
+            32,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "text",
+              "id": "xyG6I",
+              "name": "Alterar senha",
+              "fill": "#247346ff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Alterar senha",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Lilita One",
+              "fontSize": 24,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "wiuZF",
+              "name": "Para sua segurança, confirme a senha atual antes de criar uma nova.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Para sua segurança, confirme a senha atual antes de criar uma nova.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "uWRR6",
+              "name": "Senha atual",
+              "clip": true,
+              "width": 656,
+              "layout": "vertical",
+              "gap": 6,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ubGxn",
+                  "name": "Senha atual",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Senha atual",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "r0j1w",
+                  "name": "Campo • Senha atual",
+                  "clip": true,
+                  "width": 656,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "eEOtt",
+                      "name": "Digite sua senha atual",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Digite sua senha atual",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "KdXb1",
+              "name": "Nova senha",
+              "clip": true,
+              "width": 656,
+              "layout": "vertical",
+              "gap": 6,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "MPMZF",
+                  "name": "Nova senha",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Nova senha",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "pHXA8",
+                  "name": "Campo • Nova senha",
+                  "clip": true,
+                  "width": 656,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Va1xB",
+                      "name": "Crie uma nova senha",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Crie uma nova senha",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "RjGNJ",
+              "name": "Use pelo menos 8 caracteres, com letras e números.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Use pelo menos 8 caracteres, com letras e números.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "IBDsD",
+              "name": "Confirmar nova senha",
+              "clip": true,
+              "width": 656,
+              "layout": "vertical",
+              "gap": 6,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "kWskj",
+                  "name": "Confirmar nova senha",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Confirmar nova senha",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "JXtQl",
+                  "name": "Campo • Confirmar nova senha",
+                  "clip": true,
+                  "width": 656,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ZdibM",
+                      "name": "Repita a nova senha",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Repita a nova senha",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "VqYKy",
+              "name": "Privacidade",
+              "clip": true,
+              "width": 656,
+              "fill": "#eff7f2ff",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fBqLx",
+                  "name": "Sua senha é privada.",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Sua senha é privada.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "DIGud",
+                  "name": "Nunca compartilhe sua senha com outras pessoas.",
+                  "fill": "#52675aff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Nunca compartilhe sua senha com outras pessoas.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Roboto",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "nWY6f",
+          "name": "Ações de segurança",
+          "clip": true,
+          "width": 720,
+          "gap": 12,
+          "padding": [
+            16,
+            32,
+            32,
+            32
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Q7FfAw",
+              "name": "Cancelar",
+              "clip": true,
+              "width": 160,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "tX7kg",
+                  "name": "Cancelar",
+                  "fill": "#247346ff",
+                  "content": "Cancelar",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dHl9V",
+              "name": "Atualizar senha",
+              "clip": true,
+              "width": 484,
+              "fill": "#247346ff",
+              "cornerRadius": 8,
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qjuT4",
+                  "name": "Atualizar senha",
+                  "fill": "#ffffffff",
+                  "content": "Atualizar senha",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "O4Z0HT",
+      "x": 24658,
+      "y": -17729,
+      "name": "Meu perfil • Desktop • Confirmação",
+      "clip": true,
+      "width": 480,
+      "fill": "#ffffffff",
+      "cornerRadius": 24,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0f2e1a2e",
+        "offset": {
+          "x": 0,
+          "y": 12
+        },
+        "blur": 35
+      },
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 32,
+      "layoutIncludeStroke": true,
+      "children": [
+        {
+          "type": "frame",
+          "id": "d2wj5z",
+          "name": "Fechar confirmação",
+          "clip": true,
+          "width": 416,
+          "justifyContent": "end",
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "TyG7t",
+              "name": "×",
+              "clip": true,
+              "width": 44,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "q0nOq",
+                  "name": "×",
+                  "fill": "#247346ff",
+                  "content": "×",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "Z6C0k",
+          "name": "Tudo certo!",
+          "fill": "#247346ff",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Tudo certo!",
+          "lineHeight": 1.399999976158142,
+          "fontFamily": "Lilita One",
+          "fontSize": 32,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "zRyEH",
+          "name": "Alterações salvas",
+          "fill": "#247346ff",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Alterações salvas",
+          "lineHeight": 1.399999976158142,
+          "fontFamily": "Lilita One",
+          "fontSize": 24,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "h9zM8e",
+          "name": "Suas informações foram atualizadas com sucesso.",
+          "fill": "#182d21ff",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Suas informações foram atualizadas com sucesso.",
+          "lineHeight": 1.399999976158142,
+          "fontFamily": "Roboto",
+          "fontSize": 16,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "t2I5S",
+          "name": "Próximos passos",
+          "clip": true,
+          "width": 416,
+          "fill": "#eff7f2ff",
+          "cornerRadius": 12,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "text",
+              "id": "lgxRp",
+              "name": "Sua conta, sempre em dia.",
+              "fill": "#247346ff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Sua conta, sempre em dia.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Lilita One",
+              "fontSize": 18,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "tNFNP",
+              "name": "Você pode voltar ao perfil sempre que precisar alterar seus dados ou sua senha.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Você pode voltar ao perfil sempre que precisar alterar seus dados ou sua senha.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "N3J7Xi",
+          "name": "Concluir",
+          "clip": true,
+          "width": 416,
+          "fill": "#247346ff",
+          "cornerRadius": 8,
+          "padding": 12,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "text",
+              "id": "eM0AV",
+              "name": "Concluir",
+              "fill": "#ffffffff",
+              "content": "Concluir",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Lilita One",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "PXEbz",
+      "x": 25178,
+      "y": -17729,
+      "name": "Meu perfil • Mobile • Meus dados",
+      "clip": true,
+      "width": 378,
+      "fill": "#ffffffff",
+      "cornerRadius": 24,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0f2e1a2e",
+        "offset": {
+          "x": 0,
+          "y": 12
+        },
+        "blur": 35
+      },
+      "layout": "vertical",
+      "layoutIncludeStroke": true,
+      "children": [
+        {
+          "type": "frame",
+          "id": "rViT2",
+          "name": "Título e fechamento",
+          "clip": true,
+          "width": 378,
+          "fill": "#ffffffff",
+          "gap": 16,
+          "padding": [
+            20,
+            20,
+            16,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "P6G3j",
+              "name": "Apresentação",
+              "clip": true,
+              "width": 278,
+              "layout": "vertical",
+              "gap": 2,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WusOb",
+                  "name": "Meu perfil",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Meu perfil",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 32,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "wKbat",
+                  "name": "Cuide dos seus dados por aqui.",
+                  "fill": "#52675aff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Cuide dos seus dados por aqui.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Roboto",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xC0XC",
+              "name": "×",
+              "clip": true,
+              "width": 44,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "aml5F",
+                  "name": "×",
+                  "fill": "#247346ff",
+                  "content": "×",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "v3sHN0",
+          "name": "Abas do perfil",
+          "clip": true,
+          "width": 378,
+          "gap": 8,
+          "padding": [
+            0,
+            20,
+            16,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "BKbo5",
+              "name": "Meus dados",
+              "clip": true,
+              "width": 165,
+              "fill": "#247346ff",
+              "cornerRadius": 8,
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qlRfx",
+                  "name": "Meus dados",
+                  "fill": "#ffffffff",
+                  "content": "Meus dados",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "obtvo",
+              "name": "Segurança",
+              "clip": true,
+              "width": 165,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "CQi3f",
+                  "name": "Segurança",
+                  "fill": "#247346ff",
+                  "content": "Segurança",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "loQUt",
+          "name": "Dados • Rolagem vertical",
+          "clip": true,
+          "width": 378,
+          "height": 470,
+          "fill": "#ffffffff",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            0,
+            20,
+            20,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "LTUuX",
+              "name": "Informações da conta",
+              "clip": true,
+              "width": 338,
+              "layout": "vertical",
+              "gap": 20,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "GxFjy",
+                  "name": "Identificação da conta",
+                  "clip": true,
+                  "width": 338,
+                  "fill": "#eff7f2ff",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 16,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ckNVE",
+                      "name": "Ana Oliveira",
+                      "fill": "#247346ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Ana Oliveira",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 22,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "kYRr1",
+                      "name": "ana.oliveira@email.com",
+                      "fill": "#182d21ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "ana.oliveira@email.com",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "q5eaG",
+                      "name": "Nome e e-mail vinculados à sua conta.",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Nome e e-mail vinculados à sua conta.",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "M03p28",
+                  "name": "Contato",
+                  "clip": true,
+                  "width": 338,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "b4Fv5q",
+                      "name": "Telefone",
+                      "fill": "#247346ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Telefone",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JI2UH",
+                      "name": "Celular com DDD",
+                      "clip": true,
+                      "width": 338,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Q7JsD",
+                          "name": "Celular com DDD",
+                          "fill": "#247346ff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Celular com DDD",
+                          "lineHeight": 1.399999976158142,
+                          "fontFamily": "Lilita One",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "CL7R4",
+                          "name": "Campo • Celular com DDD",
+                          "clip": true,
+                          "width": 338,
+                          "fill": "#ffffffff",
+                          "cornerRadius": 8,
+                          "stroke": "#96b6a3ff",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "lZBWc",
+                              "name": "(11) 98765-4321",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "(11) 98765-4321",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Roboto",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "uKnmA",
+                      "name": "Usaremos este número para entrar em contato.",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Usaremos este número para entrar em contato.",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vqKnY",
+                  "name": "Endereço",
+                  "clip": true,
+                  "width": 338,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Snah8",
+                      "name": "Seu endereço",
+                      "fill": "#247346ff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Seu endereço",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "d75au",
+                      "name": "CEP",
+                      "clip": true,
+                      "width": 338,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "E78Ss",
+                          "name": "CEP",
+                          "fill": "#247346ff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "CEP",
+                          "lineHeight": 1.399999976158142,
+                          "fontFamily": "Lilita One",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "PpSyH",
+                          "name": "Campo • CEP",
+                          "clip": true,
+                          "width": 338,
+                          "fill": "#ffffffff",
+                          "cornerRadius": 8,
+                          "stroke": "#96b6a3ff",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DcqAj",
+                              "name": "01310-100",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "01310-100",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Roboto",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "V2Gi4x",
+                      "name": "Rua / avenida",
+                      "clip": true,
+                      "width": 338,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "CPzGz",
+                          "name": "Rua / avenida",
+                          "fill": "#247346ff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Rua / avenida",
+                          "lineHeight": 1.399999976158142,
+                          "fontFamily": "Lilita One",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "r57uHp",
+                          "name": "Campo • Rua / avenida",
+                          "clip": true,
+                          "width": 338,
+                          "fill": "#ffffffff",
+                          "cornerRadius": 8,
+                          "stroke": "#96b6a3ff",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "OnCjj",
+                              "name": "Avenida Paulista",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Avenida Paulista",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Roboto",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Z02HZ",
+                      "name": "Número e complemento",
+                      "clip": true,
+                      "width": 338,
+                      "gap": 12,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "J0vYRi",
+                          "name": "Número",
+                          "clip": true,
+                          "width": 96,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "NV77v",
+                              "name": "Número",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Número",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "G0ws3u",
+                              "name": "Campo • Número",
+                              "clip": true,
+                              "width": 96,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "kXUSS",
+                                  "name": "1000",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "1000",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "YXDNd",
+                          "name": "Complemento (opcional)",
+                          "clip": true,
+                          "width": 230,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "G9U98",
+                              "name": "Complemento (opcional)",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Complemento (opcional)",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "DD1eu",
+                              "name": "Campo • Complemento (opcional)",
+                              "clip": true,
+                              "width": 230,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ERS5Z",
+                                  "name": "Apto. 42",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Apto. 42",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "neK2B",
+                      "name": "Bairro",
+                      "clip": true,
+                      "width": 338,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "E3Vrj",
+                          "name": "Bairro",
+                          "fill": "#247346ff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Bairro",
+                          "lineHeight": 1.399999976158142,
+                          "fontFamily": "Lilita One",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MH7l4",
+                          "name": "Campo • Bairro",
+                          "clip": true,
+                          "width": 338,
+                          "fill": "#ffffffff",
+                          "cornerRadius": 8,
+                          "stroke": "#96b6a3ff",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "moI8q",
+                              "name": "Bela Vista",
+                              "fill": "#182d21ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Bela Vista",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Roboto",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "juAnB",
+                      "name": "Cidade e estado",
+                      "clip": true,
+                      "width": 338,
+                      "gap": 12,
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "IIVDn",
+                          "name": "Cidade",
+                          "clip": true,
+                          "width": 250,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "U5GWs",
+                              "name": "Cidade",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Cidade",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "yLhmz",
+                              "name": "Campo • Cidade",
+                              "clip": true,
+                              "width": 250,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "szU9o",
+                                  "name": "São Paulo",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "São Paulo",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "T8Mw1I",
+                          "name": "UF",
+                          "clip": true,
+                          "width": 76,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "OM0Bv",
+                              "name": "UF",
+                              "fill": "#247346ff",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "UF",
+                              "lineHeight": 1.399999976158142,
+                              "fontFamily": "Lilita One",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rqai8",
+                              "name": "Campo • UF",
+                              "clip": true,
+                              "width": 76,
+                              "fill": "#ffffffff",
+                              "cornerRadius": 8,
+                              "stroke": "#96b6a3ff",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "padding": 12,
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GdABN",
+                                  "name": "SP",
+                                  "fill": "#182d21ff",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "SP",
+                                  "lineHeight": 1.399999976158142,
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "on7V4",
+          "name": "Ações do perfil",
+          "clip": true,
+          "width": 378,
+          "fill": "#ffffffff",
+          "stroke": "#dfeae3ff",
+          "strokeWidth": {
+            "top": 1
+          },
+          "strokeAlignment": "inner",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            16,
+            20,
+            20,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "jzbae",
+              "name": "Cancelar e salvar",
+              "clip": true,
+              "width": 338,
+              "gap": 12,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "HsLRi",
+                  "name": "Cancelar",
+                  "clip": true,
+                  "width": 110,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "obPO5",
+                      "name": "Cancelar",
+                      "fill": "#247346ff",
+                      "content": "Cancelar",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QtZT4",
+                  "name": "Salvar alterações",
+                  "clip": true,
+                  "width": 216,
+                  "fill": "#247346ff",
+                  "cornerRadius": 8,
+                  "padding": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I4NoJ",
+                      "name": "Salvar alterações",
+                      "fill": "#ffffffff",
+                      "content": "Salvar alterações",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Lilita One",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "R338C",
+              "name": "As alterações serão aplicadas à sua conta.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Role o formulário para ver todo o endereço.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FJlz5",
+      "x": 25596,
+      "y": -17729,
+      "name": "Meu perfil • Mobile • Segurança",
+      "clip": true,
+      "width": 378,
+      "fill": "#ffffffff",
+      "cornerRadius": 24,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0f2e1a2e",
+        "offset": {
+          "x": 0,
+          "y": 12
+        },
+        "blur": 35
+      },
+      "layout": "vertical",
+      "layoutIncludeStroke": true,
+      "children": [
+        {
+          "type": "frame",
+          "id": "Bu5Yt",
+          "name": "Título e fechamento",
+          "clip": true,
+          "width": 378,
+          "gap": 16,
+          "padding": [
+            20,
+            20,
+            16,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "vhGCK",
+              "name": "Apresentação",
+              "clip": true,
+              "width": 278,
+              "layout": "vertical",
+              "gap": 2,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ImSHp",
+                  "name": "Meu perfil",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Meu perfil",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 32,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "wKliL",
+                  "name": "Cuide dos seus dados por aqui.",
+                  "fill": "#52675aff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Cuide dos seus dados por aqui.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Roboto",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "IxP8A",
+              "name": "×",
+              "clip": true,
+              "width": 44,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dvgMV",
+                  "name": "×",
+                  "fill": "#247346ff",
+                  "content": "×",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "C090f1",
+          "name": "Abas do perfil",
+          "clip": true,
+          "width": 378,
+          "gap": 8,
+          "padding": [
+            0,
+            20,
+            16,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "ff9q3",
+              "name": "Meus dados",
+              "clip": true,
+              "width": 165,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YFIjz",
+                  "name": "Meus dados",
+                  "fill": "#247346ff",
+                  "content": "Meus dados",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "sO5yL",
+              "name": "Segurança",
+              "clip": true,
+              "width": 165,
+              "fill": "#247346ff",
+              "cornerRadius": 8,
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rLZbj",
+                  "name": "Segurança",
+                  "fill": "#ffffffff",
+                  "content": "Segurança",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XJTzX",
+          "name": "Alterar senha",
+          "clip": true,
+          "width": 378,
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            8,
+            20,
+            20,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "text",
+              "id": "U9D3pl",
+              "name": "Alterar senha",
+              "fill": "#247346ff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Alterar senha",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Lilita One",
+              "fontSize": 24,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "EFKPl",
+              "name": "Para sua segurança, confirme a senha atual antes de criar uma nova.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Para sua segurança, confirme a senha atual antes de criar uma nova.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "cY1Iy",
+              "name": "Senha atual",
+              "clip": true,
+              "width": 338,
+              "layout": "vertical",
+              "gap": 6,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "uZOoL",
+                  "name": "Senha atual",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Senha atual",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "l4sBq",
+                  "name": "Campo • Senha atual",
+                  "clip": true,
+                  "width": 338,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MeMmp",
+                      "name": "Digite sua senha atual",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Digite sua senha atual",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xZVCv",
+              "name": "Nova senha",
+              "clip": true,
+              "width": 338,
+              "layout": "vertical",
+              "gap": 6,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "tDaox",
+                  "name": "Nova senha",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Nova senha",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "uqmK4",
+                  "name": "Campo • Nova senha",
+                  "clip": true,
+                  "width": 338,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "a9b0GK",
+                      "name": "Crie uma nova senha",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Crie uma nova senha",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "X0k24l",
+              "name": "Use pelo menos 8 caracteres, com letras e números.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Use pelo menos 8 caracteres, com letras e números.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "U8CmI",
+              "name": "Confirmar nova senha",
+              "clip": true,
+              "width": 338,
+              "layout": "vertical",
+              "gap": 6,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "H5vYW",
+                  "name": "Confirmar nova senha",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Confirmar nova senha",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "m7zdd",
+                  "name": "Campo • Confirmar nova senha",
+                  "clip": true,
+                  "width": 338,
+                  "fill": "#ffffffff",
+                  "cornerRadius": 8,
+                  "stroke": "#96b6a3ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": 12,
+                  "layoutIncludeStroke": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dp3AW",
+                      "name": "Repita a nova senha",
+                      "fill": "#52675aff",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Repita a nova senha",
+                      "lineHeight": 1.399999976158142,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YEoBK",
+              "name": "Privacidade",
+              "clip": true,
+              "width": 338,
+              "fill": "#eff7f2ff",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Tcyl8",
+                  "name": "Sua senha é privada.",
+                  "fill": "#247346ff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Sua senha é privada.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "MmZtg",
+                  "name": "Nunca compartilhe sua senha com outras pessoas.",
+                  "fill": "#52675aff",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Nunca compartilhe sua senha com outras pessoas.",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Roboto",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "fAYlA",
+          "name": "Ações de segurança",
+          "clip": true,
+          "width": 378,
+          "gap": 12,
+          "padding": [
+            16,
+            20,
+            20,
+            20
+          ],
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "QqGPT",
+              "name": "Cancelar",
+              "clip": true,
+              "width": 110,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "V1ids",
+                  "name": "Cancelar",
+                  "fill": "#247346ff",
+                  "content": "Cancelar",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JV7Js",
+              "name": "Atualizar senha",
+              "clip": true,
+              "width": 216,
+              "fill": "#247346ff",
+              "cornerRadius": 8,
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "B0mu4",
+                  "name": "Atualizar senha",
+                  "fill": "#ffffffff",
+                  "content": "Atualizar senha",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "DhLzV",
+      "x": 26014,
+      "y": -17729,
+      "name": "Meu perfil • Mobile • Confirmação",
+      "clip": true,
+      "width": 378,
+      "fill": "#ffffffff",
+      "cornerRadius": 24,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0f2e1a2e",
+        "offset": {
+          "x": 0,
+          "y": 12
+        },
+        "blur": 35
+      },
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 24,
+      "layoutIncludeStroke": true,
+      "children": [
+        {
+          "type": "frame",
+          "id": "S1Gwt",
+          "name": "Fechar confirmação",
+          "clip": true,
+          "width": 330,
+          "justifyContent": "end",
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "frame",
+              "id": "uFUjU",
+              "name": "×",
+              "clip": true,
+              "width": 44,
+              "fill": "#ffffffff",
+              "cornerRadius": 8,
+              "stroke": "#96b6a3ff",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "padding": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "NU5lh",
+                  "name": "×",
+                  "fill": "#247346ff",
+                  "content": "×",
+                  "lineHeight": 1.399999976158142,
+                  "fontFamily": "Lilita One",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "eVOK0",
+          "name": "Tudo certo!",
+          "fill": "#247346ff",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Tudo certo!",
+          "lineHeight": 1.399999976158142,
+          "fontFamily": "Lilita One",
+          "fontSize": 32,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "n4ye8",
+          "name": "Alterações salvas",
+          "fill": "#247346ff",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Alterações salvas",
+          "lineHeight": 1.399999976158142,
+          "fontFamily": "Lilita One",
+          "fontSize": 24,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "rC6jG",
+          "name": "Suas informações foram atualizadas com sucesso.",
+          "fill": "#182d21ff",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Suas informações foram atualizadas com sucesso.",
+          "lineHeight": 1.399999976158142,
+          "fontFamily": "Roboto",
+          "fontSize": 16,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "co8W4",
+          "name": "Próximos passos",
+          "clip": true,
+          "width": 330,
+          "fill": "#eff7f2ff",
+          "cornerRadius": 12,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "text",
+              "id": "Ov5IQ",
+              "name": "Sua conta, sempre em dia.",
+              "fill": "#247346ff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Sua conta, sempre em dia.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Lilita One",
+              "fontSize": 18,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "rN64o",
+              "name": "Você pode voltar ao perfil sempre que precisar alterar seus dados ou sua senha.",
+              "fill": "#52675aff",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Você pode voltar ao perfil sempre que precisar alterar seus dados ou sua senha.",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Roboto",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "SoM6N",
+          "name": "Concluir",
+          "clip": true,
+          "width": 330,
+          "fill": "#247346ff",
+          "cornerRadius": 8,
+          "padding": 12,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "layoutIncludeStroke": true,
+          "children": [
+            {
+              "type": "text",
+              "id": "RUX6X",
+              "name": "Concluir",
+              "fill": "#ffffffff",
+              "content": "Concluir",
+              "lineHeight": 1.399999976158142,
+              "fontFamily": "Lilita One",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
     }
   ],
   "fileToken": "2862dc8d-01f7-4e42-8615-347681ab8d9b"

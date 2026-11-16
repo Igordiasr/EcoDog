@@ -32,7 +32,7 @@ import { useManagementCalendar } from '../../viewmodels/use-management-calendar'
 import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
 import { checkInFeedDesign, diaryActionsDesign } from '../design/presentation-adjustments';
-import { presenceDesign } from '../design/presence';
+import { presenceDesign, removeExpectedTime } from '../design/presence';
 import { usePresence } from '../../viewmodels/use-presence';
 import { useDailyActivities } from '../../viewmodels/use-daily-activities';
 import { dailyActivitiesDesign } from '../design/daily-activities';
@@ -1030,7 +1030,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (id === 'TL07')
             return diaryActionsDesign({ ...node, children });
         if (id === 'TL11')
-            return !preview ? presenceDesign(checkInFeedDesign({ ...node, children }), presence) : checkInFeedDesign({ ...node, children });
+            return !preview ? presenceDesign(checkInFeedDesign(removeExpectedTime({ ...node, children })), presence) : checkInFeedDesign(removeExpectedTime({ ...node, children }));
         if (id === 'TL12' && !preview && !dialog)
             return dailyActivitiesDesign({ ...node, children }, dailyActivities, currentUser?.token === session?.token ? currentUser?.name : undefined);
         if (id === 'TL14')

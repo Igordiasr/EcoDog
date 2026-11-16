@@ -3,6 +3,11 @@ import { content, nodes } from './types';
 const status = pet => ({ AGENDADO: 'Aguardando entrada', CONFIRMADO: 'Em permanência', RETIRADO: 'Saída registrada', CANCELADO: 'Cancelado' }[pet.situacao]);
 const time = raw => raw?.match(/T(\d{2}:\d{2})/)?.[1] || 'não registrada';
 
+export function removeExpectedTime(node) {
+    if (typeof node === 'string') return node;
+    return { ...node, children: node.children?.filter(child => typeof child === 'string' || child.name !== 'Horário previsto').map(removeExpectedTime) };
+}
+
 function petPanel(template, pet) {
     const map = (node, ancestors = []) => {
         if (typeof node === 'string') return node;
@@ -13,12 +18,11 @@ function petPanel(template, pet) {
         if (node.name === 'Nome' && inSection('Dados do auluno')) value = pet.nomePet;
         if (node.name === 'Descrição' && inSection('Dados do auluno')) value = content(node).startsWith('Pet ') ? `Pet ${pet.idPet}` : `Responsável: ${pet.tutorCheckout || pet.tutorCheckin || 'não registrado'}`;
         if (node.name === 'Rótulo' && inSection('Status')) value = status(pet);
-        if (node.name === 'Horário') value = 'Não informado';
         if (node.name === 'Descrição' && inSection('Orientações')) value = inSection('Cuidados') ? [pet.racaoMarca && `Ração: ${pet.racaoMarca}`, pet.quantidade && `Quantidade: ${pet.quantidade}`].filter(Boolean).join(' • ') || 'Não informado' : `Pertences: ${pet.pertences || 'não informados'}`;
         if (node.name === 'Descrição' && inSection('Check de entrada e saída')) value = `Entrada: ${pet.situacao === 'AGENDADO' ? 'ainda não registrada' : time(pet.dataEntradaRaw)} • Saída: ${pet.situacao === 'RETIRADO' ? time(pet.dataSaidaRaw) : 'pendente'}`;
         return { ...copy, ...(node.name === 'Painel' ? { presencePet: pet } : {}), children: value !== undefined ? [value] : node.children?.map(child => map(child, [...ancestors, node])) };
     };
-    return map(template);
+    return map(removeExpectedTime(template));
 }
 
 export function presenceDesign(node, presence) {

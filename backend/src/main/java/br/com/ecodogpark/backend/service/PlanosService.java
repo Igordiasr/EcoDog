@@ -27,6 +27,11 @@ public class PlanosService {
         return planosRepository.findAllByOrderByNomeAsc();
     }
 
+    public PlanosEntity buscarPorId(Long id) {
+        return planosRepository.findById(id).orElseThrow(() -> new ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Plano não encontrado"));
+    }
+
     public PlanosEntity criar(PlanosEntity plano) {
         validarServicoExistente(plano.getServico());
         return planosRepository.save(plano);
@@ -73,7 +78,7 @@ public class PlanosService {
     }
 
     private void validarServicoExistente(ServicosEntity servico) {
-        if (servico == null || !servicoRepository.existsById(servico.getIdServico().longValue())) {
+        if (servico == null || servico.getIdServico() == null || !servicoRepository.existsById(servico.getIdServico())) {
             throw new ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST,
                     "Serviço inválido");

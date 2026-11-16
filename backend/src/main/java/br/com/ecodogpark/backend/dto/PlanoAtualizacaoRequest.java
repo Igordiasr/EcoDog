@@ -7,18 +7,27 @@ import java.math.BigDecimal;
 public class PlanoAtualizacaoRequest {
 
     @Schema(description = "Nome do plano", example = "Hotel Premium")
+    @NotBlank(message = "O nome do plano é obrigatório")
+    @Size(max = 120)
     private String nome;
 
     @Schema(description = "ID do serviço associado", example = "1")
+    @NotNull(message = "O serviço é obrigatório")
+    @Positive(message = "O serviço é inválido")
     private Long idServico;
 
     @Schema(description = "Número de diárias", example = "8")
+    @NotNull(message = "As diárias são obrigatórias")
+    @Min(value = 1, message = "As diárias devem ser no mínimo 1")
     private Integer diarias;
 
     @Schema(description = "Valor do plano", example = "150.00")
+    @NotNull(message = "O valor é obrigatório")
+    @DecimalMin(value = "0.00", message = "O valor não pode ser negativo")
     private BigDecimal valor;
 
     @Schema(description = "Status ativo do plano", example = "true")
+    @NotNull(message = "O status é obrigatório")
     private Boolean ativo;
 
     // Getters e Setters

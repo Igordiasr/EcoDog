@@ -8,11 +8,12 @@ public class PlanoCriacaoRequest {
 
     @Schema(description = "Nome do plano", example = "Hotel Premium", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "O nome do plano é obrigatório")
-    @NotNull
+    @Size(max = 120)
     private String nome;
 
     @Schema(description = "ID do serviço associado", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "O serviço é obrigatório")
+    @Positive(message = "O serviço é inválido")
     private Long idServico;
 
     @Schema(description = "Número de diárias", example = "8", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -22,7 +23,7 @@ public class PlanoCriacaoRequest {
 
     @Schema(description = "Valor do plano", example = "150.00", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "O valor é obrigatório")
-    @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
+    @DecimalMin(value = "0.00", message = "O valor não pode ser negativo")
     private BigDecimal valor;
 
     // Getters e Setters

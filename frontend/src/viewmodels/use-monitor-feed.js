@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createMonitorFeedApi } from '../api/monitor-feed-api';
 import { presenceDay } from './use-presence';
 
-export function useMonitorFeed(enabled, petId, session) {
+export function useMonitorFeed(enabled, petId, session, blockedReason = '') {
     const api = useMemo(() => createMonitorFeedApi(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', undefined, session?.token), [session?.token]);
     const [data, setData] = useState(null);
     const [error, setError] = useState('');
@@ -35,26 +35,25 @@ export function useMonitorFeed(enabled, petId, session) {
         return () => { controller.abort(); ++generation.current; };
     }, [enabled, petId, api, day]);
     const save = async (record, values) => {
-        if (!enabled || !data || lock.current || record.unavailable) return false;
+        if (!enabled || !data || blockedReason || lock.current || record.unavailable) return false;
         const version = generation.current;
         lock.current = true;
         setSaving(true);
         try {
             const observation = values.observacoes || '';
-            const positive = values.medicacao === 'Tomou' || values.participacao === 'Participou' || values.refeicao === 'Se alimentou';
-            const detail = positive && observation.trim() ? `${record.name}: ${observation.trim()}` : '';
-            if (detail.length > 200) throw new Error('O nome do cuidado e sua observação devem somar até 200 caracteres.');
-            if (record.kind === 'observation') await api.observation(petId, observation);
-            else if (record.kind === 'medication') await api.updateMedication(petId, record.id, { Tomou: 'TOMOU', 'Não tomou': 'NAO_TOMOU' }[values.medicacao], observation);
-            else await api.updateActivity(petId, record.id, { Participou: 'PARTICIPOU', 'Não participou': 'NAO_PARTICIPOU', 'Se alimentou': 'PARTICIPOU', Recusou: 'NAO_PARTICIPOU' }[values.participacao || values.refeicao], observation);
-            // Positive outcomes currently discard observations in the PUT endpoints.
-            // Store the contextual detail in the diary's general observations instead.
-            if (detail) await api.observation(petId, detail);
-            return version === generation.current;
+            let result;
+            if (record.kind === 'observation') result = await api.observation(petId, observation);
+            else if (record.kind === 'medication') result = await api.updateMedication(petId, record.id, { Tomou: 'TOMOU', 'Não tomou': 'NAO_TOMOU' }[values.medicacao], observation);
+            else result = await api.updateActivity(petId, record.id, { Participou: 'PARTICIPOU', 'Não participou': 'NAO_PARTICIPOU', 'Se alimentou': 'PARTICIPOU', Recusou: 'NAO_PARTICIPOU' }[values.participacao || values.refeicao], observation);
+            if (version !== generation.current) return false;
+            setData(current => record.kind === 'observation' ? { ...current, generalObservation: result.observacao } : record.kind === 'medication' ? { ...current, medication: current.medication.map(item => item.idMedicacaoDoDia === record.id ? result : item) } : { ...current, activities: current.activities.map(item => item.idParticipacaoDoPet === record.id ? result : item) });
+            const field = record.kind === 'medication' ? 'medicacao' : record.kind === 'meal' ? 'refeicao' : 'participacao';
+            const option = record.kind === 'medication' ? { TOMOU: 'Tomou', NAO_TOMOU: 'Não tomou' }[result.status] : record.kind === 'meal' ? { PARTICIPOU: 'Se alimentou', NAO_PARTICIPOU: 'Recusou' }[result.situacao] : { PARTICIPOU: 'Participou', NAO_PARTICIPOU: 'Não participou' }[result.situacao];
+            return { values: { ...(record.kind !== 'observation' ? { [field]: option } : {}), observacoes: result.observacao || '' } };
         } finally {
             lock.current = false;
             setSaving(false);
         }
     };
-    return { data, error, loading, saving, save, day };
+    return { data, error, loading, saving, save, day, blockedReason };
 }

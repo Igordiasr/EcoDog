@@ -11,7 +11,7 @@ import { BookingCartSummary } from './BookingCart';
 import { formatMoney } from '../../viewmodels/booking-cart';
 import { selectedPetsSentence } from '../../viewmodels/booking-presentation';
 import { petChoices } from '../../viewmodels/pet-draft';
-import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLocked, monitorOptions, monitorOption } from '../design/monitor-records';
+import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLocked, monitorRecordSaved, monitorOptions, monitorOption } from '../design/monitor-records';
 import { DashboardCharts } from './DashboardCharts';
 import { DashboardField, isDashboardField } from './DashboardField';
 import { dashboardSummary } from '../../models/dashboard-model';
@@ -63,6 +63,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (parentIsHeader && childNodes.some(n => n.name === 'Botão Cadastrar') && childNodes.some(n => n.name === 'Botão Entrar'))
         className += ' header-actions';
     const props = { className, 'data-design-id': node.id, 'data-design-name': name };
+    if (node.monitorNotice) return <section {...props} role="status" aria-label="Alterações indisponíveis"><h2>Alterações indisponíveis</h2><p>{node.monitorNotice}</p></section>;
     if (ctx.screen === 'TL08' && ['Od5Hs', 'CHLdU'].includes(node.id || ''))
         props.style = { backgroundImage: `url("${lastStudentPhoto}")` };
     if (['TL01', 'TL08', 'TL09'].includes(ctx.screen) && isLeaf(node) && value && ancestors.some(ancestor => /Footer|Rodapé|rodapé|Assinatura/.test(ancestor.name || '')))
@@ -335,20 +336,22 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         const selected = ctx.pets.includes(pet);
         return <button {...props} type="button" className={`${className} design-button`} aria-label={pet} aria-pressed={selected} onClick={() => ctx.action(`Pet ${pet}`, node, ancestors)}>{selected ? '×' : '○'}</button>;
     }
-    const canAct = !inert && !isLeaf(node) && (labels.has(label) || ['CADASTRAR', 'Quero agendar', 'Agendar visita', 'Saiba mais', 'Como funciona'].includes(label)) && childNodes.length <= 3 && !/Coluna|Registro|Data|Resumo|cta-agendar/.test(name);
+    const canAct = !inert && !isLeaf(node) && (labels.has(label) || ['CADASTRAR', 'Quero agendar', 'Agendar visita', 'Saiba mais', 'Como funciona'].includes(label)) && childNodes.length <= 3 && !/Coluna|Registro|Data|Resumo|cta-agendar|Ação de observações/.test(name);
     if (!inert && ctx.screen === 'TL11' && ['Feed do Monitor', 'Diário do Pet'].includes(label) && !isLeaf(node))
         return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
     const inlineLink = !inert && isLeaf(node) && /Já tem|Não tem login|Clique aqui|Conheça|Saiba mais|NOSSO ESPAÇO|SOBRE NÓS/.test(value);
     if (canAct || inlineLink) {
         const record = ctx.screen === 'TL10' ? ancestors.findLast(isMonitorRecord) : undefined;
         const alreadySaved = /Entrada registrada|Saída registrada/.test(label) || label === 'Salvar' && !!record && monitorRecordLocked(record, ctx.monitorSaved?.[monitorRecordKey(record)]);
+        const monitorSave = label === 'Salvar' && !!record;
+        const monitorSaved = monitorSave && monitorRecordSaved(record, ctx.monitorSaved?.[monitorRecordKey(record)]);
         const completedActivity = ctx.dailyActivities && label === 'Concluído' && ancestors.findLast(parent => parent.dailyActivity)?.dailyActivity.situacao === 'CONCLUIDA';
         const presencePet = ancestors.findLast(parent => parent.presencePet)?.presencePet;
         const missingCheckInEvidence = ctx.screen === 'TL11' && (ctx.presenceIntegrated
             ? label === 'Registrar entrada' ? !presencePet || presencePet.situacao !== 'AGENDADO' || !!presencePet.dataSaidaRaw
                 : label === 'Registrar saída' && (!presencePet || presencePet.situacao !== 'CONFIRMADO' || !presencePet.dataEntradaRaw || !!presencePet.dataSaidaRaw)
             : label === 'Registrar saída');
-        return <button {...props} type="button" className={`${className} design-button`} disabled={ctx.busy || alreadySaved || completedActivity || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
+        return <button {...props} type="button" className={`${className} design-button${monitorSave ? monitorSaved ? ' monitor-save-saved' : ' monitor-save-pending' : ''}`} disabled={ctx.busy || alreadySaved || completedActivity || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={monitorSaved ? 'Salvo' : label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{monitorSaved ? <span className="font-interface">Salvo</span> : renderChildren(true)}</button>;
     }
     if (!inert && ctx.screen === 'TL09' && bookingContext && isLeaf(node) && name === 'Mês') {
         const label = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(2026, 7 + ctx.monthOffset, 1));

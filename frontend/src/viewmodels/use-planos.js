@@ -56,7 +56,7 @@ export function usePlanos(enabled, session) {
     setForm({ nome: plano.nome ?? '', idServico: String(plano.idServico ?? ''), diarias: String(plano.diarias ?? ''), valor: String(plano.valor ?? '') });
     setFieldErrors({});
     setFormError('');
-    setModal({ type: 'edit', id: plano.id, ativo: plano.ativo });
+    setModal({ type: 'edit', id: plano.id, ativo: plano.ativo, serviceId: plano.idServico, serviceName: plano.nomeServico || plano.servico || '' });
     try {
       const result = await api.listServices();
       setServicos(Array.isArray(result) ? result : []);

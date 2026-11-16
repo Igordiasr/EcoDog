@@ -33,6 +33,7 @@ import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
 import { checkInFeedDesign, diaryActionsDesign } from '../design/presentation-adjustments';
 import { presenceDesign, removeExpectedTime } from '../design/presence';
+import { monitorUnavailableReason } from '../design/monitor-availability';
 import { usePresence } from '../../viewmodels/use-presence';
 import { useDailyActivities } from '../../viewmodels/use-daily-activities';
 import { dailyActivitiesDesign } from '../design/daily-activities';
@@ -83,10 +84,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const managementCalendar = useManagementCalendar(id === 'TL14', preview, api, calendarSource);
     const petHealthCatalog = usePetHealthCatalog(id === 'TL06' && preview, preview, petHealthCatalogSource);
     const tutorPets = useTutorPets(id === 'TL05', session);
-    const presence = usePresence(id === 'TL11' && !preview, session);
+    const presence = usePresence(['TL11', 'TL10'].includes(id) && !preview, session);
     const dailyActivities = useDailyActivities(id === 'TL12' && !preview, session);
     const monitorPetId = Number(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet'));
-    const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session);
+    const monitorBlockReason = id !== 'TL10' || preview ? '' : presence.loading ? 'Consultando a presença do pet. Aguarde para atualizar suas informações.' : presence.error ? 'Não foi possível verificar a presença do pet. As alterações estão indisponíveis no momento.' : monitorUnavailableReason(presence.pets, monitorPetId);
+    const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session, monitorBlockReason);
     const diaryPetId = Number(new URLSearchParams(location.search).get('pet'));
     const diaryDay = new URLSearchParams(location.search).get('data') || presenceDay();
     const petDiary = usePetDiary(id === 'TL07' && !preview, diaryPetId, diaryDay, session);
@@ -551,7 +553,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             }
             void monitorFeed.save(record.monitorRecord, values).then(saved => {
                 if (!saved) return;
-                monitorSavedRef.current = { ...monitorSavedRef.current, [key]: { values: { ...values } } };
+                monitorSavedRef.current = { ...monitorSavedRef.current, [key]: saved };
                 setMonitorSaved(monitorSavedRef.current);
                 setMessage('Registro salvo no sistema.');
             }).catch(error => setMessage(error.message));
@@ -916,6 +918,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (id === 'TL06' && !dialog && (node.name === 'Listagem de alergias' || node.id === 'x2uAZ'))
             return { ...node, name: 'Pet allergies' };
         let children = node.children?.filter(c => !(id === 'TL13' && inDashboardForm && content(c).trim() === '×')).map(c => typeof c === 'string' ? c : enhance(c, inDashboardForm));
+        if (id === 'TL10' && !dialog && monitorBlockReason && children) {
+            const headerIndex = children.findIndex(child => typeof child !== 'string' && child.name === 'Cabeçalho e navegação');
+            if (headerIndex !== -1) children.splice(headerIndex + 1, 0, { tag: 'section', id: 'monitor-availability-notice', name: 'Alterações indisponíveis', className: 'monitor-availability-notice', monitorNotice: monitorBlockReason });
+        }
         if (id === 'TL03' && !preview && children) {
             const petTemplate = children.find(child => typeof child !== 'string' && (child.name === 'Pet selecionado' || /^(Thor|Mel|Luke) · selecionado$/.test(child.name || '')));
             if (petTemplate) {
@@ -1067,7 +1073,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
       {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
-      {id === 'TL10' && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
+      {id === 'TL10' && !monitorBlockReason && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
        {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
        {id === 'TL11' && !preview && presence.error && <p className="loading-message" role="alert">{presence.error}</p>}
        {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
@@ -1116,9 +1122,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     {id === 'TL11' && !preview && presence.target && <Modal title={presence.target.operation === 'checkIn' ? 'Registrar entrada' : 'Registrar saída'} onClose={presence.close}>
       <form className="dialog-content" onSubmit={event => { event.preventDefault(); void presence.save(); }}>
         <h2>{presence.target.operation === 'checkIn' ? 'Registrar entrada' : 'Registrar saída'} • {presence.target.pet.nomePet}</h2>
+        {presence.target.operation === 'checkOut' && <section className="monitor-availability-notice" aria-label="Aviso sobre o check-out"><h3>Confirmar saída?</h3><p>Após registrar a saída de {presence.target.pet.nomePet}, não será mais possível atualizar suas informações no feed do monitor. Deseja continuar?</p></section>}
         <label className="allergy-description">Nome do responsável<input required maxLength={100} autoFocus value={presence.responsible} disabled={presence.saving} onChange={event => presence.setResponsible(event.target.value)}/></label>
         {presence.error && <p role="alert">{presence.error}</p>}
-        <div className="dialog-actions"><button type="button" disabled={presence.saving} onClick={presence.close}>Cancelar</button><button type="submit" disabled={presence.saving || !presence.responsible.trim()}>{presence.saving ? 'Aguarde…' : 'Confirmar'}</button></div>
+        <div className="dialog-actions"><button type="button" disabled={presence.saving} onClick={presence.close}>Cancelar</button><button type="submit" disabled={presence.saving || !presence.responsible.trim()}>{presence.saving ? 'Aguarde…' : presence.target.operation === 'checkOut' ? 'Confirmar saída' : 'Confirmar'}</button></div>
       </form>
     </Modal>}
     {dialog && <Modal title={dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'}>

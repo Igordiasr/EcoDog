@@ -13,6 +13,11 @@ public class MensagemTwilioService implements EnviarMensagemService {
     }
 
     @Override
+    public boolean mensagemSimulada() {
+        return false;
+    }
+
+    @Override
     public void enviar(String destinatario, String mensagem) {
         twilioService.enviarMensagem(destinatario, mensagem);
     }

@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(prefix = "whatsapp", name = "modo-envio", havingValue = "simulado", matchIfMissing = true)
 public class MensagemSimuladaService implements EnviarMensagemService {
     @Override
+    public boolean mensagemSimulada() {
+        return true;
+    }
+    @Override
     public void enviar(String destinatario, String mensagem) {
         System.out.println("===== WHATSAPP SIMULADO =====");
         System.out.println("Destinatário: " + destinatario);

@@ -1,7 +1,6 @@
 package br.com.ecodogpark.backend.controller;
 
 import br.com.ecodogpark.backend.service.*;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,9 +36,10 @@ public class WhatsAppController {
             @Parameter(description = "Número de telefone do remetente", example = "whatsapp:+5511912345678")
             @RequestParam("From") String remetente,
             @Parameter(description = "Mensagem enviada pelo remetente", example = "Qual o horário de funcionamento?")
-            @RequestParam("Body") String mensagem
+            @RequestParam("Body") String mensagem,
+            @RequestParam(value = "MessageSid", required = false) String messageSid
     ) {
-        whatsAppService.processarMensagem(remetente, mensagem);
+        whatsAppService.processarMensagem(remetente, mensagem, messageSid);
         return ResponseEntity.ok().build();
     }
 }

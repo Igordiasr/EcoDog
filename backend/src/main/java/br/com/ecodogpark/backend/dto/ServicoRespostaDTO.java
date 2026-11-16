@@ -3,6 +3,7 @@ package br.com.ecodogpark.backend.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
+@Schema(description = "Dados de um serviço disponível para seleção")
 public class ServicoRespostaDTO {
 
     @Schema(description = "ID do serviço", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -3,6 +3,7 @@ package br.com.ecodogpark.backend.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
+@Schema(description = "Dados retornados para um plano cadastrado")
 public class PlanoRespostaDTO {
 
     @Schema(description = "ID do plano", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

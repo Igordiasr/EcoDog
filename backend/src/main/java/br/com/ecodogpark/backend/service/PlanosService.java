@@ -57,14 +57,6 @@ public class PlanosService {
         PlanosEntity plano = planosRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND, "Plano não encontrado"));
-        // Verifica se há vinculos antes de excluir
-        // Verifica através de agendamentos que possam referenciar o plano
-        boolean temVinculo = verificaVinculoExclusao(id);
-        if (temVinculo) {
-            throw new ResponseStatusException(
-                    org.springframework.http.HttpStatus.CONFLICT,
-                    "Não é possível excluir este plano pois há registros vinculados (ex: contratos, agendamentos).");
-        }
         planosRepository.deleteById(id);
     }
 
@@ -86,11 +78,5 @@ public class PlanosService {
                     org.springframework.http.HttpStatus.BAD_REQUEST,
                     "Serviço inválido");
         }
-    }
-
-    private boolean verificaVinculoExclusao(Long idPlano) {
-        // Placeholder: verificar se há entidades relacionadas que impedem a exclusão
-        // Implementação futura conforme modelo de domínio
-        return false;
     }
 }

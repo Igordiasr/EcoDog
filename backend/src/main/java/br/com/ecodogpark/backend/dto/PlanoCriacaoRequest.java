@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
+@Schema(description = "Dados necessários para criar um plano")
 public class PlanoCriacaoRequest {
 
     @Schema(description = "Nome do plano", example = "Hotel Premium", requiredMode = Schema.RequiredMode.REQUIRED)

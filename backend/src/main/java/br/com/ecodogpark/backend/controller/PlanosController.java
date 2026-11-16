@@ -34,19 +34,19 @@ public class PlanosController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar planos")
+    @Operation(summary = "Listar planos", description = "Retorna todos os planos ordenados pelo nome.")
     public List<PlanoRespostaDTO> listar() {
         return planosService.listarTodos().stream().map(this::paraResposta).toList();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar plano por identificador")
+    @Operation(summary = "Buscar plano por identificador", description = "Retorna os dados de um plano cadastrado.")
     public PlanoRespostaDTO buscar(@PathVariable Long id) {
         return paraResposta(planosService.buscarPorId(id));
     }
 
     @PostMapping
-    @Operation(summary = "Criar plano")
+    @Operation(summary = "Criar plano", description = "Cadastra um plano associado a um serviço existente.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Plano criado", content = @Content(schema = @Schema(implementation = PlanoRespostaDTO.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content)
@@ -57,19 +57,19 @@ public class PlanosController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Editar plano")
+    @Operation(summary = "Editar plano", description = "Atualiza o nome, serviço, quantidade de diárias, valor e status do plano.")
     public PlanoRespostaDTO atualizar(@PathVariable Long id, @Valid @RequestBody PlanoAtualizacaoRequest request) {
         return paraResposta(planosService.atualizar(id, paraEntity(request)));
     }
 
     @PatchMapping("/{id}/ativo")
-    @Operation(summary = "Alternar status do plano")
+    @Operation(summary = "Alternar status do plano", description = "Inverte o estado ativo do plano informado.")
     public PlanoRespostaDTO alternarAtivo(@PathVariable Long id) {
         return paraResposta(planosService.toggularAtivo(id));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Excluir plano")
+    @Operation(summary = "Excluir plano", description = "Remove o plano quando não houver registros relacionados que impeçam a exclusão.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Plano excluído"),
             @ApiResponse(responseCode = "404", description = "Plano não encontrado", content = @Content),
@@ -85,7 +85,7 @@ public class PlanosController {
     }
 
     @GetMapping("/servicos-ativos")
-    @Operation(summary = "Listar serviços ativos para seleção")
+    @Operation(summary = "Listar serviços ativos para seleção", description = "Retorna os serviços ativos disponíveis no formulário de planos.")
     public List<ServicoRespostaDTO> listarServicosAtivos() {
         return planosService.listarServicosAtivos().stream().map(this::paraServicoResposta).toList();
     }

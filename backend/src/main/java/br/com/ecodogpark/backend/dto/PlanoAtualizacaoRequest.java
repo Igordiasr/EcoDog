@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
+@Schema(description = "Dados necessários para atualizar um plano")
 public class PlanoAtualizacaoRequest {
 
     @Schema(description = "Nome do plano", example = "Hotel Premium")

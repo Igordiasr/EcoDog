@@ -32,7 +32,7 @@ import { useManagementCalendar } from '../../viewmodels/use-management-calendar'
 import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
 import { checkInFeedDesign, diaryActionsDesign } from '../design/presentation-adjustments';
-import { presenceDesign } from '../design/presence';
+import { presenceDesign, removeExpectedTime } from '../design/presence';
 import { usePresence } from '../../viewmodels/use-presence';
 import { useDailyActivities } from '../../viewmodels/use-daily-activities';
 import { dailyActivitiesDesign } from '../design/daily-activities';
@@ -915,7 +915,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return { ...(node.name === 'Registro de vacina' ? addValidityToVaccineRecord(node) : node), id: node.name === 'Registro de vacina' ? 'pet-vacinas' : 'pet-medicamentos', name: 'Pet records' };
         if (id === 'TL06' && !dialog && (node.name === 'Listagem de alergias' || node.id === 'x2uAZ'))
             return { ...node, name: 'Pet allergies' };
-        let children = node.children?.filter(c => !(id === 'TL13' && inDashboardForm && content(c).trim() === '×')).filter(c => id !== 'TL06' || typeof c === 'string' || !['e1u9df', 'uwuPj'].includes(c.id || '')).map(c => typeof c === 'string' ? c : enhance(c, inDashboardForm));
+        let children = node.children?.filter(c => !(id === 'TL13' && inDashboardForm && content(c).trim() === '×')).map(c => typeof c === 'string' ? c : enhance(c, inDashboardForm));
         if (id === 'TL03' && !preview && children) {
             const petTemplate = children.find(child => typeof child !== 'string' && (child.name === 'Pet selecionado' || /^(Thor|Mel|Luke) · selecionado$/.test(child.name || '')));
             if (petTemplate) {
@@ -1030,7 +1030,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (id === 'TL07')
             return diaryActionsDesign({ ...node, children });
         if (id === 'TL11')
-            return !preview ? presenceDesign(checkInFeedDesign({ ...node, children }), presence) : checkInFeedDesign({ ...node, children });
+            return !preview ? presenceDesign(checkInFeedDesign(removeExpectedTime({ ...node, children })), presence) : checkInFeedDesign(removeExpectedTime({ ...node, children }));
         if (id === 'TL12' && !preview && !dialog)
             return dailyActivitiesDesign({ ...node, children }, dailyActivities, currentUser?.token === session?.token ? currentUser?.name : undefined);
         if (id === 'TL14')

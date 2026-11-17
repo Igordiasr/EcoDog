@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.repository;
 
 import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.DBAtividadesResponse;
 import br.com.ecodogpark.backend.dto.FeedMonitorDTO.AtividadeDoPetResponse;
+import br.com.ecodogpark.backend.entity.AtividadesDoDiaEntity;
 import br.com.ecodogpark.backend.entity.ParticipacaoDoPetEntity;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import br.com.ecodogpark.backend.entity.SituacaoAtividade;
@@ -89,5 +90,21 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
             @Param("idParticipacao") Long idParticipacao
     );
 
+    @Query("""
+    SELECT pp
+    FROM ParticipacaoDoPetEntity pp
+    JOIN pp.fkAtividadesDoDia ad
+    JOIN ad.fkCalendario c
+    JOIN pp.fkAgendamento ag
+    JOIN ag.fkCalendario ca
+    WHERE ag.fkPet.idPet = :idPet
+      AND c.data = :data
+      AND ca.data = :data
+    ORDER BY ad.horaInicio, ad.idAtividadeDoDia
+    """)
+    List<ParticipacaoDoPetEntity> buscarPorPetEData(
+            @Param("idPet") UUID idPet,
+            @Param("data") LocalDate data
+    );
 }
 

@@ -1,19 +1,14 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.dto.AtividadeDiarioPetResponse;
-import br.com.ecodogpark.backend.dto.DiarioPetResponse;
-import br.com.ecodogpark.backend.dto.MedicacaoDiarioPetResponse;
-import br.com.ecodogpark.backend.dto.ResumoDiarioPetResponse;
-import br.com.ecodogpark.backend.entity.AtividadesDoDiaEntity;
-import br.com.ecodogpark.backend.entity.MedicacaoDoDiaEntity;
-import br.com.ecodogpark.backend.entity.ObservacaoDoDiaEntity;
+import br.com.ecodogpark.backend.dto.DiarioPetTutor.*;
+import br.com.ecodogpark.backend.entity.*;
 import br.com.ecodogpark.backend.enums.CategoriaAtividade;
-import br.com.ecodogpark.backend.enums.SituacaoAtividade;
-import br.com.ecodogpark.backend.repository.AtividadeRepository;
-import br.com.ecodogpark.backend.repository.MedicacoesDoPetRepository;
-import br.com.ecodogpark.backend.repository.ObservacaoRepository;
+import br.com.ecodogpark.backend.exception.CampoInvalidoException;
+import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
+import br.com.ecodogpark.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,24 +19,48 @@ import java.util.stream.Collectors;
 @Service
 public class DiarioPetService {
 
-    private final AtividadeRepository atividadeRepository;
     private final MedicacoesDoPetRepository medicacoesDoPetRepository;
     private final ObservacaoRepository observacaoRepository;
+    private final ParticipacaoDoPetRepository participacaoDoPetRepository;
+    private final AgendamentoRepository agendamentoRepository;
+    private final PetRepository petRepository;
 
-    public DiarioPetService(AtividadeRepository atividadeRepository,
-                            MedicacoesDoPetRepository medicacoesDoPetRepository,
-                            ObservacaoRepository observacaoRepository) {
-        this.atividadeRepository = atividadeRepository;
+    public DiarioPetService(
+            MedicacoesDoPetRepository medicacoesDoPetRepository,
+            ObservacaoRepository observacaoRepository,
+            ParticipacaoDoPetRepository participacaoDoPetRepository,
+            AgendamentoRepository agendamentoRepository, PetRepository petRepository) {
         this.medicacoesDoPetRepository = medicacoesDoPetRepository;
         this.observacaoRepository = observacaoRepository;
+        this.participacaoDoPetRepository = participacaoDoPetRepository;
+        this.agendamentoRepository = agendamentoRepository;
+        this.petRepository = petRepository;
+    }
+
+    public List<DataAgendadaResponse> obterAgendamentosAnteriores(@RequestParam UUID idPet) {
+        if (!petRepository.existsById(idPet)) {
+            throw new PetNaoEncontradoException("Pet não encontrado");
+        }
+        return agendamentoRepository.buscarDatasDeAgendamentosAnteriores(idPet);
     }
 
     @Transactional(readOnly = true)
     public DiarioPetResponse obterDiarioDoPet(UUID idPet, LocalDate dataReferencia) {
+        if (Objects.isNull(idPet)) {
+            throw new CampoInvalidoException("idPet não pode ser nulo.");
+        }
+        if (Objects.isNull(dataReferencia)) {
+            dataReferencia = agendamentoRepository.buscarUltimoAgendamento(idPet);
+        }
+        if (dataReferencia.isAfter(LocalDate.now())) {
+            throw new CampoInvalidoException("A data informada deve ser anterior a data atual.");
+        }
+        if (!petRepository.existsById(idPet)) {
+            throw new PetNaoEncontradoException("Pet não encontrado");
+        }
 
-        // Consultas executadas sequencialmente dentro da mesma transação,
-        // de modo a permitir o carregamento das associações LAZY usadas no mapeamento.
-        List<AtividadesDoDiaEntity> atividades = atividadeRepository.buscarPorPetEData(idPet, dataReferencia);
+        List<ParticipacaoDoPetEntity> atividades = participacaoDoPetRepository.buscarPorPetEData(idPet, dataReferencia);
+        System.out.println("atividades: " + atividades);
         List<MedicacaoDoDiaEntity> medicacoes = medicacoesDoPetRepository.buscarPorPetEData(idPet, dataReferencia);
         List<ObservacaoDoDiaEntity> observacoes = observacaoRepository.buscarPorPetEData(idPet, dataReferencia);
 
@@ -55,18 +74,22 @@ public class DiarioPetService {
         );
     }
 
-    private List<AtividadeDiarioPetResponse> mapearAtividades(List<AtividadesDoDiaEntity> atividades) {
+    private List<AtividadeDiarioPetResponse> mapearAtividades(List<ParticipacaoDoPetEntity> atividades) {
         return atividades.stream()
-                .map(atividade -> new AtividadeDiarioPetResponse(descricaoAtividade(atividade)))
+                .map(atividade -> {
+                    if (atividade.equals(SituacaoAtividade.PENDENTE)) {
+                        return null;
+                    }
+                    return new AtividadeDiarioPetResponse(
+                            atividade.getFkAtividadesDoDia().getFkAtividade().getNome(),
+                            atividade.getFkAtividadesDoDia().getFkAtividade().getDescricao(),
+                            atividade.getSituacao(),
+                            atividade.getObservacao(),
+                            atividade.getFkAtividadesDoDia().getSituacao()
+                    );
+                })
+                .filter(Objects::nonNull)
                 .toList();
-    }
-
-    private String descricaoAtividade(AtividadesDoDiaEntity atividade) {
-        if (atividade.getFkAtividade() == null) {
-            return "";
-        }
-        String descricao = atividade.getFkAtividade().getDescricao();
-        return descricao != null ? descricao : atividade.getFkAtividade().getNome();
     }
 
     private List<MedicacaoDiarioPetResponse> mapearMedicacoes(List<MedicacaoDoDiaEntity> medicacoes) {
@@ -92,11 +115,11 @@ public class DiarioPetService {
                 .collect(Collectors.joining("\n"));
     }
 
-    private ResumoDiarioPetResponse montarResumo(List<AtividadesDoDiaEntity> atividades) {
+    private ResumoDiarioPetResponse montarResumo(List<ParticipacaoDoPetEntity> atividades) {
         return new ResumoDiarioPetResponse(fraseRefeicao(atividades), fraseEngajamento(atividades));
     }
 
-    private String fraseEngajamento(List<AtividadesDoDiaEntity> atividades) {
+    private String fraseEngajamento(List<ParticipacaoDoPetEntity> atividades) {
         if (atividades.isEmpty()) {
             return "Não foram registadas atividades para este dia.";
         }
@@ -112,8 +135,8 @@ public class DiarioPetService {
         return "O pet participou em " + concluidas + " de " + total + " atividades do dia.";
     }
 
-    private String fraseRefeicao(List<AtividadesDoDiaEntity> atividades) {
-        List<AtividadesDoDiaEntity> refeicoes = atividades.stream()
+    private String fraseRefeicao(List<ParticipacaoDoPetEntity> atividades) {
+        List<ParticipacaoDoPetEntity> refeicoes = atividades.stream()
                 .filter(this::ehRefeicao)
                 .toList();
 
@@ -132,14 +155,14 @@ public class DiarioPetService {
         return concluidas + " de " + total + " refeições do dia foram concluídas.";
     }
 
-    private boolean atividadeEstaConcluida(AtividadesDoDiaEntity atividade) {
-        return SituacaoAtividade.isConcluida(atividade.getSituacao());
+    private boolean atividadeEstaConcluida(ParticipacaoDoPetEntity atividade) {
+        return atividade.getSituacao().equals(SituacaoAtividade.PARTICIPOU) || atividade.getSituacao().equals(SituacaoAtividade.NAO_PARTICIPOU);
     }
 
-    private boolean ehRefeicao(AtividadesDoDiaEntity atividade) {
-        if (atividade.getFkAtividade() == null || atividade.getFkAtividade().getCategoria() == null) {
+    private boolean ehRefeicao(ParticipacaoDoPetEntity atividade) {
+        if (atividade.getFkAtividadesDoDia().getFkAtividade() == null || atividade.getFkAtividadesDoDia().getFkAtividade().getCategoria() == null) {
             return false;
         }
-        return CategoriaAtividade.isRefeicao(atividade.getFkAtividade().getCategoria());
+        return CategoriaAtividade.isRefeicao(atividade.getFkAtividadesDoDia().getFkAtividade().getCategoria());
     }
 }

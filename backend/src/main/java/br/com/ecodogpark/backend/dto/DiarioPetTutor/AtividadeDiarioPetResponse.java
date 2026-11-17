@@ -1,10 +1,19 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.DiarioPetTutor;
 
+import br.com.ecodogpark.backend.entity.SituacaoAtividade;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Dados de retorno de atividade diario pet")
 public record AtividadeDiarioPetResponse(
-        @Schema(description = "Descrição")
-        String descricao
+        @Schema(description = "Nome da atividade")
+        String nome,
+        @Schema(description = "Descrição da atividade")
+        String descricao,
+        @Schema(description = "Participação do pet na atividade")
+        SituacaoAtividade situacao,
+        @Schema(description = "Observações da participação do pet na atividade")
+        String observacao,
+        @Schema(description = "Situação da atividade")
+        String situacaoAtividade
 ) {
 }

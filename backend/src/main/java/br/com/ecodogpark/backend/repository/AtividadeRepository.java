@@ -12,28 +12,24 @@ import java.util.UUID;
 public interface AtividadeRepository extends JpaRepository<AtividadesDoDiaEntity, Long> {
 
     // Atividades (do dia) de um pet numa data exata.
-    @Query(value = """
-            SELECT DISTINCT ad.*
-            FROM atividades_do_dia ad
-            JOIN participacao_do_pet pp ON pp.fk_atividades_do_dia = ad.id_atividade_do_dia
-            JOIN agendamentos ag       ON ag.id_agendamentos       = pp.fk_agendamento
-            JOIN calendario c          ON c.id_calendario          = ad.fk_calendario
-            JOIN calendario ca         ON ca.id_calendario         = ag.fk_calendario
-            WHERE ag.fk_pet = :idPet
-              AND c.data = :data
-              AND ca.data = :data
-            ORDER BY ad.hora_inicio, ad.id_atividade_do_dia
-            """, nativeQuery = true)
-    List<AtividadesDoDiaEntity> buscarPorPetEData(@Param("idPet") UUID idPet,
-                                                  @Param("data") LocalDate data);
-
-    // Todas as atividades de um dia (data exata).
-    @Query(value = """
-            SELECT ad.*
-            FROM atividades_do_dia ad
-            JOIN calendario c ON c.id_calendario = ad.fk_calendario
-            WHERE c.data = :data
-            ORDER BY ad.hora_inicio, ad.id_atividade_do_dia
-            """, nativeQuery = true)
-    List<AtividadesDoDiaEntity> buscarPorData(@Param("data") LocalDate data);
+    @Query("""
+    SELECT ad
+    FROM AtividadesDoDiaEntity ad
+    JOIN ad.fkCalendario c
+    WHERE c.data = :data
+      AND EXISTS (
+          SELECT pp.idParticipacaoDoPet
+          FROM ParticipacaoDoPetEntity pp
+          JOIN pp.fkAgendamento ag
+          JOIN ag.fkCalendario ca
+          WHERE pp.fkAtividadesDoDia = ad
+            AND ag.fkPet.idPet = :idPet
+            AND ca.data = :data
+      )
+    ORDER BY ad.horaInicio, ad.idAtividadeDoDia
+    """)
+    List<AtividadesDoDiaEntity> buscarPorPetEData(
+            @Param("idPet") UUID idPet,
+            @Param("data") LocalDate data
+    );
 }

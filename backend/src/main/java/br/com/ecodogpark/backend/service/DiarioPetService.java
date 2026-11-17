@@ -82,6 +82,8 @@ public class DiarioPetService {
                     }
                     return new AtividadeDiarioPetResponse(
                             atividade.getFkAtividadesDoDia().getFkAtividade().getNome(),
+                            atividade.getFkAtividadesDoDia().getHoraInicio(),
+                            atividade.getFkAtividadesDoDia().getHoraFim(),
                             atividade.getFkAtividadesDoDia().getFkAtividade().getDescricao(),
                             atividade.getSituacao(),
                             atividade.getObservacao(),

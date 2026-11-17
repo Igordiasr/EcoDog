@@ -7,6 +7,7 @@ import br.com.ecodogpark.backend.entity.ContratosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.util.Optional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -61,4 +62,44 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     )
     """)
     Long contarContratosInativos();
+
+    @Query("""
+    SELECT c
+    FROM ContratosEntity c
+    JOIN FETCH c.pet p
+    JOIN FETCH p.fkUsuario u
+    JOIN FETCH c.servico s
+    WHERE LOWER(u.tipo) = 'tutor'
+    ORDER BY u.nome ASC
+""")
+    List<ContratosEntity> buscarContratosGerenciamento();
+
+
+    @Query("""
+    SELECT c
+    FROM ContratosEntity c
+    JOIN FETCH c.pet p
+    JOIN FETCH p.fkUsuario u
+    JOIN FETCH c.servico s
+    WHERE LOWER(u.tipo) = 'tutor'
+      AND LOWER(u.nome) LIKE LOWER(CONCAT('%', :pesquisa, '%'))
+    ORDER BY u.nome ASC
+""")
+    List<ContratosEntity> pesquisarContratosGerenciamento(
+            @Param("pesquisa") String pesquisa
+    );
+
+
+    @Query("""
+    SELECT c
+    FROM ContratosEntity c
+    JOIN FETCH c.pet p
+    JOIN FETCH p.fkUsuario u
+    JOIN FETCH c.servico s
+    WHERE c.idContrato = :id
+""")
+    Optional<ContratosEntity> buscarContratoPorIdGerenciamento(
+            @Param("id") Long id
+    );
+
 }

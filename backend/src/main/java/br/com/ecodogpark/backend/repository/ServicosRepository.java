@@ -23,4 +23,6 @@ public interface ServicosRepository extends JpaRepository<ServicosEntity, Intege
           AND s.categoria = :categoria
     """)
     List<ServicoAtivoResponse> buscarServicosAtivos(@Param("categoria") String categoria);
+
+    List<ServicosEntity> findByStatusTrueOrderByNomeAsc();
 }

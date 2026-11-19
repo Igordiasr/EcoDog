@@ -98,6 +98,13 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<!-- Maria Db  -->
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- Testes -->
 		<dependency>
 			<groupId>com.h2database</groupId>

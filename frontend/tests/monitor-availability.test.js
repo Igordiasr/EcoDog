@@ -1,14 +1,16 @@
 import { expect, it } from 'vitest';
 import { monitorUnavailableReason } from '../src/views/design/monitor-availability';
+const petId = '550e8400-e29b-41d4-a716-446655440000';
+const otherPetId = '550e8400-e29b-41d4-a716-446655440001';
 
 it('informa que o pet ainda não chegou', () => {
-    expect(monitorUnavailableReason([{ idPet: 1, situacao: 'AGENDADO' }], 1)).toContain('Aguarde o check-in');
+    expect(monitorUnavailableReason([{ idPet: petId, situacao: 'AGENDADO' }], petId)).toContain('Aguarde o check-in');
 });
 it('informa que o pet já saiu', () => {
-    expect(monitorUnavailableReason([{ idPet: 1, situacao: 'RETIRADO' }], 1)).toContain('após o check-out');
+    expect(monitorUnavailableReason([{ idPet: petId, situacao: 'RETIRADO' }], petId)).toContain('após o check-out');
 });
 it('libera alterações apenas para presença ativa do pet selecionado', () => {
-    expect(monitorUnavailableReason([{ idPet: 1, situacao: 'CONFIRMADO' }], 1)).toBe('');
-    expect(monitorUnavailableReason([{ idPet: 2, situacao: 'CONFIRMADO' }], 1)).toContain('não possui uma presença ativa');
-    expect(monitorUnavailableReason([{ idPet: 1, situacao: 'CONFIRMADO', dataSaidaRaw: '2026-11-16T17:00:00' }], 1)).toContain('já saiu');
+    expect(monitorUnavailableReason([{ idPet: petId, situacao: 'CONFIRMADO' }], petId)).toBe('');
+    expect(monitorUnavailableReason([{ idPet: otherPetId, situacao: 'CONFIRMADO' }], petId)).toContain('não possui uma presença ativa');
+    expect(monitorUnavailableReason([{ idPet: petId, situacao: 'CONFIRMADO', dataSaidaRaw: '2026-11-16T17:00:00' }], petId)).toContain('já saiu');
 });

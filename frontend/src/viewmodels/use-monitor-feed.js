@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createMonitorFeedApi } from '../api/monitor-feed-api';
 import { presenceDay } from './use-presence';
+import { isUuid } from '../models/integration-contracts';
 
 export function useMonitorFeed(enabled, petId, session, blockedReason = '') {
     const api = useMemo(() => createMonitorFeedApi(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', undefined, session?.token), [session?.token]);
@@ -22,7 +23,7 @@ export function useMonitorFeed(enabled, petId, session, blockedReason = '') {
         setError('');
         setLoading(false);
         if (!enabled) return;
-        if (!Number.isSafeInteger(petId) || petId <= 0) {
+        if (!isUuid(petId)) {
             setError('Selecione um pet na tela de check-in para consultar sua rotina.');
             return;
         }

@@ -1,5 +1,6 @@
 import { requestJson } from './http';
 import { validISODate, validPeriod } from '../models/dashboard-model';
+import { uuid } from '../models/integration-contracts';
 function record(value, label) {
     if (!value || typeof value !== 'object' || Array.isArray(value))
         throw new Error(`Resposta inválida: ${label}.`);
@@ -58,7 +59,7 @@ function parseDay(payload, expected, data) {
         if (typeof a.nome !== 'string' || !a.nome.trim() || !statuses.includes(String(a.situacao)))
             throw new Error('Aluno agendado inválido.');
         const age = a.idade === null ? undefined : capacity(a.idade, 'idade');
-        const student = { id: id(a.idAgendamento, 'agendamento'), petId: id(a.idPet, 'pet'), date: expected, name: a.nome, breed: optionalText(a.raca, 'raça'), tutor: optionalText(a.tutor, 'tutor'), age, status: a.situacao };
+        const student = { id: id(a.idAgendamento, 'agendamento'), petId: uuid(a.idPet, 'pet'), date: expected, name: a.nome, breed: optionalText(a.raca, 'raça'), tutor: optionalText(a.tutor, 'tutor'), age, status: a.situacao };
         data.students.push(student);
     });
 }

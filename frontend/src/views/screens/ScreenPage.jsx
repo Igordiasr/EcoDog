@@ -36,6 +36,7 @@ import { presenceDesign, removeExpectedTime } from '../design/presence';
 import { monitorUnavailableReason } from '../design/monitor-availability';
 import { usePresence } from '../../viewmodels/use-presence';
 import { useDailyActivities } from '../../viewmodels/use-daily-activities';
+import { UserManagement } from '../components/UserManagement';
 import { dailyActivitiesDesign } from '../design/daily-activities';
 import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
@@ -77,7 +78,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         return () => controller.abort();
     }, [session?.token, session?.id, preview]);
     const editPetParam = id === 'TL06' && !preview ? new URLSearchParams(location.search).get('editar') : null;
-    const editPetId = editPetParam === null ? undefined : Number(editPetParam);
+    const editPetId = editPetParam === null ? undefined : editPetParam.toLowerCase();
     const [editPetReady, setEditPetReady] = useState(false);
     const mobile = useMobile();
     const dashboard = useDashboard(id === 'TL13', preview, api, dashboardSource);
@@ -86,10 +87,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const tutorPets = useTutorPets(id === 'TL05', session);
     const presence = usePresence(['TL11', 'TL10'].includes(id) && !preview, session);
     const dailyActivities = useDailyActivities(id === 'TL12' && !preview, session);
-    const monitorPetId = Number(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet'));
+    const monitorPetId = String(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet') || '').toLowerCase();
     const monitorBlockReason = id !== 'TL10' || preview ? '' : presence.loading ? 'Consultando a presença do pet. Aguarde para atualizar suas informações.' : presence.error ? 'Não foi possível verificar a presença do pet. As alterações estão indisponíveis no momento.' : monitorUnavailableReason(presence.pets, monitorPetId);
     const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session, monitorBlockReason);
-    const diaryPetId = Number(new URLSearchParams(location.search).get('pet'));
+    const diaryPetId = new URLSearchParams(location.search).get('pet')?.toLowerCase();
     const diaryDay = new URLSearchParams(location.search).get('data') || presenceDay();
     const petDiary = usePetDiary(id === 'TL07' && !preview, diaryPetId, diaryDay, session);
     const [design, setDesign] = useState(null);
@@ -234,7 +235,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setFields({});
         loadTutorPets(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, controller.signal).then(pets => {
             if (controller.signal.aborted) return;
-            const pet = pets.find(pet => pet.idPet === editPetId);
+            const pet = pets.find(pet => pet.idPet.toLowerCase() === editPetId);
             if (!pet) throw new Error('Pet não encontrado na sua lista.');
             setFields({ nome: pet.nome, raca: pet.raca || '', sexo: pet.sexo || '', castrado: pet.castrado === true ? 'Sim' : pet.castrado === false ? 'Não' : '', nascimento: pet.dataNascimento?.split('-').reverse().join('/') || '', veterinario: pet.veterinario || '', contato: pet.telefoneVeterinario || '', convenio: typeof pet.convenio === 'boolean' ? pet.convenio ? 'Sim' : 'Não' : '', obs: pet.observacao || '', 'relacionamento-com-outros-pets': pet.relacaoComOutros || '' });
             setEditPetReady(false);
@@ -274,7 +275,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (!availability || availability.key !== availabilityKey || bookingDates.some(date => !availability.available.has(date))) {
             return;
         }
-        bookingBudget(bookingBaseUrl, session, selectedBookingService, pets.map(Number), bookingDates, controller.signal).then(data => {
+        bookingBudget(bookingBaseUrl, session, selectedBookingService, pets, bookingDates, controller.signal).then(data => {
             if (!controller.signal.aborted) setBudgetState({ key: budgetKey, data });
         }).catch(error => { if (!controller.signal.aborted) setBudgetError(error.message); });
         return () => controller.abort();
@@ -428,7 +429,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             // Only the creation form/draft is sent. Never attach unrelated pet names,
             // design targets or the prototype's day/service to another operation.
             const result = integratedBooking
-                ? await saveTutorBooking(bookingBaseUrl, session, selectedBookingService, pets.map(Number), bookingDates)
+                ? await saveTutorBooking(bookingBaseUrl, session, selectedBookingService, pets, bookingDates)
                 : operation === 'savePet' && id === 'TL06' && !dialog && !preview
                 ? await registerTutorPet(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, petDraft, undefined, undefined, editPetId)
                 : await api.execute(operation, petDraft || (dialog ? dialogFields : fields));
@@ -1061,7 +1062,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 });
         }, tutorPets: id === 'TL05' ? tutorPets : undefined, petHealthCatalog: id === 'TL06' ? petHealthCatalog : undefined, managementCalendar: id === 'TL14' ? managementCalendar : undefined, dashboard: id === 'TL13' ? dashboard : undefined, activityIndex, petRecords, petErrors, removePetRecord, petAllergies: allergies, setPetAllergies: setAllergies, action, day, selectedDates: bookingDates, crecheWeekdays, cart, removeDate: (date) => { if (service !== 'Creche')
             setSelectedDates(dates => dates.filter(selected => selected !== date)); }, service, pets, busy: busy || monitorFeed.saving || id === 'TL10' && !preview && (monitorFeed.loading || !monitorFeed.data) || id === 'TL13' && dashboard.saving || id === 'TL14' && managementCalendar.saving, search: fields.pesquisa || '', monthOffset };
-    const screen = design && (mobile ? design.steps[step] || design.mobile : design.desktop);
+    const screen = id === 'TL15' && !preview ? null : design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);
     const info = screens.find(s => s.id === id);
     return <>
@@ -1079,7 +1080,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
        {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
       {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
-      {!design && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
+      {id === 'TL15' && !preview && <UserManagement session={session} onMenu={() => setMenu(true)} />}
+      {!design && id !== 'TL15' && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
        {screen && <DesignContext.Provider value={{ ...context, session, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>

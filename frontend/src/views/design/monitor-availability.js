@@ -1,5 +1,5 @@
 export function monitorUnavailableReason(pets, petId) {
-    const records = pets.filter(pet => pet.idPet === petId);
+    const records = pets.filter(pet => typeof pet.idPet === 'string' && typeof petId === 'string' && pet.idPet.toLowerCase() === petId.toLowerCase());
     if (records.some(pet => pet.situacao === 'CONFIRMADO' && !pet.dataSaidaRaw)) return '';
     if (records.some(pet => pet.situacao === 'RETIRADO' || pet.dataSaidaRaw))
         return 'O pet já saiu. Não é possível atualizar suas informações após o check-out.';

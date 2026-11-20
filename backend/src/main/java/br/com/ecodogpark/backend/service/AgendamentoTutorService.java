@@ -2,6 +2,9 @@ package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.*;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.exception.NenhumPetSelecionadoException;
+import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
+import br.com.ecodogpark.backend.exception.PetSemAdaptacaoException;
 import br.com.ecodogpark.backend.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -128,99 +131,99 @@ public class  AgendamentoTutorService {
         return agendarPorDia(servico, request, idUsuario);
     }
 
-    @Transactional
-    public AgendamentoPlanoResponse agendarPeloPlano(OrcamentoRequest request, UUID idUsuario) {
-        List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
-        List<LocalDate> datas = validarDatasEscolhidas(request.datasUtilizacao());
+//    @Transactional
+//    public AgendamentoPlanoResponse agendarPeloPlano(OrcamentoRequest request, UUID idUsuario) {
+//        List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
+//        List<LocalDate> datas = validarDatasEscolhidas(request.datasUtilizacao());
+//
+//        for (LocalDate data : datas) {
+//            validarDia("CRECHE", data, pets);
+//        }
+//
+//        List<SaldoSemanalResponse> saldos = new ArrayList<>();
+//        for (PetsEntity pet : pets) {
+//            saldos.addAll(validarSaldoSemanal(pet, datas));
+//        }
+//
+//        boolean aguardandoAprovacao = false;
+//
+//        for (PetsEntity pet : pets) {
+//            for (LocalDate data : datas) {
+//                AgendamentosEntity agendamento = paraEntityAgendamentos(pet, data, "CRECHE");
+//                agendamentoRepository.save(agendamento);
+//            }
+//            ContratosEntity plano = buscarPlanoVigente(pet, datas.getFirst());
+//            if ("PENDENTE".equals(plano.getSituacao())) {
+//                aguardandoAprovacao = true;
+//            }
+//        }
+//
+//        return new AgendamentoPlanoResponse(
+//                pets.stream().map(PetsEntity::getNome).toList(),
+//                datas,
+//                saldos,
+//                aguardandoAprovacao
+//        );
+//    }
 
-        for (LocalDate data : datas) {
-            validarDia("CRECHE", data, pets);
-        }
+//    @Transactional
+//    public CancelamentoResponse cancelarAgendamento(Long idAgendamento, UUID idUsuario) {
+//        AgendamentosEntity agendamento = buscarAgendamentoDoTutor(idAgendamento, idUsuario);
+//        PetsEntity pet = agendamento.getFkPet();
+//        LocalDate data = agendamento.getDataEntrada().toLocalDate();
+//        String categoria = agendamento.getServico();
+//
+//        if (data.isBefore(LocalDate.now())) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é possível cancelar datas passadas.");
+//        }
+//        if (agendamento.getSituacao() != SituacaoAgendamento.AGENDADO
+//                && agendamento.getSituacao() != SituacaoAgendamento.CONFIRMADO) {
+//            throw new ResponseStatusException(HttpStatus.CONFLICT, "Este agendamento não pode ser cancelado.");
+//        }
+//
+//        Optional<ContratosEntity> contrato = contratoRepository.buscarContratoDoDia(pet.getIdPet(), categoria, data);
+//
+//        if (contrato.isEmpty()) {
+//            agendamento.setSituacao(SituacaoAgendamento.CANCELADO);
+//            agendamentoRepository.save(agendamento);
+//            return new CancelamentoResponse("Dia cancelado. O uso foi devolvido ao saldo do plano.");
+//        }
+//
+//        cancelarContratoAgendado(contrato.get(), pet, categoria);
+//        return new CancelamentoResponse("Agendamento cancelado.");
+//    }
 
-        List<SaldoSemanalResponse> saldos = new ArrayList<>();
-        for (PetsEntity pet : pets) {
-            saldos.addAll(validarSaldoSemanal(pet, datas));
-        }
+//    private AgendamentosEntity buscarAgendamentoDoTutor(Long idAgendamento, UUID idUsuario) {
+//        AgendamentosEntity agendamento = agendamentoRepository.findById(idAgendamento)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
+//
+//        if (!agendamento.getFkPet().getFkUsuario().getIdUsuario().equals(idUsuario)) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Agendamento não pertence a este tutor");
+//        }
+//        return agendamento;
+//    }
 
-        boolean aguardandoAprovacao = false;
-
-        for (PetsEntity pet : pets) {
-            for (LocalDate data : datas) {
-                AgendamentosEntity agendamento = paraEntityAgendamentos(pet, data, "CRECHE");
-                agendamentoRepository.save(agendamento);
-            }
-            ContratosEntity plano = buscarPlanoVigente(pet, datas.getFirst());
-            if ("PENDENTE".equals(plano.getSituacao())) {
-                aguardandoAprovacao = true;
-            }
-        }
-
-        return new AgendamentoPlanoResponse(
-                pets.stream().map(PetsEntity::getNome).toList(),
-                datas,
-                saldos,
-                aguardandoAprovacao
-        );
-    }
-
-    @Transactional
-    public CancelamentoResponse cancelarAgendamento(Long idAgendamento, UUID idUsuario) {
-        AgendamentosEntity agendamento = buscarAgendamentoDoTutor(idAgendamento, idUsuario);
-        PetsEntity pet = agendamento.getFkPet();
-        LocalDate data = agendamento.getDataEntrada().toLocalDate();
-        String categoria = agendamento.getServico();
-
-        if (data.isBefore(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é possível cancelar datas passadas.");
-        }
-        if (agendamento.getSituacao() != SituacaoAgendamento.AGENDADO
-                && agendamento.getSituacao() != SituacaoAgendamento.CONFIRMADO) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Este agendamento não pode ser cancelado.");
-        }
-
-        Optional<ContratosEntity> contrato = contratoRepository.buscarContratoDoDia(pet.getIdPet(), categoria, data);
-
-        if (contrato.isEmpty()) {
-            agendamento.setSituacao(SituacaoAgendamento.CANCELADO);
-            agendamentoRepository.save(agendamento);
-            return new CancelamentoResponse("Dia cancelado. O uso foi devolvido ao saldo do plano.");
-        }
-
-        cancelarContratoAgendado(contrato.get(), pet, categoria);
-        return new CancelamentoResponse("Agendamento cancelado.");
-    }
-
-    private AgendamentosEntity buscarAgendamentoDoTutor(Long idAgendamento, UUID idUsuario) {
-        AgendamentosEntity agendamento = agendamentoRepository.findById(idAgendamento)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado"));
-
-        if (!agendamento.getFkPet().getFkUsuario().getIdUsuario().equals(idUsuario)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Agendamento não pertence a este tutor");
-        }
-        return agendamento;
-    }
-
-    private void cancelarContratoAgendado(ContratosEntity contrato, PetsEntity pet, String categoria) {
-        List<AgendamentosEntity> dias = agendamentoRepository.buscarAtivosNoPerido(
-                pet.getIdPet(), categoria,
-                contrato.getDataInicio().atStartOfDay(),
-                contrato.getDataFim().plusDays(1).atStartOfDay());
-
-        for (AgendamentosEntity dia : dias) {
-            dia.setSituacao(SituacaoAgendamento.CANCELADO);
-            agendamentoRepository.save(dia);
-        }
-
-        contrato.setSituacao("CANCELADO");
-        contratoRepository.save(contrato);
-
-        movimentacoesRepository.findByContrato(contrato)
-                .filter(m -> "PENDENTE".equals(m.getSituacao()))
-                .ifPresent(m -> {
-                    m.setSituacao("CANCELADO");
-                    movimentacoesRepository.save(m);
-                });
-    }
+//    private void cancelarContratoAgendado(ContratosEntity contrato, PetsEntity pet, String categoria) {
+//        List<AgendamentosEntity> dias = agendamentoRepository.buscarAtivosNoPerido(
+//                pet.getIdPet(), categoria,
+//                contrato.getDataInicio().atStartOfDay(),
+//                contrato.getDataFim().plusDays(1).atStartOfDay());
+//
+//        for (AgendamentosEntity dia : dias) {
+//            dia.setSituacao(SituacaoAgendamento.CANCELADO);
+//            agendamentoRepository.save(dia);
+//        }
+//
+//        contrato.setSituacao("CANCELADO");
+//        contratoRepository.save(contrato);
+//
+//        movimentacoesRepository.findByContrato(contrato)
+//                .filter(m -> "PENDENTE".equals(m.getSituacao()))
+//                .ifPresent(m -> {
+//                    m.setSituacao("CANCELADO");
+//                    movimentacoesRepository.save(m);
+//                });
+//    }
 
 
     private AgendamentoCriadoResponse agendarPorDia(ServicosEntity servico, OrcamentoRequest request, UUID idUsuario) {
@@ -310,14 +313,20 @@ public class  AgendamentoTutorService {
 
     private List<PetsEntity> buscarPetsEscolhidos(List<UUID> ids, UUID idUsuario) {
         if (ids == null || ids.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione ao menos um pet");
+            throw new NenhumPetSelecionadoException("Selecione ao menos um pet");
         }
 
         List<UUID> idsDistintos = ids.stream().distinct().toList();
         List<PetsEntity> pets = petRepository.findByIdPetInAndFkUsuarioIdUsuario(idsDistintos, idUsuario);
 
         if (pets.size() != idsDistintos.size()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Pet não encontrado para este tutor");
+            throw new PetNaoEncontradoException("Pet não encontrado para este tutor");
+        }
+
+        for (PetsEntity pet : pets) {
+            if (!Boolean.TRUE.equals(pet.getStatusAdaptacao())) {
+                throw new PetSemAdaptacaoException(pet.getNome() + " não possui adaptação na Ecodog.");
+            }
         }
 
         return pets;
@@ -382,7 +391,8 @@ public class  AgendamentoTutorService {
     private PetsDoTutorResponse paraDtoPetTutor(PetsEntity pet) {
         return new PetsDoTutorResponse(
                 pet.getIdPet(),
-                pet.getNome()
+                pet.getNome(),
+                pet.getStatusAdaptacao()
         );
     }
 

@@ -9,6 +9,8 @@ public record PetsDoTutorResponse(
         @Schema(description = "Identificador do pet", example = "9")
         UUID idPet,
         @Schema(description = "Nome do pet", example = "Thor")
-        String nomePet
+        String nomePet,
+        @Schema(description = "Indica se o pet foi aprovado na adaptação")
+        Boolean statusAdaptacao
 ) {
 }

@@ -4,6 +4,7 @@ import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.AgendamentosTutorRespon
 import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.DiasComAgendamentoResponse;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse;
+import br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,7 +32,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
             a.tutorCheckout,
             a.pertences,
             a.racaoMarca,
-            a.quantidade
+            a.racaoQuantidade
         )
         FROM AgendamentosEntity a
         JOIN a.fkPet p
@@ -163,4 +164,31 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     List<QuantidadeDiariasProjection> contarDiariasPorContrato(
             @Param("idsContratos") List<Long> idsContratos
     );
+
+    @Query("""
+        SELECT new br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse(
+            c.data
+            )
+        FROM AgendamentosEntity a
+        JOIN a.fkCalendario c
+        JOIN a.fkPet p
+        WHERE p.idPet = :idPet
+        AND c.data <= CURRENT_DATE
+        AND a.situacao IN (SituacaoAgendamento.CONFIRMADO, SituacaoAgendamento.RETIRADO)
+        ORDER BY c.data DESC
+    """)
+    List<DataAgendadaResponse> buscarDatasDeAgendamentosAnteriores(@Param("idPet") UUID idPet);
+
+    @Query("""
+        SELECT
+            c.data
+        FROM AgendamentosEntity a
+        JOIN a.fkCalendario c
+        JOIN a.fkPet p
+        WHERE p.idPet = :idPet
+        AND c.data <= CURRENT_DATE
+        AND a.situacao IN (SituacaoAgendamento.CONFIRMADO, SituacaoAgendamento.RETIRADO)
+        ORDER BY c.data DESC LIMIT 1
+    """)
+    LocalDate buscarUltimoAgendamento(@Param("idPet") UUID idPet);
 }

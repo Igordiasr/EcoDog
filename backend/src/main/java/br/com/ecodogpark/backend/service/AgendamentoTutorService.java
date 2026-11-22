@@ -4,9 +4,8 @@ import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.*;
 import br.com.ecodogpark.backend.entity.*;
 import br.com.ecodogpark.backend.enums.DiaSemana;
 import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
-import br.com.ecodogpark.backend.exception.NenhumPetSelecionadoException;
-import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
-import br.com.ecodogpark.backend.exception.PetSemAdaptacaoException;
+import br.com.ecodogpark.backend.exception.*;
+import br.com.ecodogpark.backend.mapper.AgendamentoMapper;
 import br.com.ecodogpark.backend.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -25,27 +24,29 @@ import java.util.stream.Collectors;
 public class  AgendamentoTutorService {
     private final AgendamentoRepository agendamentoRepository;
     private final CalendarioRepository calendarioRepository;
-    private final PetRepository petRepository;
-    private final ServicosRepository servicosRepository;
     private final ContratoRepository contratoRepository;
     private final MovimentacoesRepository movimentacoesRepository;
     private final ContratoDiasSemanaRepository contratoDiasSemanaRepository;
+    private final PetRepository petRepository;
+    private final ServicosRepository servicosRepository;
+
     private static final Integer capacidadePadrao = 10;
 
     public AgendamentoTutorService(AgendamentoRepository agendamentoRepository,
                                    CalendarioRepository calendarioRepository,
-                                   PetRepository petRepository,
-                                   ServicosRepository servicosRepository,
                                    ContratoRepository contratoRepository,
                                    MovimentacoesRepository movimentacoesRepository,
-                                   ContratoDiasSemanaRepository contratoDiasSemanaRepository) {
+                                   ContratoDiasSemanaRepository contratoDiasSemanaRepository,
+                                   PetRepository petRepository,
+                                   ServicosRepository servicosRepository) {
+
         this.agendamentoRepository = agendamentoRepository;
         this.calendarioRepository = calendarioRepository;
-        this.petRepository = petRepository;
-        this.servicosRepository = servicosRepository;
         this.contratoRepository = contratoRepository;
         this.movimentacoesRepository = movimentacoesRepository;
         this.contratoDiasSemanaRepository = contratoDiasSemanaRepository;
+        this.petRepository = petRepository;
+        this.servicosRepository = servicosRepository;
     }
 
     public List<PetsDoTutorResponse> buscarPets(UUID idUsuario) {
@@ -53,8 +54,7 @@ public class  AgendamentoTutorService {
         List<PetsDoTutorResponse> petsDoTutor = new ArrayList<>();
 
         for (PetsEntity pet : pets) {
-            PetsDoTutorResponse response = paraDtoPetTutor(pet);
-            petsDoTutor.add(response);
+            petsDoTutor.add(AgendamentoMapper.entityParaResponse(pet));
         }
 
         return petsDoTutor;
@@ -81,33 +81,15 @@ public class  AgendamentoTutorService {
         List<VagasDisponiveisResponse> responses = new ArrayList<>();
 
         for (LocalDate data = primeiroDia; !data.isAfter(ultimoDia); data = data.plusDays(1)) {
-            int capacidade = capacidadeDoDia(servico, calendario.get(data));
-            long agendados = agendamentos.getOrDefault(data, 0L);
+            Integer capacidade = capacidadeDoDia(servico, calendario.get(data));
+            Long agendados = agendamentos.getOrDefault(data, 0L);
 
-            long vagasDisponiveis = Math.max(0L, capacidade - agendados);
+            Long vagasDisponiveis = Math.max(0L, capacidade - agendados);
 
-            responses.add(new VagasDisponiveisResponse(
-                    data,
-                    servico,
-                    capacidade,
-                    vagasDisponiveis
-            ));
+            responses.add(AgendamentoMapper.paraVagasDisponiveisResponse(data, servico, capacidade, vagasDisponiveis));
         }
         return responses;
     }
-
-//    public List<AgendamentosTutorResponse> buscarAgendamentosDoTutor(UUID idUsuario, Integer ano, Integer mes) {
-//        YearMonth mesEscolhido = YearMonth.of(ano, mes);
-//        LocalDate primeiroDia = mesEscolhido.atDay(1);
-//        LocalDate ultimoDia = mesEscolhido.atEndOfMonth();
-//
-//        return agendamentoRepository.buscarAgendamentosDoTutor(
-//                idUsuario,
-//                primeiroDia,
-//                ultimoDia,
-//                List.of(SituacaoAgendamento.AGENDADO, SituacaoAgendamento.CONFIRMADO)
-//        );
-//    }
 
     public OrcamentoResponse calcularOrcamento(OrcamentoRequest request, UUID idUsuario) {
         ServicosEntity servico = buscarServicoEscolhido(request.idServico());
@@ -118,16 +100,9 @@ public class  AgendamentoTutorService {
 
         List<LocalDate> datas = verificarDatasEscolhidas(servico, request);
         List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
-
         BigDecimal valorTotal = calcularValorTotal(servico, datas, pets.size());
 
-        return new OrcamentoResponse(
-                servico.getNome(),
-                servico.getModalidade(),
-                pets.stream().map(PetsEntity::getNome).toList(),
-                datas,
-                valorTotal
-        );
+        return AgendamentoMapper.paraOrcamentoResponse(servico, pets, datas, valorTotal);
     }
 
     @Transactional
@@ -166,11 +141,9 @@ public class  AgendamentoTutorService {
     private AgendamentoCriadoResponse agendarPorDia(ServicosEntity servico, OrcamentoRequest request, UUID idUsuario) {
         List<PetsEntity> pets = buscarPetsEscolhidos(request.idsPet(), idUsuario);
         List<LocalDate> datas = verificarDatasEscolhidas(servico, request);
-        String servicoCategoria = servico.getCategoria();
+        String servicoCategoria = formatar(servico.getCategoria());
 
-        for (LocalDate data : datas) {
-            validarDisponibilidadeDoDia(servicoCategoria, data, pets);
-        }
+        validarDisponibilidadeDasDatas(servicoCategoria, datas, pets);
 
         boolean tutorAprovado = false;
         if ("DAYUSE".equals(servicoCategoria)) {
@@ -182,21 +155,27 @@ public class  AgendamentoTutorService {
 
         BigDecimal valorPorPet = calcularValorTotal(servico, datas, 1);
 
+        Map<LocalDate, CalendarioEntity> calendarios = buscarCalendarioPorData(datas.getFirst(), datas.getLast());
+        for (LocalDate data : datas) {
+            calendarios.computeIfAbsent(
+                    data,
+                    this::buscarOuCriarCalendario
+            );
+        }
+
         for (PetsEntity pet : pets) {
-            ContratosEntity contrato = salvarContrato(pet, servico, datas, valorPorPet, situacaoContrato);
-            salvarMovimentacao(contrato, valorPorPet);
+            ContratosEntity contrato =
+                    contratoRepository.save(AgendamentoMapper.paraEntity(pet, servico, datas, valorPorPet, situacaoContrato));
+            movimentacoesRepository.save(AgendamentoMapper.paraEntity(contrato, valorPorPet));
 
             for (LocalDate data : datas) {
-                AgendamentosEntity agendamento = paraEntityAgendamentos(pet, data, servicoCategoria, situacaoAgendamento);
+                AgendamentosEntity agendamento = AgendamentoMapper.paraEntity(pet, calendarios.get(data), data, servicoCategoria, situacaoAgendamento);
                 agendamentoRepository.save(agendamento);
             }
         }
-
         BigDecimal total = valorPorPet.multiply(BigDecimal.valueOf(pets.size()));
-        return new AgendamentoCriadoResponse(
-                total,
-                !tutorAprovado
-        );
+
+        return AgendamentoMapper.paraAgendamentoCriadoResponse(total, !tutorAprovado);
     }
 
     private AgendamentoCriadoResponse contratarPlano(ServicosEntity servico, OrcamentoRequest request, UUID idUsuario) {
@@ -206,7 +185,7 @@ public class  AgendamentoTutorService {
 
         for (PetsEntity pet : pets) {
             if (contratoRepository.existePlanoSobreposto(pet.getIdPet(), inicio, fim)) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, pet.getNome() + " já possui um plano nesse período");
+                throw new PetPossuiPlanoException(pet.getNome() + " já possui um plano nesse período");
             }
         }
 
@@ -214,12 +193,14 @@ public class  AgendamentoTutorService {
         BigDecimal valorPorPet = calcularValorTotal(servico, List.of(inicio), 1);
 
         for (PetsEntity pet : pets) {
-            ContratosEntity contrato = salvarContrato(pet, servico, List.of(inicio, fim), valorPorPet, "PENDENTE");
-            salvarMovimentacao(contrato, valorPorPet);
+            ContratosEntity contrato = contratoRepository
+                    .save(AgendamentoMapper.paraEntity(pet, servico, List.of(inicio, fim), valorPorPet, "PENDENTE"));
+
+            movimentacoesRepository.save(AgendamentoMapper.paraEntity(contrato, valorPorPet));
             salvarDiasDaSemana(contrato, request.diasSemana());
         }
 
-        return new AgendamentoCriadoResponse(
+        return AgendamentoMapper.paraAgendamentoCriadoResponse(
                 valorPorPet.multiply(BigDecimal.valueOf(pets.size())),
                 true
         );
@@ -267,10 +248,9 @@ public class  AgendamentoTutorService {
     private BigDecimal calcularValorTotal(ServicosEntity servico, List<LocalDate> datas, Integer quantidadePets) {
         int quantidadeDias = "PLANO".equals(servico.getModalidade()) ? 1 : datas.size();
 
-        return servico.getValor()
-                .multiply(BigDecimal.valueOf(quantidadeDias))
-                .multiply(BigDecimal.valueOf(quantidadePets))
-                .setScale(2, RoundingMode.HALF_UP);
+        return servico.getValor().multiply(BigDecimal.valueOf(quantidadeDias))
+                                 .multiply(BigDecimal.valueOf(quantidadePets))
+                                 .setScale(2, RoundingMode.HALF_UP);
     }
 
     private void salvarDiasDaSemana(ContratosEntity contrato, List<DiaSemana> diasSemanas) {
@@ -283,124 +263,91 @@ public class  AgendamentoTutorService {
         }
     }
 
-    private ContratosEntity salvarContrato(PetsEntity pet, ServicosEntity servico, List<LocalDate> datas, BigDecimal valor, String situacao) {
-        ContratosEntity contrato = new ContratosEntity();
-        contrato.setPet(pet);
-        contrato.setServicos(servico);
-        contrato.setDataInicio(datas.getFirst());
-        contrato.setDataFim(datas.getLast());
-        contrato.setValor(valor);
-        contrato.setSituacao(situacao);
-        return contratoRepository.save(contrato);
-    }
-
-    private void salvarMovimentacao(ContratosEntity contrato, BigDecimal valor) {
-        MovimentacoesEntity movimentacao = new MovimentacoesEntity();
-        movimentacao.setContrato(contrato);
-        movimentacao.setValor(valor);
-        movimentacao.setDataRegistro(LocalDate.now());
-        movimentacao.setSituacao("PENDENTE");
-        movimentacoesRepository.save(movimentacao);
-    }
-
     private CalendarioEntity buscarOuCriarCalendario(LocalDate data) {
-        return calendarioRepository.findByData(data).orElseGet(() -> {
-            CalendarioEntity calendario = new CalendarioEntity();
-            calendario.setData(data);
-            calendario.setVagasCreche(capacidadePadrao);
-            calendario.setVagasHotel(capacidadePadrao);
-            return calendarioRepository.save(calendario);
-        });
-    }
+        return calendarioRepository.findByData(data)
+                .orElseGet(() -> {
+                    CalendarioEntity calendario = new CalendarioEntity();
+                    calendario.setData(data);
+                    calendario.setVagasCreche(capacidadePadrao);
+                    calendario.setVagasHotel(capacidadePadrao);
 
-    private PetsDoTutorResponse paraDtoPetTutor(PetsEntity pet) {
-        return new PetsDoTutorResponse(
-                pet.getIdPet(),
-                pet.getNome(),
-                pet.getStatusAdaptacao()
-        );
-    }
-
-    private AgendamentosEntity paraEntityAgendamentos(PetsEntity pet, LocalDate data, String servico, SituacaoAgendamento situacaoAgendamento) {
-        AgendamentosEntity agendamento = new AgendamentosEntity();
-        agendamento.setFkPet(pet);
-        agendamento.setFkCalendario(buscarOuCriarCalendario(data));
-        agendamento.setDataEntrada(data.atStartOfDay());
-        agendamento.setServico(servico);
-        agendamento.setSituacao(situacaoAgendamento);
-        return agendamento;
+                    return calendarioRepository.save(calendario);
+                });
     }
 
     private void validarDiasSelecionadosDoPlano(ServicosEntity servico, List<DiaSemana> diaSemanas) {
         if (diaSemanas == null || diaSemanas.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione os dias da semana do plano");
+            throw new DiasSelecionadosInvalidosException("Selecione os dias da semana do plano");
         }
         if (diaSemanas.stream().distinct().count() != diaSemanas.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é permitido selecionar dias repetidos");
+            throw new DiasSelecionadosInvalidosException("Não é permitido selecionar dias repetidos");
         }
 
         int frequencia = Integer.parseInt(servico.getFrequencia());
         if (diaSemanas.size() != frequencia) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este plano exige a seleção de " + frequencia + " dias da semana");
+            throw new DiasSelecionadosInvalidosException("Este plano exige a seleção de " + frequencia + " dias da semana");
 
         }
     }
 
     private void validarServico(String servico) {
         if (servico == null || servico.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione um serviço.");
+            throw new ServicoInvalidoException("Selecione um serviço.");
         }
         if (!List.of("CRECHE", "DAYUSE", "HOTEL").contains(servico)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Serviço inválido.");
+            throw new ServicoInvalidoException("Serviço inválido.");
         }
     }
 
-    private void validarDisponibilidadeDoDia(String servico, LocalDate data, List<PetsEntity> pets) {
-        LocalDateTime inicio = data.atStartOfDay();
-        LocalDateTime fim = data.plusDays(1).atStartOfDay();
+    private void validarDisponibilidadeDasDatas(String servico, List<LocalDate> datas, List<PetsEntity> pets) {
+        Map<LocalDate, Long> agendamentos = buscarAgendamentosPorData(servico, datas.getFirst(), datas.getLast());
 
-        CalendarioEntity calendario = calendarioRepository.findByData(data).orElse(null);
-        long ocupadas = agendamentoRepository.buscarAgendamentoPorServico(servico, inicio, fim)
-                .stream().mapToLong(DiasComAgendamentoResponse::totalPetsAgendados).sum();
+        for (LocalDate data : datas) {
+            LocalDateTime inicio = data.atStartOfDay();
+            LocalDateTime fim = data.plusDays(1).atStartOfDay();
 
-        long livres = capacidadeDoDia(servico, calendario) - ocupadas;
+            CalendarioEntity calendario = calendarioRepository.findByData(data).orElse(null);
 
-        if (livres < pets.size()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Sem vagas suficientes em " + data + ".");
-        }
+            long ocupadas = agendamentos.getOrDefault(data, 0L);
+            long livres = capacidadeDoDia(servico, calendario) - ocupadas;
 
-        for (PetsEntity pet : pets) {
-            if (agendamentoRepository.petJaAgendado(pet.getIdPet(), inicio, fim)) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, pet.getNome() + " já possui agendamento em " + data + ".");
+            if (livres < pets.size()) {
+                throw new VagaIndisponivelException("Sem vagas suficientes em " + data + ".");
+            }
+
+            for (PetsEntity pet : pets) {
+                if (agendamentoRepository.petJaAgendado(pet.getIdPet(), inicio, fim)) {
+                    throw new PetJaAgendadoException(pet.getNome() + " já possui agendamento em " + data + ".");
+                }
             }
         }
     }
 
     private List<LocalDate> validarDatasDeUtilizacao(List<LocalDate> datas) {
         if (datas == null || datas.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione ao menos uma data");
+            throw new DataInvalidaException("Selecione ao menos uma data");
         }
         List<LocalDate> ordenadas = datas.stream().distinct().sorted().toList();
 
         if (ordenadas.getFirst().isBefore(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é possível agendar datas passadas.");
+            throw new DataInvalidaException("Não é possível agendar datas passadas.");
         }
         return ordenadas;
     }
 
     private LocalDate validarDataInicioPlano(LocalDate dataInicio) {
         if (dataInicio == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe a data de inicio.");
+            throw new DataInvalidaException("Informe a data de inicio.");
         }
         if (dataInicio.isBefore(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A data de início não pode ser passada.");
+            throw new DataInvalidaException("A data de início não pode ser passada.");
         }
         return dataInicio;
     }
 
     private ServicosEntity buscarServicoEscolhido(Integer idServico) {
         if (idServico == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione um serviço válido");
+            throw new ServicoInvalidoException("Selecione um serviço válido");
         }
         return servicosRepository.findById(idServico).filter(s -> Boolean.TRUE.equals(s.getStatus()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Serviço não encontrado ou inativo"));

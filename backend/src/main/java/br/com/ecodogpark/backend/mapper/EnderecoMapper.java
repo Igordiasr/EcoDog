@@ -3,7 +3,9 @@ package br.com.ecodogpark.backend.mapper;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.EnderecoRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.EnderecoResponse;
 import br.com.ecodogpark.backend.entity.EnderecoEntity;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EnderecoMapper {
     public static EnderecoResponse entityParaResponse(EnderecoEntity endereco) {
         if (endereco == null) {

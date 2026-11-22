@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.dto.AgendamentoTutorDTO;
 
+import br.com.ecodogpark.backend.enums.DiaSemana;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -16,7 +17,9 @@ public record OrcamentoRequest(
         @Schema(description = "Datas de utilização para serviços por dia ou agendamento pelo plano; informe ao menos uma data, sem datas passadas", example = "[\"2026-11-03\", \"2026-11-05\"]")
         List<LocalDate> datasUtilizacao,
         @Schema(description = "Data inicial para contratação de um plano; obrigatória na modalidade PLANO e não pode ser passada", example = "2026-11-03")
-        LocalDate dataInicioPlano     //para plano
+        LocalDate dataInicioPlano,     //para plano
+        @Schema(description = "Dias da semana para contratação de um plano")
+        List<DiaSemana> diasSemana     //para plano
 
 ) {
 }

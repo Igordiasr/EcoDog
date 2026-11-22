@@ -4,6 +4,8 @@ import br.com.ecodogpark.backend.dto.FeedMonitorDTO.*;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.NovoPetResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioResponse;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoMedicacao;
 import br.com.ecodogpark.backend.exception.PetNaoEncontradoException;
 import br.com.ecodogpark.backend.mapper.PetMapper;
 import br.com.ecodogpark.backend.repository.*;

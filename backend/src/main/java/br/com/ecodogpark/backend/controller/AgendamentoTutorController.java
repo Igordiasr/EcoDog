@@ -55,21 +55,6 @@ public class AgendamentoTutorController {
         return ResponseEntity.ok(disponibilidade);
     }
 
-//    @Operation(summary = "Listar agendamentos do tutor", description = "Consulta os agendamentos dos pets do tutor no mês informado, com situação AGENDADO ou CONFIRMADO. Retorna lista vazia quando não há registros.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
-//    })
-//    @GetMapping("/tutor/agendamentos")
-//    public ResponseEntity<List<AgendamentosTutorResponse>> buscarAgendamentos(
-//            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-//            @RequestParam UUID idUsuario,
-//            @Parameter(description = "Ano da consulta", example = "2026")
-//            @RequestParam Integer ano,
-//            @Parameter(description = "Mês da consulta, de 1 a 12", example = "11")
-//            @RequestParam Integer mes) {
-//        return ResponseEntity.ok(agendamentoTutorService.buscarAgendamentosDoTutor(idUsuario, ano, mes));
-//    }
-
     @Operation(summary = "Listar serviços ativos", description = "Lista os serviços ativos da categoria CRECHE, DAYUSE ou HOTEL disponíveis para contratação.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso"),
@@ -112,36 +97,4 @@ public class AgendamentoTutorController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(agendamentoTutorService.criarAgendamento(request, idUsuario));
     }
-
-//    @Operation(summary = "Agendar utilizando plano vigente", description = "Agenda creche para os pets e datas selecionados utilizando o plano vigente. Valida as vagas e o limite semanal, retornando os saldos após o agendamento.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "201", description = "Operação realizada com sucesso"),
-//            @ApiResponse(responseCode = "400", description = "Pets ou datas ausentes ou inválidos", content = @Content),
-//            @ApiResponse(responseCode = "403", description = "Um ou mais pets não pertencem ao tutor", content = @Content),
-//            @ApiResponse(responseCode = "409", description = "Plano vigente ausente, vagas insuficientes, agendamento duplicado ou limite semanal excedido", content = @Content)
-//    })
-//    @PostMapping("/planos/agendamentos")
-//    public ResponseEntity<AgendamentoPlanoResponse> agendarPeloPlano(@RequestBody @Valid OrcamentoRequest request,
-//                                                                     @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-//                                                                     @RequestParam UUID idUsuario) {
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body(agendamentoTutorService.agendarPeloPlano(request, idUsuario));
-//    }
-
-//    @Operation(summary = "Cancelar agendamento", description = "Cancela um agendamento pertencente ao tutor, nas situações AGENDADO ou CONFIRMADO. Não permite datas passadas. Quando o dia utiliza saldo do plano, devolve a utilização ao saldo.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
-//            @ApiResponse(responseCode = "400", description = "Não é possível cancelar datas passadas", content = @Content),
-//            @ApiResponse(responseCode = "403", description = "Agendamento não pertence ao tutor", content = @Content),
-//            @ApiResponse(responseCode = "404", description = "Agendamento não encontrado", content = @Content),
-//            @ApiResponse(responseCode = "409", description = "Situação do agendamento não permite cancelamento", content = @Content)
-//    })
-//    @PatchMapping("/agendamentos/{idAgendamento}/cancelar")
-//    public ResponseEntity<CancelamentoResponse> cancelar(
-//            @Parameter(description = "Identificador do agendamento a cancelar", example = "1")
-//            @PathVariable Long idAgendamento,
-//            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-//            @RequestParam UUID idUsuario) {
-//        return ResponseEntity.ok(agendamentoTutorService.cancelarAgendamento(idAgendamento, idUsuario));
-//    }
 }

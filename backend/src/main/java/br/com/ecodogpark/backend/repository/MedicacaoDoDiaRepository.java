@@ -1,7 +1,7 @@
 package br.com.ecodogpark.backend.repository;
 
 import br.com.ecodogpark.backend.entity.MedicacaoDoDiaEntity;
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

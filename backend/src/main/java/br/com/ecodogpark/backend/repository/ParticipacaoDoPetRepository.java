@@ -1,9 +1,8 @@
 package br.com.ecodogpark.backend.repository;
 
 import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.DBAtividadesResponse;
-import br.com.ecodogpark.backend.dto.FeedMonitorDTO.AtividadeDoPetResponse;
 import br.com.ecodogpark.backend.entity.ParticipacaoDoPetEntity;
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import br.com.ecodogpark.backend.entity.SituacaoAtividade;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;

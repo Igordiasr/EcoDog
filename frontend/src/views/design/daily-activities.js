@@ -5,7 +5,8 @@ const time = value => value?.match(/^\d{2}:\d{2}/)?.[0] || 'Não informado';
 export function activityDuration(activity) {
     const minutes = value => /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?$/.test(value || '') ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3, 5)) : null;
     const start = minutes(activity.horaInicio), end = minutes(activity.horaFim);
-    return start !== null && end !== null ? `${(end - start + 1440) % 1440} min` : 'não informada';
+    const groupCount = Math.max(activity.grupos?.length || 0, 1);
+    return start !== null && end !== null ? `${((end - start + 1440) % 1440 / groupCount).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} min` : 'não informada';
 }
 
 function petCard(template, pet, key) {

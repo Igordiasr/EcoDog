@@ -1,11 +1,17 @@
 import { useRef, useState } from 'react';
 import { Modal } from './Modal';
 import { deleteTutorPet } from '../../api/pets-api';
-export function petCardFromPrototype(template, pet) {
+export function petCardFromPrototype(template, pet, { onDelete, busy = false } = {}) {
     let description = 0;
     const map = node => {
         if (typeof node === 'string') return node;
         const copy = { ...node, id: `${node.id || 'pet'}-${pet.idPet}`, diaryPetId: pet.idPet };
+        if (node.name === 'Ação' && node.children?.some(child => child.name === 'Rótulo' && child.children?.includes('Ver diário'))) copy.viewPetDiary = true;
+        if (onDelete && node.name === 'Ação' && node.children?.some(child => child.name === 'Rótulo' && child.children?.includes('Excluir'))) {
+            copy.onDeletePet = () => onDelete(pet);
+            copy.deletePetName = pet.nome;
+            copy.deletePetBusy = busy;
+        }
         if (node.name === 'Ação' && node.children?.some(child => child.name === 'Rótulo' && child.children?.includes('Editar'))) copy.editPetId = pet.idPet;
         if (node.name === 'Nome') copy.children = [pet.nome];
         else if (node.name === 'Descrição') {
@@ -37,10 +43,10 @@ export function TutorPets({ model, node, renderCard, session }) {
     if (!model.pets.length) return <div>{message && <p role="status">{message}</p>}<p role="status">Você ainda não possui pets cadastrados.</p></div>;
     const group = node.children.find(child => child.name === 'Grupo de pets');
     const template = group ? group.children.find(child => child.name === 'Pet cadastrado') : node.children.find(child => child.name === 'Pet cadastrado');
-    const cards = model.pets.map(pet => <div key={pet.idPet} className="tutor-pet-entry">{renderCard(petCardFromPrototype(template, pet))}<button className="management-button management-danger" type="button" disabled={busy} onClick={() => { setTarget(pet); setMessage(''); }}>Excluir {pet.nome}</button></div>);
-    return <section aria-label="Pets cadastrados" className={node.className}>
+    const cards = model.pets.map(pet => <div key={pet.idPet} className="tutor-pet-entry">{renderCard(petCardFromPrototype(template, pet, { busy, onDelete: pet => { setTarget(pet); setMessage(''); } }))}</div>);
+    return <section aria-label="Pets cadastrados" className={`${node.className} tutor-pets-list`}>
         {message && <p role={target ? 'alert' : 'status'}>{message}</p>}
-        {group ? Array.from({ length: Math.ceil(cards.length / 2) }, (_, index) => <div key={index} className={group.className}>{cards.slice(index * 2, index * 2 + 2)}</div>) : cards}
+        <div className="tutor-pets-grid">{cards}</div>
         {target && <Modal title={`Excluir ${target.nome}`} onClose={() => { if (!busy) setTarget(null); }}><div className="dialog-content"><h2>Excluir {target.nome}?</h2><p>Esta ação remove o pet da sua lista.</p>{message && <p role="alert">{message}</p>}<div className="dialog-actions"><button type="button" disabled={busy} onClick={() => setTarget(null)}>Cancelar</button><button type="button" disabled={busy} onClick={remove}>{busy ? 'Excluindo…' : 'Confirmar exclusão'}</button></div></div></Modal>}
     </section>;
 }

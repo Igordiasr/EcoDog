@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class FeedMonitorService {
@@ -43,12 +44,12 @@ public class FeedMonitorService {
         this.usuarioService = usuarioService;
     }
 
-    public PetFeedMonitorResponse buscarPetParaMonitor(Long id) {
-        if (!petRepository.existsById(id)) throw new PetNaoEncontradoException("Auluno não encontrado");
-        NovoPetResponse pet = PetMapper.entityParaPetResponse(petRepository.findById(id).get());
+    public PetFeedMonitorResponse buscarPetParaMonitor(UUID idPet) {
+        if (!petRepository.existsById(idPet)) throw new PetNaoEncontradoException("Auluno não encontrado");
+        NovoPetResponse pet = PetMapper.entityParaPetResponse(petRepository.findById(idPet).get());
         UsuarioResponse tutor = usuarioService.buscarTutorPorId(pet.idTutor());
 
-        buscarAgendamentoDoPet(id);
+        buscarAgendamentoDoPet(idPet);
 
         return new PetFeedMonitorResponse(
                 pet.nome(),
@@ -58,10 +59,10 @@ public class FeedMonitorService {
         );
     }
 
-    public List<AtividadeDoPetResponse> buscarAtividades(Long id) {
+    public List<AtividadeDoPetResponse> buscarAtividades(UUID idPet) {
         List<AtividadeDoPetResponse> atividadeDoPetResponses = new ArrayList<>();
         List<ParticipacaoDoPetEntity> atividades =
-                participacaoDoPetRepository.buscarAtividadeDoPetAgendadoEConfirmado(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO);
+                participacaoDoPetRepository.buscarAtividadeDoPetAgendadoEConfirmado(idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO);
 
         for (ParticipacaoDoPetEntity atividade : atividades) {
            AtividadeDoPetResponse response = paraDtoAtividade(atividade);
@@ -71,10 +72,10 @@ public class FeedMonitorService {
         return atividadeDoPetResponses;
     }
 
-    public List<MedicacaoDoDiaResponse> buscarMedicacao(Long id) {
+    public List<MedicacaoDoDiaResponse> buscarMedicacao(UUID idPet) {
         List<MedicacaoDoDiaResponse> medicacaoDoDiaResponses = new ArrayList<>();
         List<MedicacaoDoDiaEntity> medicacoes =
-                medicacaoDoDiaRepository.buscarMedicacaoDoDiaAgendadoEConfirmado(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO);
+                medicacaoDoDiaRepository.buscarMedicacaoDoDiaAgendadoEConfirmado(idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO);
 
         for (MedicacaoDoDiaEntity medicacao : medicacoes) {
             MedicacaoDoDiaResponse response = paraDtoMedicacao(medicacao);
@@ -84,21 +85,21 @@ public class FeedMonitorService {
         return medicacaoDoDiaResponses;
     }
 
-    public ObservacaoDoDiaResponse criarObservacao(Long id, ObservacaoDoDiaRequest request) {
+    public ObservacaoDoDiaResponse criarObservacao(UUID idPet, ObservacaoDoDiaRequest request) {
         ObservacaoDoDiaEntity observacaoDoDia = new ObservacaoDoDiaEntity();
-        preencherObservacao(id, observacaoDoDia, request);
+        preencherObservacao(idPet, observacaoDoDia, request);
 
         return paraDtoObservacao(observacaoDoDiaRepository.save(observacaoDoDia));
     }
 
-    public AtividadeDoPetResponse atualizarAtividade(Long idParticipacao, Long idPet, AtividadeDoPetRequest request) {
+    public AtividadeDoPetResponse atualizarAtividade(Long idParticipacao, UUID idPet, AtividadeDoPetRequest request) {
         ParticipacaoDoPetEntity atividade = obterAtividade(idParticipacao, idPet);
         preencherAtividade(atividade, request);
 
         return paraDtoAtividade(participacaoDoPetRepository.save(atividade));
     }
 
-    public MedicacaoDoDiaResponse atualizarMedicacao(Long idMedicacao, Long idPet, MedicacaoDoDiaRequest request) {
+    public MedicacaoDoDiaResponse atualizarMedicacao(Long idMedicacao, UUID idPet, MedicacaoDoDiaRequest request) {
         MedicacaoDoDiaEntity medicacao = obterMedicacao(idMedicacao, idPet);
         preencherMedicacao(medicacao, request);
 
@@ -106,8 +107,8 @@ public class FeedMonitorService {
     }
 
 
-    private void preencherObservacao(Long id, ObservacaoDoDiaEntity observacao, ObservacaoDoDiaRequest request) {
-        AgendamentosEntity agendamentoEncontrado = buscarAgendamentoDoPet(id);
+    private void preencherObservacao(UUID idPet, ObservacaoDoDiaEntity observacao, ObservacaoDoDiaRequest request) {
+        AgendamentosEntity agendamentoEncontrado = buscarAgendamentoDoPet(idPet);
 
         observacao.setAgendamento(agendamentoEncontrado);
         observacao.setDescricao(request.observacao());
@@ -159,17 +160,17 @@ public class FeedMonitorService {
         );
     }
 
-    private AgendamentosEntity buscarAgendamentoDoPet(Long id) {
-        return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(id, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
+    private AgendamentosEntity buscarAgendamentoDoPet(UUID idPet) {
+        return agendamentoRepository.findByFkPetIdPetAndFkCalendarioDataAndSituacao(idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado ou não confirmado"));
     }
 
-    private ParticipacaoDoPetEntity obterAtividade(Long idParticipacao, Long idPet) {
+    private ParticipacaoDoPetEntity obterAtividade(Long idParticipacao, UUID idPet) {
         return participacaoDoPetRepository.buscarAtividadeDoPetNoAgendamento(idParticipacao, idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
     }
 
-    private MedicacaoDoDiaEntity obterMedicacao(Long idMedicacaoDoDia, Long idPet) {
+    private MedicacaoDoDiaEntity obterMedicacao(Long idMedicacaoDoDia, UUID idPet) {
         return medicacaoDoDiaRepository.buscarMedicacaoDoPetNoAgendamento(idMedicacaoDoDia, idPet, LocalDate.now(ZoneId.of("America/Sao_Paulo")), SituacaoAgendamento.CONFIRMADO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicação não encontrada"));
     }

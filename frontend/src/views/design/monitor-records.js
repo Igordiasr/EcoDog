@@ -8,6 +8,9 @@ export function isMonitorRecord(node) { return ['Registro de alimentação', 'Re
 // Saved snapshots are session-local, never operational identifiers.
 export function monitorRecordLocked(node, saved) {
     if (node.monitorRecord?.unavailable) return true;
+    return monitorRecordSaved(node, saved);
+}
+export function monitorRecordSaved(node, saved) {
     return !!saved || /^Registro salvo/.test(content(findDesignNode(node, 'Status') || '').trim());
 }
 export function monitorRecordKey(node) {
@@ -27,10 +30,14 @@ export function integratedMonitorDesign(root, feed) {
         const identity = findDesignNode(template, 'Identificação do registro');
         const titleId = nodes(identity)[0]?.id;
         const visit = node => ({ ...node, id: `${node.id}-${kind}-${id}`, children: node.id === titleId ? [name] : node.name === 'Descrição' ? [record.categoriaAtividade || ''] : node.name === 'Status' ? [state === 'PENDENTE' ? 'Escolha ainda não salva' : `Registro salvo • ${option || state}`] : node.name === 'Escolha atual' ? [option || 'Selecione'] : node.name === 'Entrada' ? [record.observacao || 'Conte um pouco mais...'] : node.name === 'Label' && content(node).startsWith('Observações') ? [`Observações • ${name}`] : node.children?.filter(c => typeof c === 'string' || c.name !== 'Atribuição salvo').map(c => typeof c === 'string' ? c : visit(c)) });
-        return { ...visit(template), monitorRecord: { kind, id, name } };
+        return { ...visit(template), monitorRecord: { kind, id, name, unavailable: !!feed.blockedReason } };
     };
     const visit = node => {
         if (typeof node === 'string') return node;
+        if (/^Foto (de |do pet)/.test(node.name || '')) {
+            const className = (node.className || '').replace(/bg-\[url\([^]*?\)\]/g, '') + ' monitor-pet-photo';
+            return data?.pet.fotoUrl ? { ...node, tag: 'img', name: `Foto de ${data.pet.nome}`, className, src: data.pet.fotoUrl, decorative: false, children: [] } : { ...node, tag: 'div', name: 'Foto do pet não disponível', className, children: [] };
+        }
         if (['Alimentação', 'Atividades', 'Medicações'].includes(node.name)) {
             const template = nodes(node).find(isMonitorRecord);
             const kind = node.name === 'Medicações' ? 'medication' : node.name === 'Alimentação' ? 'meal' : 'activity';
@@ -44,7 +51,7 @@ export function integratedMonitorDesign(root, feed) {
             // Keep input controls visible even when the backend has no scheduled records.
             return { ...node, children: [...(node.children || []).filter(c => typeof c === 'string' || !isMonitorRecord(c)), ...(records.length && template ? records.map(r => cloneRecord(template, r, kind)) : unavailable)] };
         }
-        if (node.name === 'Observações gerais') return { ...node, monitorRecord: { kind: 'observation' }, children: node.children?.map(visit) };
+        if (node.name === 'Observações gerais') return { ...node, monitorRecord: { kind: 'observation', unavailable: !!feed.blockedReason }, children: node.children?.map(visit) };
         if (!nodes(node).length && content(node).includes('Mariana Souza')) return { ...node, children: [content(node).startsWith('Responsável:') ? 'Responsável: monitor autenticado' : 'Preencha os cuidados e as observações do pet durante o dia.'] };
         if (!nodes(node).length && /Medicação 1 e Medicação 2/.test(content(node))) return { ...node, children: [data?.medication.map(m => m.nomeMedicacao).join(', ') || 'Nenhuma medicação vinculada para hoje.'] };
         const replacements = { Nome: data?.pet.nome || 'Pet', Raça: data?.pet.raca || '', Tutora: data ? `Tutor(a): ${data.pet.nomeTutor || ''}` : '', Orientação: data?.pet.observacao || '', Medicações: data?.medication.map(m => m.nomeMedicacao).join(', ') || 'Nenhuma medicação disponível.', Data: `Hoje • ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}` };

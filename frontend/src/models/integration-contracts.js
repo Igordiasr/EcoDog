@@ -40,3 +40,11 @@ export function enumValue(value, allowed, context) {
         throw new Error(`Estado inválido: ${context}`);
     return value;
 }
+export function isUuid(value) {
+    return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+export function uuid(value, context) {
+    if (!isUuid(value))
+        throw new Error(`ID inválido: ${context}`);
+    return value;
+}

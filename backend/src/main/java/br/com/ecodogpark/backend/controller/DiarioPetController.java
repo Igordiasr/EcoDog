@@ -1,12 +1,12 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import br.com.ecodogpark.backend.dto.DiarioPetResponse;
+import br.com.ecodogpark.backend.dto.DiarioPetTutor.DiarioPetResponse;
 import br.com.ecodogpark.backend.service.DiarioPetService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Requisições diário do pet", description = "Endpoints para consulta do diário e histórico dos pets")
 @RestController
-@RequestMapping("/api/diario")
+@RequestMapping("/diario")
 @CrossOrigin(origins = "http://localhost:5173")
 public class DiarioPetController {
 
@@ -33,34 +35,21 @@ public class DiarioPetController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso")
     })
-    @GetMapping("/{idPet}")
+    @GetMapping
     public ResponseEntity<DiarioPetResponse> obterDiarioDoPet(
-            @Parameter(description = "Identificador do pet", example = "1")
-            @PathVariable Long idPet,
+            @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @RequestParam UUID idPet,
             @Parameter(description = "Data de referência (yyyy-MM-dd); quando omitida, utiliza o dia atual em America/Sao_Paulo", example = "2026-10-26")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
 
         // O diário do pet sempre representa o dia solicitado; quando nenhuma data
         // é informada, utiliza-se a data atual (fuso America/Sao_Paulo), de modo
         // a não retornar dados de dias anteriores.
-        LocalDate dataReferencia = data != null ? data : LocalDate.now(FUSO_HORARIO);
-        return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, dataReferencia));
+        return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, data));
     }
 
-    // Funcionalidade explícita de histórico: permite consultar o diário de um pet
-    // em uma data específica, sem alterar o comportamento do diário do dia.
-    @Operation(summary = "Consultar histórico do pet", description = "Retorna o diário do pet para uma data específica, informada obrigatoriamente.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Data ausente ou inválida", content = @Content)
-    })
-    @GetMapping("/{idPet}/historico")
-    public ResponseEntity<DiarioPetResponse> obterHistoricoDoPet(
-            @Parameter(description = "Identificador do pet", example = "1")
-            @PathVariable Long idPet,
-            @Parameter(description = "Data de referência (yyyy-MM-dd)", example = "2026-10-26")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
-
-        return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, data));
+    @GetMapping("/agendamentos/{idPet}")
+    public ResponseEntity<List<DataAgendadaResponse>> buscarAgendamentosAnteriores(@PathVariable UUID idPet) {
+        return ResponseEntity.ok(diarioPetService.obterAgendamentosAnteriores(idPet));
     }
 }

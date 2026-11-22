@@ -1,5 +1,7 @@
 import { HttpError, requestJson } from '../api/http';
 import { sessionFromToken } from './auth';
+import { saveLocalPetImage } from '../api/local-pet-images';
+import { isUuid, uuid } from './integration-contracts';
 
 export function petRegistrationBody(draft) {
     if (draft.vacinas?.length || draft.medicamentos?.length || draft.allergies?.length) throw new Error('O catálogo de saúde ainda não está integrado. Nenhum item preenchido será descartado ou enviado como lista vazia.');
@@ -8,10 +10,11 @@ export function petRegistrationBody(draft) {
         nome: draft.nome, raca: draft.raca, sexo: draft.sexo,
         castrado: draft.castrado === 'Sim', dataNascimento: draft.nascimento,
         observacao: draft.obs.trim(), relacaoComOutros: draft['relacionamento-com-outros-pets'].trim(),
-        veterinario: draft.veterinario, telefoneVeterinario: draft.contato, convenio: draft.convenio === 'Sim' || draft.convenio === true,
+        veterinario: draft.veterinario, telefoneVeterinario: (draft.contato || '').replace(/\D/g, ''), convenio: draft.convenio === 'Sim' || draft.convenio === true,
         medicacoesDoPet: [],
         vacinasDoPet: [],
         alergiasDoPet: [],
+        ...(draft.fotoUrl ? { fotoUrl: draft.fotoUrl } : {}),
     };
 }
 
@@ -19,11 +22,16 @@ export async function registerTutorPet(baseUrl, session, draft, catalog, request
     const authenticated = sessionFromToken(session?.token);
     if (!authenticated || authenticated.profile !== 'tutor' || authenticated.id !== String(session.id)) throw new Error('Sua sessão expirou. Entre novamente para cadastrar seu pet.');
     const body = petRegistrationBody(draft, catalog);
-    if (petId !== undefined && (!Number.isSafeInteger(petId) || petId <= 0)) throw new Error('Identificador do pet inválido.');
+    uuid(authenticated.id, 'tutor');
+    if (petId !== undefined && !isUuid(petId)) throw new Error('Identificador do pet inválido.');
     if (petId !== undefined) throw new Error('Edição indisponível: a consulta não retorna os registros completos de saúde. Nenhum dado será apagado.');
+    if (draft.photo && !draft.fotoUrl) {
+        draft.fotoUrl = await saveLocalPetImage(draft.photo);
+        body.fotoUrl = draft.fotoUrl;
+    }
     try {
-        const result = await requestJson(baseUrl, `/pets/${encodeURIComponent(authenticated.id)}${petId === undefined ? '' : `/${petId}`}`, { method: petId === undefined ? 'POST' : 'PUT', headers: { Authorization: `Bearer ${authenticated.token}` }, body }, undefined, request);
-        if (!Number.isSafeInteger(result?.idPet) || result.idPet <= 0) throw new Error('Resposta do cadastro inesperada. Confira Meus Pets antes de tentar novamente.');
+        const result = await requestJson(baseUrl, `/tutores/${encodeURIComponent(authenticated.id)}/pets${petId === undefined ? '' : `/${petId}`}`, { method: petId === undefined ? 'POST' : 'PUT', headers: { Authorization: `Bearer ${authenticated.token}` }, body }, undefined, request);
+        if (!isUuid(result?.idPet)) throw new Error('Resposta do cadastro inesperada. Confira Meus Pets antes de tentar novamente.');
         return { ...result, message: petId === undefined ? 'Pet cadastrado com sucesso.' : 'Pet atualizado com sucesso.' };
     } catch (error) {
         if (!(error instanceof HttpError)) throw error;

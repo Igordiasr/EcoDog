@@ -3,11 +3,12 @@ package br.com.ecodogpark.backend.dto.TutorDTO.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Schema(description = "Dados de retorno de novo pet")
 public record NovoPetResponse(
-        @Schema(description = "Identificador do pet", example = "1")
-        Long idPet,
+        @Schema(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+        UUID idPet,
         @Schema(description = "Nome do pet")
         String nome,
         @Schema(description = "Raça do pet", example = "Labrador")
@@ -28,7 +29,7 @@ public record NovoPetResponse(
         String telefoneVeterinario,
         @Schema(description = "Indica se o pet possui convênio veterinário", example = "true")
         Boolean convenio,
-        @Schema(description = "Identificador do tutor", example = "1")
-        Long idTutor
+        @Schema(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+        UUID idTutor
 ) {
 }

@@ -11,6 +11,8 @@ import org.hibernate.validator.constraints.br.CPF;
 public record UsuarioRequest(
         @NotBlank @Size(max = 120) @Schema(description = "Nome do usuário")
         String nome,
+        @NotBlank @Size(max = 120) @Schema(description = "Sobrenome do usuário")
+        String sobrenome,
         @NotBlank @Email @Size(max = 150) @Schema(description = "Endereço de e-mail do usuário", example = "usuario@example.com")
         String email,
         @NotBlank @CPF @Size(max = 11) @Schema(description = "CPF do usuário, com 11 dígitos e sem pontuação", example = "52998224725")

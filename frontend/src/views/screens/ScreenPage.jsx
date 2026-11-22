@@ -1130,7 +1130,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         <div className="dialog-actions"><button type="button" disabled={presence.saving} onClick={presence.close}>Cancelar</button><button type="submit" disabled={presence.saving || !presence.responsible.trim()}>{presence.saving ? 'Aguarde…' : presence.target.operation === 'checkOut' ? 'Confirmar saída' : 'Confirmar'}</button></div>
       </form>
     </Modal>}
-    {dialog && <Modal title={dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'}>
+    {dialog && <Modal title={dialog === 'profile' ? 'Meu Perfil' : dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'} className={dialog === 'profile' ? 'profile-modal' : ''}>
       {dialog === 'linkPlan' && <p className="dialog-content" role="status">{recordIdentityUnavailable} O formulário permanece apenas como rascunho ilustrativo de vínculo.</p>}
       {modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
                 : dialog === 'confirm' ? <div className="dialog-content"><h2>Confirmar operação</h2><p>Deseja confirmar esta ação?</p><div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="button" disabled={busy} onClick={() => confirmAction && void run(confirmAction)}>Confirmar</button></div></div>

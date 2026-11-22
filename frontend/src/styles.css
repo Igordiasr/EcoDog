@@ -370,6 +370,28 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
 .dialog-content button { min-height: 44px; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 24px; font-family: "Lilita One", sans-serif; color: var(--primary-accessible); }
 .dialog-actions button:last-child { background: var(--brand); color: var(--surface); }
+.profile-modal { width: min(720px, calc(100% - 40px)); }
+.profile-modal .modal-close { top: 24px; right: 32px; border: 1px solid var(--brand); border-radius: 10px; color: var(--brand); font: 24px "Lilita One", sans-serif; }
+.profile-content { gap: 24px; color: #182d21; font: 14px/1.5 Roboto, sans-serif; }
+.profile-intro { display: flex; flex-direction: column; gap: 12px; }
+.profile-context { min-height: 44px; display: flex; align-items: center; padding-right: 56px; color: var(--brand); font: 14px "Lilita One", sans-serif; }
+.profile-content h2 { margin: 0; color: var(--brand); font: 40px/1.2 "Luckiest Guy", sans-serif; }
+.profile-content p { margin: 0; }
+.profile-fields { display: flex; flex-direction: column; gap: 24px; margin: 0; }
+.profile-fields > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.profile-fields dt, .profile-notice h3 { color: var(--brand); font: 14px "Lilita One", sans-serif; }
+.profile-fields dd { margin: 0; padding: 12px; min-height: 48px; border: 1px solid #6b8f7d; border-radius: 10px; background: var(--surface); color: #364d40; font: 16px/1.5 Roboto, sans-serif; overflow-wrap: anywhere; }
+.profile-notice { padding: 16px; border-radius: 12px; background: var(--background); }
+.profile-notice h3 { margin: 0 0 8px; }
+.profile-status { display: flex; flex-direction: column; gap: 12px; }
+.profile-actions { padding-top: 8px; }
+.profile-actions button { min-height: 48px; }
+@media (max-width: 600px) {
+  .profile-content { padding: 24px; gap: 20px; }
+  .profile-modal .modal-close { right: 24px; }
+  .profile-content h2 { font-size: 32px; }
+  .profile-actions button { width: 100%; }
+}
 .allergy-option { display: flex; align-items: center; gap: 12px; min-height: 44px; }
 .allergy-option input { width: 20px; height: 20px; accent-color: var(--brand); }
 .allergy-description { display: grid; gap: 8px; font-family: "Lilita One", sans-serif; }

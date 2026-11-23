@@ -86,6 +86,10 @@ button:disabled { cursor: not-allowed; }
 .design-mobile .login-screen { min-height: 596px; }
 .design-button { min-height: 44px; border-style: solid; text-decoration: none; }
 .design-button:hover:not(:disabled) { filter: brightness(.96); }
+.monitor-save-saved { background: var(--surface) !important; color: var(--primary-accessible) !important; border: 1px solid var(--brand); opacity: 1; }
+.monitor-save-pending { background: var(--brand) !important; color: var(--surface) !important; }
+.monitor-save-pending * { color: var(--surface) !important; }
+.monitor-pet-photo { background-color: #eef7f2; object-fit: cover; }
 .design-input { min-height: 44px; min-width: 0; font-family: Roboto, sans-serif; font-size: 16px; line-height: 22px; color: var(--text); background: var(--surface); }
 input.design-input, select.design-input, textarea.design-input { display: block; width: 100%; }
 .design-input::placeholder { color: #42544a; opacity: 1; }
@@ -366,6 +370,28 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
 .dialog-content button { min-height: 44px; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 24px; font-family: "Lilita One", sans-serif; color: var(--primary-accessible); }
 .dialog-actions button:last-child { background: var(--brand); color: var(--surface); }
+.profile-modal { width: min(720px, calc(100% - 40px)); }
+.profile-modal .modal-close { top: 24px; right: 32px; border: 1px solid var(--brand); border-radius: 10px; color: var(--brand); font: 24px "Lilita One", sans-serif; }
+.profile-content { gap: 24px; color: #182d21; font: 14px/1.5 Roboto, sans-serif; }
+.profile-intro { display: flex; flex-direction: column; gap: 12px; }
+.profile-context { min-height: 44px; display: flex; align-items: center; padding-right: 56px; color: var(--brand); font: 14px "Lilita One", sans-serif; }
+.profile-content h2 { margin: 0; color: var(--brand); font: 40px/1.2 "Luckiest Guy", sans-serif; }
+.profile-content p { margin: 0; }
+.profile-fields { display: flex; flex-direction: column; gap: 24px; margin: 0; }
+.profile-fields > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.profile-fields dt, .profile-notice h3 { color: var(--brand); font: 14px "Lilita One", sans-serif; }
+.profile-fields dd { margin: 0; padding: 12px; min-height: 48px; border: 1px solid #6b8f7d; border-radius: 10px; background: var(--surface); color: #364d40; font: 16px/1.5 Roboto, sans-serif; overflow-wrap: anywhere; }
+.profile-notice { padding: 16px; border-radius: 12px; background: var(--background); }
+.profile-notice h3 { margin: 0 0 8px; }
+.profile-status { display: flex; flex-direction: column; gap: 12px; }
+.profile-actions { padding-top: 8px; }
+.profile-actions button { min-height: 48px; }
+@media (max-width: 600px) {
+  .profile-content { padding: 24px; gap: 20px; }
+  .profile-modal .modal-close { right: 24px; }
+  .profile-content h2 { font-size: 32px; }
+  .profile-actions button { width: 100%; }
+}
 .allergy-option { display: flex; align-items: center; gap: 12px; min-height: 44px; }
 .allergy-option input { width: 20px; height: 20px; accent-color: var(--brand); }
 .allergy-description { display: grid; gap: 8px; font-family: "Lilita One", sans-serif; }
@@ -376,6 +402,9 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .preview-bar select { max-width: 260px; border: 1px solid #6b8f7d; border-radius: 6px; padding: 6px; }
 .preview-bar button { text-decoration: underline; }
 .loading-message { padding: 40px; text-align: center; }
+.monitor-availability-notice { margin: 20px auto; padding: 16px 20px; width: calc(100% - 32px); max-width: 1120px; border-radius: 12px; background: var(--accent); color: var(--text); font-family: var(--font-heading); }
+.monitor-availability-notice h2 { margin-bottom: 8px; font-size: 22px; line-height: 1.3; font-weight: normal; }
+.monitor-availability-notice p { font-size: 18px; line-height: 1.5; }
 .skip-link { position: fixed; z-index: 300; top: -100px; left: 12px; padding: 12px; background: white; color: #1f653d; }
 .skip-link:focus { top: 12px; }
 /* Absolute brand positioning comes from the desktop prototype's centered logo. */
@@ -441,12 +470,44 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 /* Frontend corrections: shared accessible controls and institutional contacts. */
 .account-page { max-width: 680px; margin: 0 auto; padding: 32px 20px; color: var(--text); }
 .account-page h1, .account-page h2 { color: var(--brand); margin: 16px 0; }
-.account-page form, .account-page fieldset, .account-page label, .pet-health-section, .pet-health-section label { display: flex; flex-direction: column; gap: 12px; }
+.account-page form, .account-page fieldset, .account-page label { display: flex; flex-direction: column; gap: 12px; }
 .account-page fieldset { border: 0; padding: 0; }
-.account-page button, .pet-health-section button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--brand); border-radius: 8px; }
-.account-page input, .pet-health-section input, .pet-health-section select { min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--brand); border-radius: 8px; }
-.pet-health-cards { list-style: none; padding: 0; display: grid; gap: 16px; }
-.pet-health-cards li { padding: 16px; border: 1px solid var(--brand); border-radius: 12px; display: flex; flex-direction: column; gap: 12px; }
+.account-page button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--brand); border-radius: 8px; }
+.account-page input { min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--brand); border-radius: 8px; }
+.pet-health-section { width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 20px; color: #364d40; font: 16px/22px Roboto, sans-serif; }
+.pet-health-entry { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.pet-health-entry { order: 3; width: 100%; }
+.pet-health-notice[role="status"] { order: 4; }
+.pet-health-new { width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 16px; background: #eef7f2; border-radius: 12px; }
+.pet-health-new h3 { margin: 0; color: var(--brand); font: 20px/26px "Lilita One", sans-serif; }
+.pet-health-new-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.pet-registration-page [data-design-name="Título e ação"] > [data-design-name="Botão"] { display: none; }
+.pet-registration-page.design-desktop [data-design-name="Foto editável"] { width: 240px; }
+.pet-registration-page.design-desktop [data-design-name="Adicionar foto"] { width: 240px; height: 240px; border-radius: 24px; }
+.pet-registration-page [data-design-name="Painel"] { overflow: visible; }
+.pet-health-fields { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); align-items: start; gap: 16px; }
+.pet-health-field { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.pet-health-field > label, label.pet-health-field { color: var(--brand); font: 16px/22px "Lilita One", sans-serif; }
+.pet-health-section .design-input { box-sizing: border-box; min-height: 48px; width: 100%; padding: 12px; border: 1px solid #6b8f7d; border-radius: 10px; background: var(--surface); color: #364d40; font: 16px/22px Roboto, sans-serif; }
+.pet-health-section .design-input::placeholder { color: #586f60; opacity: 1; }
+.pet-health-section .design-input:disabled { background: #eef7f2; cursor: not-allowed; }
+.pet-health-section .design-input[aria-invalid="true"] { border-color: #a73320; }
+.pet-health-section .pet-health-add { min-height: 48px; padding: 12px 24px; border: 2px solid var(--brand); border-radius: 10px; background: var(--brand); color: var(--surface); }
+.pet-health-add > span { font: 24px/20px Roboto, sans-serif; }
+.pet-health-cards { width: 100%; min-width: 0; list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.pet-health-cards > li { min-width: 0; padding: 12px; border: 1px solid #6b8f7d; border-radius: 10px; background: #eef7f2; display: flex; flex-direction: column; gap: 12px; }
+.pet-health-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pet-health-card-header strong { min-width: 0; overflow-wrap: anywhere; color: var(--brand); font: 18px/24px "Lilita One", sans-serif; }
+.pet-health-remove { flex-shrink: 0; min-height: 44px; padding: 8px 12px; border: 1px solid var(--brand); border-radius: 10px; background: var(--surface); color: var(--brand); font: 14px/20px "Lilita One", sans-serif; }
+.pet-health-remove:not(:disabled):hover { background: #eef7f2; }
+.pet-health-add:not(:disabled):hover { background: #1c5b37; }
+.pet-health-notice, .pet-health-empty { margin: 0; font: 14px/20px Roboto, sans-serif; color: #586f60; }
+.pet-health-empty { padding: 16px; border: 1px dashed #6b8f7d; border-radius: 10px; }
+@media (max-width: 600px) {
+  .pet-health-fields { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .pet-health-section .pet-health-add { width: 100%; }
+  .pet-health-cards > li { padding: 12px; }
+}
 .tutor-pet-entry { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 8px; }
 .institutional-footer { color: var(--surface); }
 .institutional-footer [data-footer-text="true"] { color: var(--surface); }

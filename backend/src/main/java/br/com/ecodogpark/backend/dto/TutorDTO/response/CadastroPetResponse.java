@@ -15,11 +15,12 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Schema(description = "Dados de retorno de cadastro pet")
 public record CadastroPetResponse(
-        @Schema(description = "Identificador do pet", example = "1")
-        Long idPet,
+        @Schema(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+        UUID idPet,
         @Schema(description = "Nome do pet")
         String nome,
         @Schema(description = "Raça do pet", example = "Labrador")
@@ -41,7 +42,7 @@ public record CadastroPetResponse(
         @Schema(description = "Indica se o pet possui convênio veterinário", example = "true")
         Boolean convenio,
         @Schema(description = "Identificador do tutor", example = "1")
-        Long idTutor,
+        UUID idTutor,
         @Schema(description = "Medicações associadas ao pet")
         List<MedicacaoParaListaResponse> medicacoesDoPet,
         @Schema(description = "Vacinas associadas ao pet")

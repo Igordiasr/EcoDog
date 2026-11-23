@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class TokenConfig {
@@ -16,7 +17,7 @@ public class TokenConfig {
     public String gerarToken(UsuariosEntity usuario) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
-                .withClaim("roles", usuario.getTipo())
+                .withClaim("roles", usuario.getTipo().name())
                 .withSubject(usuario.getIdUsuario().toString())
                 .withExpiresAt(Instant.now().plusSeconds(600))
                 .withIssuedAt(Instant.now())
@@ -29,7 +30,7 @@ public class TokenConfig {
             DecodedJWT decode = JWT.require(algorithm)
                     .build().verify(token);
             return Optional.of(JWTUserData.builder()
-                    .userId(Long.valueOf(decode.getSubject()))
+                    .userId(UUID.fromString(decode.getSubject()))
                     .roles(decode.getClaim("roles").asString())
                     .build());
         } catch (JWTVerificationException exception) {

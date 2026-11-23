@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface MedicacaoDoDiaRepository extends JpaRepository<MedicacaoDoDiaEntity, Long> {
     @Query("""
@@ -16,7 +17,7 @@ public interface MedicacaoDoDiaRepository extends JpaRepository<MedicacaoDoDiaEn
             AND m.fkAgendamento.fkCalendario.data = :data
             AND m.fkAgendamento.situacao = :situacao
     """)
-    List<MedicacaoDoDiaEntity> buscarMedicacaoDoDiaAgendadoEConfirmado(Long idPet, LocalDate data, SituacaoAgendamento situacao);
+    List<MedicacaoDoDiaEntity> buscarMedicacaoDoDiaAgendadoEConfirmado(UUID idPet, LocalDate data, SituacaoAgendamento situacao);
 
     @Query("""
         SELECT m FROM MedicacaoDoDiaEntity m
@@ -27,7 +28,7 @@ public interface MedicacaoDoDiaRepository extends JpaRepository<MedicacaoDoDiaEn
     """)
 
     Optional<MedicacaoDoDiaEntity> buscarMedicacaoDoPetNoAgendamento(Long idMedicacaoDoDia,
-                                                                     Long idPet,
+                                                                     UUID idPet,
                                                                      LocalDate data,
                                                                      SituacaoAgendamento situacao);
 }

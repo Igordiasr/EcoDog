@@ -12,7 +12,7 @@ export function usePetDiary(enabled, requestedId, day, session) {
         setState({ data: null, pet: null, loading: true, error: '' });
         (async () => {
             const pets = await loadTutorPets(base, session, controller.signal);
-            const pet = requestedId ? pets.find(p => p.idPet === requestedId) : pets[0];
+            const pet = requestedId ? pets.find(p => p.idPet.toLowerCase() === requestedId.toLowerCase()) : pets[0];
             if (!pet) throw new Error('Selecione um dos seus pets para consultar o diário.');
             const api = createPetDiaryApi(base, undefined, session?.token);
             const data = await (day === presenceDay() ? api.day(pet.idPet, day, controller.signal) : api.historyDay(pet.idPet, day, controller.signal));

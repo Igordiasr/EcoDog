@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.repository;
 
 import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.DBAtividadesResponse;
 import br.com.ecodogpark.backend.dto.FeedMonitorDTO.AtividadeDoPetResponse;
+import br.com.ecodogpark.backend.entity.AtividadesDoDiaEntity;
 import br.com.ecodogpark.backend.entity.ParticipacaoDoPetEntity;
 import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import br.com.ecodogpark.backend.entity.SituacaoAtividade;
@@ -14,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoDoPetEntity, Long> {
     boolean existsByFkAtividadesDoDiaIdAtividadeDoDia(Long idAtividadeDoDia);
@@ -24,7 +26,7 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
               AND p.fkAgendamento.fkCalendario.data = :data
               AND p.fkAgendamento.situacao = :situacao
     """)
-    List<ParticipacaoDoPetEntity> buscarAtividadeDoPetAgendadoEConfirmado(Long idPet, LocalDate data, SituacaoAgendamento situacao);
+    List<ParticipacaoDoPetEntity> buscarAtividadeDoPetAgendadoEConfirmado(UUID idPet, LocalDate data, SituacaoAgendamento situacao);
 
     @Query("""
         SELECT p FROM ParticipacaoDoPetEntity p
@@ -34,7 +36,7 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
               AND p.fkAgendamento.situacao = :situacao
     """)
     Optional<ParticipacaoDoPetEntity> buscarAtividadeDoPetNoAgendamento(Long idParticipacao,
-                                                                        Long idPet,
+                                                                        UUID idPet,
                                                                         LocalDate data,
                                                                         SituacaoAgendamento situacao);
 
@@ -75,4 +77,34 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
     @Modifying
     @Query("UPDATE ParticipacaoDoPetEntity p SET p.situacao = :situacao WHERE p.idParticipacaoDoPet IN :ids AND p.situacao = 'PENDENTE'")
     void concluirAtividadeTodosPets(@Param("situacao") SituacaoAtividade situacao, @Param("ids") List<Long> idsParticipacoes);
+
+    @Transactional
+    @Modifying
+    @Query("""
+    UPDATE ParticipacaoDoPetEntity p
+    SET p.situacao = :situacao
+    WHERE p.idParticipacaoDoPet = :idParticipacao
+""")
+    int atualizarSituacaoParticipacao(
+            @Param("situacao") SituacaoAtividade situacao,
+            @Param("idParticipacao") Long idParticipacao
+    );
+
+    @Query("""
+    SELECT pp
+    FROM ParticipacaoDoPetEntity pp
+    JOIN pp.fkAtividadesDoDia ad
+    JOIN ad.fkCalendario c
+    JOIN pp.fkAgendamento ag
+    JOIN ag.fkCalendario ca
+    WHERE ag.fkPet.idPet = :idPet
+      AND c.data = :data
+      AND ca.data = :data
+    ORDER BY ad.horaInicio, ad.idAtividadeDoDia
+    """)
+    List<ParticipacaoDoPetEntity> buscarPorPetEData(
+            @Param("idPet") UUID idPet,
+            @Param("data") LocalDate data
+    );
 }
+

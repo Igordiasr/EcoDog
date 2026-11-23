@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Schema(description = "Dados de retorno de dbatividades")
 public record DBAtividadesResponse(
@@ -28,7 +29,7 @@ public record DBAtividadesResponse(
         @Schema(description = "Identificador da participação do pet na atividade", example = "1")
         Long idParticipacaoDoPet,
         @Schema(description = "Identificador do pet", example = "1")
-        Long idPet,
+        UUID idPet,
         @Schema(description = "Nome do pet", example = "Thor")
         String nomeDoPet,
         @Schema(description = "Número do grupo de pets", example = "1")

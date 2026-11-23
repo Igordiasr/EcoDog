@@ -30,6 +30,7 @@ public class AgendamentosEntity {
     private String pertences;
     private String racaoMarca;
     private String racaoQuantidade;
+    private String quantidade;
 
     public Long getIdAgendamentos() {
         return idAgendamentos;
@@ -125,5 +126,13 @@ public class AgendamentosEntity {
 
     public void setRacaoQuantidade(String quantidade) {
         this.racaoQuantidade = quantidade;
+    }
+
+    public String getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(String quantidade) {
+        this.quantidade = quantidade;
     }
 }

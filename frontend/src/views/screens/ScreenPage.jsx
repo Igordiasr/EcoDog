@@ -17,7 +17,7 @@ import { loadCurrentUserName } from '../../models/current-user';
 import { availableBookingDates, bookingPets, bookingBudget, matchingBookingService, saveTutorBooking } from '../../api/tutor-booking';
 import { validatePetForm, validatePetPhoto } from '../../models/pet-validation';
 import { unconfiguredHolidayCalendar } from '../../models/holidays';
-import { clearBookingDraft, draftDatesForCalendar, markBookingDraftReady, readBookingDraft, saveBookingDraft } from '../../viewmodels/booking-draft';
+import { clearBookingDraft, draftDatesForCalendar, markBookingDraftReady, readBookingDraft } from '../../viewmodels/booking-draft';
 import { structureBookingDesign } from '../design/structure-booking';
 import { structureActivities, structureActivityDesign } from '../design/structure-activities';
 import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
@@ -107,7 +107,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const [day, setDay] = useState(0);
     const [selectedDates, setSelectedDates] = useState([]);
     const [crecheWeekdays, setCrecheWeekdays] = useState([]);
-    const [service, setService] = useState(preview ? 'Hotel' : '');
+    const [service, setService] = useState(preview || id === 'TL09' ? 'Hotel' : '');
     const [pets, setPets] = useState(preview ? ['Thor', 'Mel', 'Luke'] : []);
     const [monthOffset, setMonthOffset] = useState(() => bookingScreen && !preview ? currentBookingMonthOffset() : 0);
     const [availability, setAvailability] = useState(null);
@@ -153,8 +153,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             setBookingServices(services);
             const available = availableBookingDates(dates, id === 'TL09' ? 1 : pets.length);
             setAvailability({ key: availabilityKey, available });
-        }).catch(() => { if (!controller.signal.aborted)
-            setAvailabilityError('Não foi possível consultar a disponibilidade.'); });
+        }).catch(error => { if (!controller.signal.aborted)
+            setAvailabilityError([401, 403].includes(error.status)
+                ? 'A API exige uma sessão de tutor para consultar as vagas. A disponibilidade não pôde ser verificada.'
+                : `Não foi possível consultar a disponibilidade. ${error.message || ''}`); });
         return () => controller.abort();
     }, [id, bookingScreen, preview, service, monthOffset, pets.length, session?.token, bookingRefresh]);
     const [busy, setBusy] = useState(false);
@@ -197,7 +199,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setMenu(false);
         setRepeats({});
         setDay(id === 'TL14' ? 15 : 13);
-        setService(preview ? 'Hotel' : '');
+        setService(preview || id === 'TL09' ? 'Hotel' : '');
         setPets(id === 'TL03' && !preview ? [] : ['Thor', 'Mel', 'Luke']);
         setMonthOffset(bookingScreen && !preview ? currentBookingMonthOffset() : 0);
         setAllergies([]);
@@ -739,9 +741,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             }
             return;
         }
-        if (id === 'TL09' && (label === 'Agendar' || label === 'Quero agendar')) {
-            saveBookingDraft({ service: service, dates: bookingDates, weekdays: service === 'Creche' ? crecheWeekdays : [], monthOffset }, session?.profile === 'tutor');
-            navigate(session?.profile === 'tutor' ? '/tutor/agendamento' : '/entrar');
+        if (id === 'TL09' && ['Agendar', 'Quero agendar', 'Agendar visita'].includes(label)) {
+            go('TL04');
             return;
         }
         if (label === 'Agendar') {
@@ -1019,9 +1020,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                     return entry;
                 const date = calendarDay(entry);
                 const blocked = date && (!availability || availability.key !== availabilityKey || !availability.available.has(bookingDate(date.day, monthOffset)) || !preview && isPastBookingDate(bookingDate(date.day, monthOffset)));
-                return { ...entry, ...(date && !preview ? { bookingUnavailable: !!blocked } : {}), className: date ? `${(entry.className || '').replace(/bg-\[#ffe8e0(?:ff)?\]/gi, '')} ${blocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}` : entry.className, children: entry.children?.map(decorate) };
+                return { ...entry, ...(date && !preview ? { bookingUnavailable: !!blocked, bookingAvailabilityUnknown: !availability || availability.key !== availabilityKey } : {}), className: date ? `${(entry.className || '').replace(/bg-\[#ffe8e0(?:ff)?\]/gi, '')} ${blocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}` : entry.className, children: entry.children?.map(decorate) };
             };
-            const calendarChildren = calendar.children?.map(decorate) || [];
+            const calendarChildren = (calendar.children || [])
+                .filter(entry => !(id === 'TL09' && !preview && availabilityError && typeof entry !== 'string' && entry.name === 'Semana'))
+                .map(decorate);
             if (id === 'TL09' && !preview && (!availability || availability.key !== availabilityKey))
                 calendarChildren.push({ tag: 'p', name: 'Estado de disponibilidade', className: 'w-full', children: [!service ? 'Selecione um serviço para consultar as datas disponíveis.' : availabilityError || 'Consultando datas disponíveis…'] });
             return { ...node, className: `${node.className} booking-calendar`, children: calendarChildren };

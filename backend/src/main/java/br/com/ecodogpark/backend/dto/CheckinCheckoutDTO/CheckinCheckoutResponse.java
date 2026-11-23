@@ -3,9 +3,7 @@ package br.com.ecodogpark.backend.dto.CheckinCheckoutDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
-
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

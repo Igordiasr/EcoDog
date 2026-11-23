@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.entity;
 
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

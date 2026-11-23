@@ -15,7 +15,7 @@ public record AtualizarDadosRequest(
         String sobrenome,
 
         @Schema(description = "Documento de identidade do tutor", example = "14816546081")
-        @CPF
+        @NotBlank @CPF
         String cpf,
 
         @Schema(description = "Telefone de contato com DDD", example = "11912345678")
@@ -23,7 +23,7 @@ public record AtualizarDadosRequest(
         String telefone,
 
         @Schema(description = "Endereço de e-mail do tutor", example = "tutor@example.com")
-        @Email
+        @NotBlank @Email
         String email,
 
         @Schema(description = "Endereço do tutor")

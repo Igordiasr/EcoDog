@@ -64,6 +64,12 @@ public class  TutorController {
         return ResponseEntity.ok(dadosAtualizados);
     }
 
+    @Operation(summary = "Atualizar senha do tutor", description = "Atualiza a senha do tutor mediante confirmação da senha atual e envio de uma nova senha.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Tutor não encontrado"),
+            @ApiResponse(responseCode = "422", description = "Senha atual incorreta")
+    })
     @PatchMapping("conta/{idTutor}/senha")
     public ResponseEntity<Void> atualizarSenha(@PathVariable UUID idTutor,
                                                @RequestBody @Valid AtualizarSenhaRequest request) {

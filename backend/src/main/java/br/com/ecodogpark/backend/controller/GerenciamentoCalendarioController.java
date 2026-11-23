@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ public class GerenciamentoCalendarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Mês ausente ou inválido", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/dias")
     public ResponseEntity<List<LocalDate>> listarDiasConfigurados(
             @Parameter(description = "Mês de referência (yyyy-MM)", example = "2026-10")
@@ -49,6 +51,7 @@ public class GerenciamentoCalendarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Data ausente ou inválida", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/dia")
     public ResponseEntity<CalendarioDiaResponse> buscarDia(
             @Parameter(description = "Data de referência (yyyy-MM-dd)", example = "2026-10-26")
@@ -60,6 +63,7 @@ public class GerenciamentoCalendarioController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso")
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/catalogo-atividades")
     public ResponseEntity<List<AtividadeCalendarioResponse>> listarCatalogoAtividades() {
         return ResponseEntity.ok(servico.listarCatalogoAtividades());
@@ -70,6 +74,7 @@ public class GerenciamentoCalendarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Data inválida ou quantidade de vagas negativa ou ausente", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{data}/vagas")
     public ResponseEntity<CalendarioDiaResponse> atualizarVagas(
             @Parameter(description = "Data de referência (yyyy-MM-dd)", example = "2026-10-26")
@@ -85,6 +90,7 @@ public class GerenciamentoCalendarioController {
             @ApiResponse(responseCode = "404", description = "Atividade do catálogo não encontrada", content = @Content),
             @ApiResponse(responseCode = "409", description = "Horário em conflito com outra atividade do dia", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping("/{data}/atividades")
     public ResponseEntity<AtividadeCalendarioResponse> adicionarAtividade(
             @Parameter(description = "Data de referência (yyyy-MM-dd)", example = "2026-10-26")
@@ -100,6 +106,7 @@ public class GerenciamentoCalendarioController {
             @ApiResponse(responseCode = "404", description = "Atividade programada não encontrada", content = @Content),
             @ApiResponse(responseCode = "409", description = "Atividade possui pets vinculados", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/atividades/{id}")
     public ResponseEntity<Void> removerAtividade(@Parameter(description = "Identificador do registro", example = "1")
             @PathVariable Long id) {

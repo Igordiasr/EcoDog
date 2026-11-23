@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Requisições tutor", description = "Endpoints para requisições relacionadas ao tutor")
@@ -27,23 +28,12 @@ public class  TutorController {
 
     public TutorController(TutorService tutorService) { this.tutorService = tutorService; }
 
-    @Operation(summary = "Cadastra um novo tutor", description = "Requisição para criar o cadastro de um novo tutor")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Tutor cadastrado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
-            @ApiResponse(responseCode = "409", description = "Tutor já cadastrado", content = @Content)
-    })
-    @PostMapping
-    public ResponseEntity<TutorCadastroResponse> cadastrarTutor(@Valid @RequestBody CadastroTutorRequest tutorRequest) {
-        TutorCadastroResponse tutor = tutorService.cadastrarTutor(tutorRequest);
-        return ResponseEntity.created(URI.create("/tutores/" + tutor.id())).body(tutor);
-    }
-
     @Operation(summary = "Consulta os dados do tutor", description = "Requisição para consultar os dados cadastrais de um tutor através do seu identificador")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Dados do tutor encontrados com sucesso"),
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/conta/{idTutor}")
     public ResponseEntity<MeusDadosResponse> dadosTutor(@PathVariable UUID idTutor) {
         MeusDadosResponse dadosTutor = tutorService.buscarDados(idTutor);
@@ -57,6 +47,7 @@ public class  TutorController {
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content),
             @ApiResponse(responseCode = "409", description = "Dados informados já estão cadastrados", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PutMapping("/conta/{idTutor}")
     public ResponseEntity<MeusDadosResponse> atualizarTutor(@Valid @RequestBody AtualizarDadosRequest requestTutor,
                                                             @PathVariable UUID idTutor) {
@@ -69,6 +60,7 @@ public class  TutorController {
             @ApiResponse(responseCode = "200", description = "Pets encontrados, ou lista vazia"),
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado")
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/{idTutor}/pets")
     public List<PetParaListaResponse> listarPets(
             @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
@@ -77,6 +69,7 @@ public class  TutorController {
 
     @Operation(summary = "Lista as alergias cadastradas", description = "Requisição para listar todas as alergias disponíveis no catálogo compartilhado entre os tutores")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Alergias listadas com sucesso")})
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/alergias")
     public ResponseEntity<List<AlergiaResponse>> catalogoAlergias() {
         return ResponseEntity.ok(tutorService.listarAlergias());
@@ -84,6 +77,7 @@ public class  TutorController {
 
     @Operation(summary = "Lista as medicações cadastradas", description = "Requisição para listar todas as medicações disponíveis no catálogo compartilhado entre os tutores")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Medicações listadas com sucesso")})
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/medicacoes")
     public ResponseEntity<List<MedicacaoResponse>> catalogoMedicacoes() {
         return ResponseEntity.ok(tutorService.listarMedicacoes());
@@ -91,6 +85,7 @@ public class  TutorController {
 
     @Operation(summary = "Lista as vacinas cadastradas", description = "Requisição para listar todas as vacinas disponíveis no catálogo compartilhado entre os tutores")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Vacinas listadas com sucesso")})
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/vacinas")
     public ResponseEntity<List<VacinaResponse>> catalogoVacinas() {
         return ResponseEntity.ok(tutorService.listarVacinas());
@@ -103,6 +98,7 @@ public class  TutorController {
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado", content = @Content),
             @ApiResponse(responseCode = "409", description = "Pet já cadastrado", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/{idTutor}/pets")
         public ResponseEntity<CadastroPetResponse> cadastrarNovoPet(
             @Valid @RequestBody CadastroPetRequest cadastroPetRequest,
@@ -113,29 +109,13 @@ public class  TutorController {
         return ResponseEntity.created(URI.create("/pets/" + pet.idPet())).body(pet);
     }
 
-    @Operation(summary = "Atualizar pet", description = "Requisição para atualizar os dados do pet e substituir suas medicações, vacinas e alergias, com base nos identificadores do tutor e do pet. Retorna o cadastro completo atualizado. O pet deve pertencer ao tutor informado")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pet atualizado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Atualização não permitida pois o pet não pertence ao tutor informado", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Tutor/ Pet não encontrado")
-    })
-    @PutMapping("/{idTutor}/pets/{idPet}")
-    public CadastroPetResponse atualizar(
-            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
-            @PathVariable UUID idTutor,
-            @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
-            @PathVariable UUID idPet,
-            @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
-        return tutorService.atualizarDadosPet(idTutor, idPet, cadastroPetRequest);
-    }
-
     @Operation(summary = "Excluir pet", description = "Requisição para excluir o pet, como há muitas entidades relacionadas que dependem do registro do pet, essa exclusão é feita através de um soft delete para que as outras entidades não sejam afetadas")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Pet excluido com sucesso"),
             @ApiResponse(responseCode = "403", description = "Exclusão não permitida pois o identificador do pet não pertence ao identificador do tutor"),
             @ApiResponse(responseCode = "404", description = "Tutor não encontrado")
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @DeleteMapping("/{idTutor}/pets/{idPet}")
     public ResponseEntity<Void> excluir(
             @Parameter(description = "Identificador do pet", example = "68736f5d-7587-51fc-9101-46a148dc4852")
@@ -154,6 +134,7 @@ public class  TutorController {
             @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
             @ApiResponse(responseCode = "409", description = "Alergia já cadastrada", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/alergias")
     public ResponseEntity<AlergiaResponse> cadastrarNovaAlergia(@Valid @RequestBody AlergiaRequest request) {
         AlergiaResponse response = tutorService.cadastrarNovaAlergia(request);
@@ -167,10 +148,29 @@ public class  TutorController {
             @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
             @ApiResponse(responseCode = "409", description = "Medicação já cadastrada", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/medicacoes")
     public ResponseEntity<MedicacaoResponse> cadastrarNovaMedicacao(@Valid @RequestBody MedicacaoRequest request) {
         MedicacaoResponse response = tutorService.cadastrarNovaMedicacao(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Atualizar pet", description = "Requisição para atualizar os dados do pet e substituir suas medicações, vacinas e alergias, com base nos identificadores do tutor e do pet. Retorna o cadastro completo atualizado. O pet deve pertencer ao tutor informado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pet atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Atualização não permitida pois o pet não pertence ao tutor informado", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Tutor/ Pet não encontrado")
+    })
+    @PreAuthorize("hasRole('TUTOR')")
+    @PutMapping("/{idTutor}/pets/{idPet}")
+    public CadastroPetResponse atualizar(
+            @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
+            @PathVariable UUID idTutor,
+            @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet,
+            @Valid @RequestBody CadastroPetRequest cadastroPetRequest) {
+        return tutorService.atualizarDadosPet(idTutor, idPet, cadastroPetRequest);
     }
 
     @Operation(summary = "Cadastra uma nova vacina",
@@ -180,6 +180,7 @@ public class  TutorController {
             @ApiResponse(responseCode = "400", description = "Informa quais dados estão inválidos", content = @Content),
             @ApiResponse(responseCode = "409", description = "Vacina já cadastrada", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/vacinas")
     public ResponseEntity<VacinaResponse> cadastrarNovaVacina(@Valid @RequestBody VacinaRequest request) {
         VacinaResponse response = tutorService.cadastrarNovaVacina(request);

@@ -17,13 +17,18 @@ public class RefreshTokenEntity {
     private UsuariosEntity fkUsuario;
 
     private String tokenHash;
+
     private UUID familiaId;
+
     private LocalDateTime criadoEm;
-    private LocalDateTime expiradoEm;
+
+    private LocalDateTime expiraEm;
+
     private LocalDateTime utilizadoEm;
+
     private LocalDateTime revogadoEm;
 
-    protected RefreshTokenEntity() {}
+    public RefreshTokenEntity() {}
 
     public Long getIdRefresh() {
         return idRefresh;
@@ -65,12 +70,12 @@ public class RefreshTokenEntity {
         this.criadoEm = criadoEm;
     }
 
-    public LocalDateTime getExpiradoEm() {
-        return expiradoEm;
+    public LocalDateTime getExpiraEm() {
+        return expiraEm;
     }
 
-    public void setExpiradoEm(LocalDateTime expiradoEm) {
-        this.expiradoEm = expiradoEm;
+    public void setExpiraEm(LocalDateTime expiradoEm) {
+        this.expiraEm = expiradoEm;
     }
 
     public LocalDateTime getUtilizadoEm() {

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Requisições usuários", description = "Endpoints para cadastro e gestão de tutores, monitores e administradores")
@@ -35,6 +36,7 @@ public class UsuarioController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista de clientes retornada com sucesso")
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/clientes")
     public ResponseEntity<List<ClienteResponse>> buscarClientes() {
         return ResponseEntity.ok(usuarioService.buscarClientes());
@@ -47,6 +49,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/monitores")
     public ResponseEntity<List<FuncionarioResponse>> listarMonitores() {
         List<FuncionarioResponse> monitores = usuarioService.listarMonitores();
@@ -60,6 +63,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "400", description = "Dados do usuário inválidos", content = @Content),
             @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping("/monitores")
     public ResponseEntity<FuncionarioResponse> cadastrarMonitor(@Valid @RequestBody MonitorRequest monitorRequest) {
         FuncionarioResponse monitor = usuarioService.cadastrarMonitor(monitorRequest);
@@ -71,6 +75,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/monitores/{id}")
     public ResponseEntity<FuncionarioResponse> buscarMonitorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id) {
@@ -84,6 +89,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content),
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/monitores/{id}")
     public ResponseEntity<FuncionarioResponse> atualizarMonitor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id, @Valid @RequestBody MonitorRequest monitorRequest) {
@@ -95,6 +101,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "204", description = "Operação realizada com sucesso", content = @Content),
             @ApiResponse(responseCode = "404", description = "Monitor não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/monitores/{id}")
     public ResponseEntity<Void> excluirMonitor(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id) {
@@ -109,6 +116,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/administradores")
     public ResponseEntity<List<FuncionarioResponse>> listarAdministradores() {
         List<FuncionarioResponse> administradores = usuarioService.listarAdministradores();
@@ -122,6 +130,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "400", description = "Dados do usuário inválidos", content = @Content),
             @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping("/administradores")
     public ResponseEntity<FuncionarioResponse> cadastrarAdministrador(@Valid @RequestBody UsuarioRequest request) {
         FuncionarioResponse administrador = usuarioService.cadastrarAdministrador(request);
@@ -133,6 +142,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/administradores/{id}")
     public ResponseEntity<FuncionarioResponse> buscarAdministradorPorId(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id) {
@@ -146,6 +156,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado", content = @Content),
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/administradores/{id}")
     public ResponseEntity<FuncionarioResponse> atualizarAdministrador(
             @Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
@@ -158,6 +169,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "204", description = "Operação realizada com sucesso", content = @Content),
             @ApiResponse(responseCode = "404", description = "Administrador não encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/administradores/{id}")
     public ResponseEntity<Void> excluirAdministrador(@Parameter(description = "Identificador do registro", example = "68736f5d-7587-51fc-9101-46a148dc4852")
             @PathVariable UUID id) {

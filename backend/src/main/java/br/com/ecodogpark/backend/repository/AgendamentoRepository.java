@@ -3,6 +3,7 @@ package br.com.ecodogpark.backend.repository;
 import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.DiasComAgendamentoResponse;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse;
+import br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
 import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,7 +31,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
             a.tutorCheckout,
             a.pertences,
             a.racaoMarca,
-            a.quantidade
+            a.racaoQuantidade
         )
         FROM AgendamentosEntity a
         JOIN a.fkPet p
@@ -113,4 +114,5 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
         ORDER BY a.dataEntrada
     """)
     List<AgendamentosEntity> buscarAgendamentosDoTutor(@Param("idTutor") UUID idTutor);
+
 }

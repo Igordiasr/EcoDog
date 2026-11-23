@@ -98,6 +98,11 @@ export function MyProfile({ session, onLogout }) {
             .catch(error => { if (!controller.signal.aborted) { setState({ error: error.message }); if (error.status === 401) void onLogout(); } });
         return () => controller.abort();
     }, [session?.token, attempt]);
-    return <div className="dialog-content"><h2>Meus Dados</h2>{state.loading ? <p role="status">Carregando seus dados…</p> : state.error ? <><p role="alert">{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button></> : <dl>{[['nome', 'Nome'], ['email', 'E-mail'], ['telefone', 'Telefone']].map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{state.user[key] || 'Não informado'}</dd></div>)}</dl>}
-        <p>CPF e endereço não são devolvidos pela consulta. A edição exige dados que a consulta não retorna; esta tela é somente leitura.</p><button type="button" onClick={onLogout}>Sair da conta</button></div>;
+    const role = { tutor: 'Tutor', monitor: 'Monitor', admin: 'Administrador' }[session?.profile];
+    return <section className="dialog-content profile-content" aria-labelledby="my-profile-title">
+        <header className="profile-intro"><span className="profile-context">MINHA CONTA{role ? ` • ${role.toUpperCase()}` : ''}</span><h2 id="my-profile-title">Meu Perfil</h2><p>Confira seus dados cadastrados no EcoDog Park.</p></header>
+        {state.loading ? <p className="profile-status" role="status">Carregando seus dados…</p> : state.error ? <div className="profile-status"><p role="alert">{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button></div> : <dl className="profile-fields">{[['nome', 'Nome'], ['email', 'E-mail'], ['telefone', 'Telefone']].map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{state.user[key] || 'Não informado'}</dd></div>)}</dl>}
+        <aside className="profile-notice"><h3>Dados da conta</h3><p>Seus dados estão disponíveis apenas para consulta. CPF e endereço não estão disponíveis nesta consulta.</p></aside>
+        <footer className="dialog-actions profile-actions"><button type="button" onClick={onLogout}>Sair da conta</button></footer>
+    </section>;
 }

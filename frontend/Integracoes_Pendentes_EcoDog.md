@@ -482,7 +482,30 @@ No retorno do dia, `atividades` contém os campos de programação acima; `aluno
 
 Vagas não negativas; horários sem sobreposição e fim posterior ao início. Exclusão pode falhar com pets vinculados. Definir atomicidade do lote, rejeição de agendamento e efeitos financeiros/saldo. Não confundir ID do catálogo com ID da atividade programada.
 
-### Meus Dados — frame `BuDxA` | Parcial
+### Meu Perfil / Meus Dados — frame `BuDxA` | Consulta parcial / atualização pendente
+
+**Revisão documental em 19/11/2026:** popup compartilhado para tutor, monitor e administrador, acessível pelo perfil do cabeçalho e pela ação “Meus Dados”. Esta seção diferencia a consulta consumida hoje dos contratos futuros necessários para o formulário completo do protótipo. Nenhuma API, DTO, banco ou código de frontend foi alterado nesta revisão.
+
+**Consumidor atual:** `src/views/screens/AccountPages.jsx` (`MyProfile`), aberto por `src/views/screens/ScreenPage.jsx`, usa `src/models/current-user.js` (`loadCurrentUser`). O popup exibe somente nome, e-mail e telefone em modo de consulta, com carregamento, erro, nova tentativa e saída da conta. Não envia atualização de dados, endereço ou senha.
+
+| Perfil autenticado | GET chamado pelo frontend atual | Identidade esperada na resposta atual | Destino futuro de consulta / contato |
+| --- | --- | --- | --- |
+| Tutor (`tutor`) | `/tutores/conta/{id}` | `idTutor` | `GET /tutores/me` / `PATCH /tutores/me` |
+| Monitor (`monitor`) | `/usuarios/monitores/{id}` | `id` | `GET /monitores/me` / `PATCH /monitores/me` |
+| Administrador (`admin`) | `/usuarios/administradores/{id}` | `id` | `GET /administradores/me` / `PATCH /administradores/me` |
+
+Essas chamadas atuais foram identificadas no código consumidor, **não validadas em execução**. O adaptador exige identidade UUID correspondente à sessão e `nome` não vazio; normaliza e-mail/telefone ausentes para texto vazio. Exemplo mínimo compatível com a leitura atual de tutor (para funcionários, substituir `idTutor` por `id`):
+
+```json
+{
+  "idTutor": "e9f2c463-65e1-4fcb-9726-49cd2473e165",
+  "nome": "Maria Silva",
+  "email": "tutor@example.com",
+  "telefone": "11912345678"
+}
+```
+
+**Atenção à migração:** as rotas sem `/conta` e `/usuarios` descritas abaixo são destinos documentados, não as URLs chamadas hoje. Os exemplos numéricos antigos desta seção não são compatíveis com a validação UUID atual; o contrato proposto abaixo usa UUID textual e exige adaptar o consumidor à identidade unificada `id`.
 
 **Já tem:** modal de consulta nome/e-mail/telefone por GET individual do perfil. PUT de usuário existe, mas exige CPF/senha e não segue a semântica da tela.
 
@@ -499,13 +522,15 @@ Vagas não negativas; horários sem sobreposição e fim posterior ao início. E
 
 ```json
 {
-  "id": 4, "nome": "Maria Silva", "cpf": "52998224725", "dataNascimento": "1990-08-15",
+   "id": "e9f2c463-65e1-4fcb-9726-49cd2473e165", "nome": "Maria Silva", "cpf": "52998224725", "dataNascimento": "1990-08-15",
   "perfil": "TUTOR", "email": "tutor@example.com", "telefone": "11912345678",
-  "endereco": { "cep": "04101000", "cidade": "São Paulo", "rua": "Rua das Flores", "numero": "123", "bairro": "Vila Mariana" }
+   "endereco": { "cep": "04101000", "cidade": "São Paulo", "rua": "Rua das Flores", "numero": "123", "bairro": "Vila Mariana", "complemento": "Apto. 12" }
 }
 ```
 
 Nascimento desconhecido deve ser `null`; sua origem precisa ser definida, não copiada do exemplo visual.
+
+**Contrato futuro de leitura — tipos e uso:** `id` é UUID em string; `nome`, `cpf`, `dataNascimento` e `perfil` alimentam os campos somente leitura. `perfil` deve ser `TUTOR`, `MONITOR` ou `ADMINISTRADOR`, conforme o token, nunca escolhido no popup. `cpf` é string com 11 dígitos quando disponível; CPF ou nascimento não cadastrados retornam `null`, sem inventar valores. `dataNascimento` usa `YYYY-MM-DD`. `email` e `telefone` são strings; dado ausente pode retornar `null`, a normalizar no formulário. `endereco` é objeto ou `null` quando não cadastrado; seus campos são strings, com `complemento` opcional/nulo. Número é texto para permitir `S/N`. Não devolver senha, hash, token ou relações de persistência. Campos futuros não consumidos pelo popup atual dependem da implementação do formulário completo.
 
 **Envio sugerido de contato — `PATCH /tutores/me`, `PATCH /monitores/me` ou `PATCH /administradores/me`, conforme perfil:**
 
@@ -515,7 +540,7 @@ Nascimento desconhecido deve ser `null`; sua origem precisa ser definida, não c
 }
 ```
 
-Resposta 200: contato atualizado, por exemplo `{"id":4,"email":"novo@example.com","telefone":"11912345678"}`.
+Resposta sugerida 200: contato persistido, por exemplo `{"id":"e9f2c463-65e1-4fcb-9726-49cd2473e165","email":"novo@example.com","telefone":"11912345678"}`. Após sucesso, recarregar o GET do perfil para refletir os valores confirmados. Alternativa a acordar: 204 sem corpo, mantendo a recarga; não tentar interpretar JSON em 204. Nenhum desses retornos é consumido hoje.
 
 **Endereço — sugestão `PATCH /tutores/me/endereco`, `PATCH /monitores/me/endereco` ou `PATCH /administradores/me/endereco`, conforme perfil:**
 
@@ -532,6 +557,52 @@ Resposta 200: contato atualizado, por exemplo `{"id":4,"email":"novo@example.com
 ```
 
 Resposta 204, sem corpo. Confirmação local; validar atual, política de senha e revogação de sessões. Protótipo pede 8 caracteres com letras/números, diferente do mínimo 6 atual. Contato, endereço e senha são chamadas distintas: comunicar sucesso parcial e repetir apenas as operações que falharam.
+
+#### Regras propostas para atualização e segurança — todos os perfis
+
+- Todas as consultas/gravações usam `Authorization: Bearer <token>`; gravações JSON usam `Content-Type: application/json`. GET não envia corpo. Nas rotas `me`, não enviar `id`, `idTutor` ou `perfil` no payload: o servidor deriva a conta do JWT e autoriza somente o próprio usuário no perfil correto.
+- Contato permite apenas `email` e `telefone`; endereço permite apenas seus campos documentados; senha recebe somente `senhaAtual` e `novaSenha`. Nome, CPF, nascimento, perfil e situação da conta não são atualizados por esses contratos. Não reutilizar PUT que exige CPF/senha para salvar contato; não enviar valores fictícios para satisfazer campos obrigatórios.
+- PATCH preserva campos omitidos. Não transformar campo ainda não carregado em texto vazio ou `null`. Para complemento, omissão preserva e `null` remove explicitamente, **semântica proposta a confirmar**. Endereço inexistente deve poder ser cadastrado pelo PATCH com todos os campos obrigatórios; definir isso no backend antes de habilitar a ação.
+- Validar e-mail, unicidade conforme a política das contas, telefone com DDD e CEP com oito dígitos. CPF/telefone/CEP permanecem strings, sem máscara no transporte. CEP, cidade, rua, número e bairro são obrigatórios ao cadastrar endereço completo; complemento é opcional. Reconfirmar limites nos DTOs: referências anteriores de e-mail até 150 e telefone até 20 caracteres não comprovam os limites futuros.
+- Consulta de CEP apenas auxilia o preenchimento; usuário confere o resultado. Falha na consulta não deve impedir preenchimento manual. Salvar no servidor os dados validados, não confiar exclusivamente na validação visual.
+- Troca de senha é opcional e separada: enviar somente quando solicitada e validada; confirmação de nova senha fica no frontend. Validar senha atual no servidor, acordar política e revogação de sessões. Nunca registrar senhas em logs nem armazená-las no navegador após a operação.
+- Acordar efeito da alteração de e-mail: verificação do novo endereço, identificação de login e eventual renovação/invalidação do JWT. O frontend não deve presumir que o token permanece válido nem encerrar a sessão sem regra definida.
+- Persistir cada operação atomicamente. Como contato, endereço e senha são requisições separadas, não anunciar “todos os dados salvos” se uma delas falhar. Não repetir automaticamente gravações após timeout; consultar o estado antes de novo envio.
+
+#### Erros sugeridos e tratamento esperado
+
+Formato **proposto**, a alinhar com o padrão global da API; não representa resposta já verificada:
+
+```json
+{
+  "codigo": "VALIDACAO",
+  "mensagem": "Confira os campos informados.",
+  "erros": [
+    { "campo": "email", "mensagem": "Informe um e-mail válido." },
+    { "campo": "endereco.cep", "mensagem": "Informe um CEP com 8 dígitos." }
+  ]
+}
+```
+
+| Status proposto | Situação / comportamento do frontend |
+| --- | --- |
+| 400 | Payload inválido ou senha atual incorreta; exibir erro de campo quando disponível e preservar dados não sensíveis |
+| 401 | Sessão ausente, inválida ou expirada; encerrar sessão e encaminhar ao login, como no tratamento atual da consulta |
+| 403 | Perfil/permissão incompatível; não tentar endpoints de outros perfis |
+| 404 | Conta não encontrada; não preencher o popup com dados fictícios |
+| 409 | Conflito, por exemplo e-mail já utilizado; manter o formulário para correção |
+| 429 | Limite de tentativas; respeitar orientação de nova tentativa, especialmente na troca de senha |
+| 500 / falha de rede | Informar indisponibilidade, sem presumir gravação ou apagar dados do formulário |
+
+#### Pendências de implementação e critérios de aceite
+
+1. **Contrato/backend futuro:** confirmar as rotas por perfil, DTO unificado de leitura, UUID, origem de CPF/nascimento/endereço, campos nulos, validações, autorização por JWT, atualização parcial e respostas/erros. Disponibilizar GET e as três gravações específicas para cada perfil; garantir CORS para a origem do frontend, incluindo PATCH/PUT e cabeçalhos de autenticação.
+2. **Adaptador/frontend futuro:** migrar `loadCurrentUser` das URLs atuais para `/<perfil>/me`, validar `id` e mapear todos os campos previstos. Criar chamadas de contato/endereço/senha sem misturá-las ao cadastro público ou à gestão administrativa de funcionários.
+3. **Popup futuro:** adicionar campos completos do protótipo, mantendo nome/CPF/nascimento/perfil somente leitura; implementar edição de contato/endereço e troca opcional de senha, validação, carregamento, bloqueio de envio duplicado, cancelamento sem gravação, confirmação de sucesso e erros por operação. Atualizar os dados exibidos após recarga, sem reabrir com estado antigo.
+4. **Sessão e privacidade:** limpar dados ao trocar usuário/sair, cancelar consultas obsoletas, não compartilhar cache entre contas e aplicar a política acordada após troca de e-mail/senha. Sair da conta continua ação distinta de excluir/desativar o usuário.
+5. **Testes de integração:** cobrir os três perfis e todos os pontos de abertura em desktop/mobile; dados completos/nulos/endereço ausente; preservação de complemento omitido; validações; sessão expirada; tentativa de acessar outra conta; senha atual incorreta; conflito de e-mail; falha parcial; timeout; recarga e persistência após reabrir o popup. Validar em ambiente real antes de marcar atualização como integrada.
+
+**Não necessário neste contrato:** foto/avatar, upload, exclusão de conta, mudança de perfil e atualização de dados de outros usuários. São escopos separados e não devem ser acrescentados ao payload do popup.
 
 ### Recuperação de senha | Pendente
 

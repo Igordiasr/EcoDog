@@ -1,5 +1,6 @@
 import { HttpError, requestJson } from '../api/http';
 import { unavailableApi } from './api';
+import { isUuid } from './integration-contracts';
 
 const storageKey = 'ecodog.auth.token';
 
@@ -9,8 +10,8 @@ export function sessionFromToken(token, now = Date.now()) {
         const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
         const claims = JSON.parse(atob(payload));
         const profile = { TUTOR: 'tutor', MONITOR: 'monitor', ADMINISTRADOR: 'admin' }[claims.roles];
-        if (!profile || !claims.sub || !Number.isFinite(claims.exp) || claims.exp * 1000 <= now) return null;
-        return { token, id: claims.sub, profile, expiresAt: claims.exp * 1000 };
+        if (!profile || !isUuid(claims.sub) || !Number.isFinite(claims.exp) || claims.exp * 1000 <= now) return null;
+        return { token, id: claims.sub.toLowerCase(), profile, expiresAt: claims.exp * 1000 };
     } catch { return null; }
 }
 
@@ -34,7 +35,7 @@ export function createAuthApi(baseUrl, { storage = globalThis.sessionStorage, re
             return session;
         },
         async login(email, senha) {
-            const response = await send('/usuarios/login', { email, senha });
+            const response = await send('/auth/login', { email, senha });
             const session = sessionFromToken(response?.token);
             if (!session) throw new Error('Resposta de autenticação inválida ou expirada.');
             token = response.token;
@@ -42,8 +43,8 @@ export function createAuthApi(baseUrl, { storage = globalThis.sessionStorage, re
             return session;
         },
         async register(data) {
-            const user = await send('/usuarios', data);
-            if (!user?.id || typeof user.nome !== 'string' || typeof user.email !== 'string') throw new Error('Resposta de cadastro inesperada.');
+            const user = await send('/tutores', data);
+            if (!isUuid(user?.id) || typeof user.nome !== 'string' || typeof user.email !== 'string') throw new Error('Resposta de cadastro inesperada.');
             return user;
         },
         async logout() { clear(); },

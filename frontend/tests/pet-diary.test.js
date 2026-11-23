@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import design from '../src/views/design/TL07.json';
 import { integratedPetDiaryDesign } from '../src/views/design/pet-diary';
 
-const data = { idPet: 7, data: '2026-11-08', resumo: { statusRefeicao: 'Refeição concluída.', statusEngajamento: 'Uma atividade concluída.' }, atividades: [{ descricao: 'Passeio no parque' }], medicacoes: [{ nome: 'Remédio real', status: 'TOMOU' }], observacoes: 'Descansou após o passeio.' };
+const data = { idPet: '550e8400-e29b-41d4-a716-446655440000', data: '2026-11-08', resumo: { statusRefeicao: 'Refeição concluída.', statusEngajamento: 'Uma atividade concluída.' }, atividades: [{ descricao: 'Passeio no parque' }], medicacoes: [{ nome: 'Remédio real', status: 'TOMOU' }], observacoes: 'Descansou após o passeio.' };
 
 describe('Diário do tutor', () => {
     for (const layout of ['desktop', 'mobile']) {

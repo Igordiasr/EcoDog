@@ -19,7 +19,7 @@ describe('Check-in e check-out sem horário previsto', () => {
 
         for (const situacao of ['AGENDADO', 'CONFIRMADO', 'RETIRADO']) {
             it(`preserva os registros reais em ${layout} para ${situacao}`, () => {
-                const pet = { idAgendamento: 1, idPet: 7, nomePet: 'Mel', situacao, dataEntradaRaw: '2026-11-16T09:15:00', dataSaidaRaw: '2026-11-16T16:30:00' };
+                const pet = { idAgendamento: 1, idPet: '550e8400-e29b-41d4-a716-446655440000', nomePet: 'Mel', situacao, dataEntradaRaw: '2026-11-16T09:15:00', dataSaidaRaw: '2026-11-16T16:30:00' };
                 const result = presenceDesign(find(design[layout], 'Pets previstos'), { pets: [pet] });
                 expect(find(result, 'Horário previsto')).toBeUndefined();
                 const serialized = JSON.stringify(result);

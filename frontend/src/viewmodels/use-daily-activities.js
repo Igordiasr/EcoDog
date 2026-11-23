@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createDailyActivitiesApi } from '../api/daily-activities-api';
-import { createMonitorFeedApi } from '../api/monitor-feed-api';
 import { presenceDay } from './use-presence';
 
 export function visibleDailyActivities(data, completed) {
@@ -10,7 +9,6 @@ export function visibleDailyActivities(data, completed) {
 export function useDailyActivities(enabled, session) {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
     const api = useMemo(() => createDailyActivitiesApi(baseUrl, undefined, session?.token), [baseUrl, session?.token]);
-    const feed = useMemo(() => createMonitorFeedApi(baseUrl, undefined, session?.token), [baseUrl, session?.token]);
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -49,10 +47,10 @@ export function useDailyActivities(enabled, session) {
         setDetailsError('');
         if (!detailsPet) return;
         const controller = new AbortController();
-        feed.pet(detailsPet.idPet, controller.signal).then(result => { if (!controller.signal.aborted) setDetails(result); })
+        api.pet(detailsPet.idPet, controller.signal).then(result => { if (!controller.signal.aborted) setDetails(result); })
             .catch(error => { if (!controller.signal.aborted) setDetailsError(error.message); });
         return () => controller.abort();
-    }, [detailsPet, feed]);
+    }, [detailsPet, api]);
     const activities = visibleDailyActivities(data, completed);
     const activeId = activities.some(activity => activity.idAtividadeDoDia === expanded) ? expanded : activities[0]?.idAtividadeDoDia;
     const complete = async id => {
@@ -63,7 +61,7 @@ export function useDailyActivities(enabled, session) {
         setSaving(true);
         setError('');
         try {
-            await api.complete(id);
+            await api.complete(id, activity.grupos.flatMap(group => group.petsDoGrupo.map(pet => pet.idParticipacaoDoPet)));
             if (version !== generation.current) return;
             // Refresh authoritative status; never keep actionable stale cards after a failed refresh.
             setData(null);

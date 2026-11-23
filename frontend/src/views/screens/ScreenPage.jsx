@@ -36,7 +36,6 @@ import { presenceDesign, removeExpectedTime } from '../design/presence';
 import { monitorUnavailableReason } from '../design/monitor-availability';
 import { usePresence } from '../../viewmodels/use-presence';
 import { useDailyActivities } from '../../viewmodels/use-daily-activities';
-import { UserManagement } from '../components/UserManagement';
 import { dailyActivitiesDesign } from '../design/daily-activities';
 import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
@@ -1065,9 +1064,10 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 });
         }, tutorPets: id === 'TL05' ? tutorPets : undefined, petHealthCatalog: id === 'TL06' ? petHealthCatalog : undefined, managementCalendar: id === 'TL14' ? managementCalendar : undefined, dashboard: id === 'TL13' ? dashboard : undefined, activityIndex, petRecords, petErrors, removePetRecord, petAllergies: allergies, setPetAllergies: setAllergies, action, day, selectedDates: bookingDates, crecheWeekdays, cart, removeDate: (date) => { if (service !== 'Creche')
             setSelectedDates(dates => dates.filter(selected => selected !== date)); }, service, pets, busy: busy || monitorFeed.saving || id === 'TL10' && !preview && (monitorFeed.loading || !monitorFeed.data) || id === 'TL13' && dashboard.saving || id === 'TL14' && managementCalendar.saving, search: fields.pesquisa || '', monthOffset };
-    const screen = id === 'TL15' && !preview ? null : design && (mobile ? design.steps[step] || design.mobile : design.desktop);
+    const screen = design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);
     const info = screens.find(s => s.id === id);
+    const ScreenContainer = id === 'TL15' && !preview ? 'div' : 'form';
     return <>
     <a className="skip-link" href="#main-content">Ir para o conteúdo</a>
     {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
@@ -1083,12 +1083,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
        {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
       {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
-      {id === 'TL15' && !preview && <UserManagement session={session} onMenu={() => setMenu(true)} />}
       {!design && id !== 'TL15' && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-       {screen && <DesignContext.Provider value={{ ...context, session, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
-        <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
+       {screen && <DesignContext.Provider value={{ ...context, session, employeesIntegrated: id === 'TL15' && !preview, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
+        <ScreenContainer ref={formRef} className={id === 'TL15' && !preview ? 'employee-screen-container' : undefined} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
-        </form>
+        </ScreenContainer>
       </DesignContext.Provider>}
       {menu && <Menu current={id} profile={info.profile || 'public'} go={go} close={closeMenu}/>}
     </main>

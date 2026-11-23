@@ -147,6 +147,13 @@ public class  TutorController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Busca os agendamentos dos Pets de um tutor")
+    @ApiResponse(responseCode = "200", description = "Agendamentos encontrados")
+    @GetMapping("/{idTutor}/agendamentos")
+    public ResponseEntity<List<MeusAgendamentosResponse>> meusAgendamentos(@PathVariable UUID idTutor) {
+        return ResponseEntity.ok(tutorService.buscarAgendamentos(idTutor));
+    }
+
     @Operation(summary = "Cadastra uma nova alergia",
             description = "Requisição para cadastrar uma nova alergia no catálogo compartilhado entre os tutores")
     @ApiResponses({

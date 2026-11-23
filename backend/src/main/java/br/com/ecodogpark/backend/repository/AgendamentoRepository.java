@@ -102,4 +102,15 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     boolean petJaAgendado(@Param("idPet")UUID idPet,
                           @Param("inicio")LocalDateTime inicio,
                           @Param("fim")LocalDateTime fim);
+
+    @Query("""
+        SELECT a
+        FROM AgendamentosEntity a
+        JOIN FETCH a.fkPet p
+        JOIN FETCH p.fkUsuario u
+        WHERE u.idUsuario = :idTutor
+          AND a.situacao = br.com.ecodogpark.backend.enums.SituacaoAgendamento.AGENDADO
+        ORDER BY a.dataEntrada
+    """)
+    List<AgendamentosEntity> buscarAgendamentosDoTutor(@Param("idTutor") UUID idTutor);
 }

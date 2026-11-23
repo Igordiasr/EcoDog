@@ -3,6 +3,7 @@ package br.com.ecodogpark.backend.service;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.*;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.*;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.enums.DiaSemana;
 import br.com.ecodogpark.backend.enums.TipoUsuario;
 import br.com.ecodogpark.backend.exception.*;
 import br.com.ecodogpark.backend.mapper.PetMapper;
@@ -14,7 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TutorService {
@@ -27,7 +31,8 @@ public class TutorService {
     private final VacinasRepository vacinasRepository;
     private final MedicacoesRepository medicacoesRepository;
     private final PasswordEncoder passwordEncoder;
-//    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AgendamentoRepository agendamentoRepository;
+    private final ContratoDiasSemanaRepository contratoDiasSemanaRepository;
 
     public TutorService(
             PetRepository petRepository,
@@ -38,8 +43,9 @@ public class TutorService {
             AlergiasRepository alergiasRepository,
             VacinasRepository vacinasRepository,
             MedicacoesRepository medicacoesRepository,
-            PasswordEncoder passwordEncoder
-//            UsuarioAutenticadoService usuarioAutenticadoService
+            PasswordEncoder passwordEncoder,
+            AgendamentoRepository agendamentoRepository,
+            ContratoDiasSemanaRepository contratoDiasSemanaRepository
     ) {
         this.petRepository = petRepository;
         this.usuarioRepository = usuarioRepository;
@@ -50,7 +56,8 @@ public class TutorService {
         this.vacinasRepository = vacinasRepository;
         this.medicacoesRepository = medicacoesRepository;
         this.passwordEncoder = passwordEncoder;
-//        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.agendamentoRepository = agendamentoRepository;
+        this.contratoDiasSemanaRepository = contratoDiasSemanaRepository;
     }
 
     public TutorCadastroResponse cadastrarTutor(CadastroTutorRequest usuarioRequest) {
@@ -67,7 +74,6 @@ public class TutorService {
     }
 
     public MeusDadosResponse buscarDados(UUID idTutor) {
-//        UUID idTutor = usuarioAutenticadoService.getIdUsuarioAutenticado();
         UsuariosEntity tutor = buscarTutor(idTutor);
 
         return TutorMapper.entityParaResponse(tutor);
@@ -75,7 +81,6 @@ public class TutorService {
 
     @Transactional
     public MeusDadosResponse atualizarDados(UUID idTutor, AtualizarDadosRequest request) {
-//        UUID idTutor = usuarioAutenticadoService.getIdUsuarioAutenticado();
         UsuariosEntity tutor = buscarTutor(idTutor);
 
         if (usuarioRepository.existsByEmailAndIdUsuarioNot(request.email(), idTutor)) {
@@ -86,6 +91,7 @@ public class TutorService {
         }
 
         TutorMapper.atualizarEntity(tutor, request);
+
         usuarioRepository.save(tutor);
 
         return TutorMapper.entityParaResponse(tutor);
@@ -196,6 +202,44 @@ public class TutorService {
             throw new DadosDivergentesException("ID do pet não pertence ao ID do tutor informado");
         }
         petRepository.deleteById(idPet);
+    }
+
+    public List<MeusAgendamentosResponse> buscarAgendamentos(UUID idTutor) {
+        List<AgendamentosEntity> agendamentos = agendamentoRepository.buscarAgendamentosDoTutor(idTutor);
+        if (agendamentos.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, List<AgendamentosEntity>> grupos = agendamentos.stream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getFkPet().getIdPet() + "_" + a.getServico(),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        List<MeusAgendamentosResponse> respostas = new ArrayList<>();
+
+        for(List<AgendamentosEntity> grupo : grupos.values()) {
+            AgendamentosEntity primeiro = grupo.get(0);
+            PetsEntity pet = primeiro.getFkPet();
+            String servico = primeiro.getServico();
+            List<LocalDate> diasAgendados = grupo.stream()
+                    .map(a -> a.getDataEntrada().toLocalDate()).distinct().toList();
+            Integer quantidadeDias;
+            List<DiaSemana> diasDaSemana = null;
+
+            if ("CRECHE".equals(servico)) {
+                diasDaSemana = contratoDiasSemanaRepository.buscarDiasDaSemanaCrechePorPet(pet.getIdPet(), LocalDate.now(ZoneId.of("America/Sao_Paulo")));
+                quantidadeDias = diasDaSemana.size();
+            } else {
+                quantidadeDias = diasAgendados.size();
+            }
+
+            respostas.add(TutorMapper.paraAgendamentosResponse(
+                    pet.getIdPet(), pet.getNome(), servico, quantidadeDias, diasDaSemana, diasAgendados
+            ));
+        }
+        return respostas;
     }
 
     public AlergiaResponse cadastrarNovaAlergia(AlergiaRequest request) {

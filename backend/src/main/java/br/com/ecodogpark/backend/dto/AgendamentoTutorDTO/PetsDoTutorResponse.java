@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Schema(description = "Pet do tutor disponível para seleção no agendamento")
 public record PetsDoTutorResponse(
-        @Schema(description = "Identificador do pet", example = "9")
+        @Schema(description = "Identificador do pet", example = "2918d4db-6978-5243-b77d-9f4aa09cfead")
         UUID idPet,
         @Schema(description = "Nome do pet", example = "Thor")
         String nomePet,

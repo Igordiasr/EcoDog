@@ -64,6 +64,14 @@ public class  TutorController {
         return ResponseEntity.ok(dadosAtualizados);
     }
 
+    @PatchMapping("conta/{idTutor}/senha")
+    public ResponseEntity<Void> atualizarSenha(@PathVariable UUID idTutor,
+                                               @RequestBody @Valid AtualizarSenhaRequest request) {
+        tutorService.atualizarSenha(idTutor, request);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Listar pets", description = "Requisição para buscar uma lista com todos os pets cadastrados e associados ao identificador do tutor")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pets encontrados, ou lista vazia"),

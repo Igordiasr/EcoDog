@@ -97,6 +97,17 @@ public class TutorService {
         return TutorMapper.entityParaResponse(tutor);
     }
 
+    public void atualizarSenha(UUID idTutor, AtualizarSenhaRequest request) {
+        UsuariosEntity tutor = buscarTutor(idTutor);
+
+        if (!passwordEncoder.matches(request.senhaAtual(), tutor.getSenha())) {
+            throw new DadoInvalidoException("Senha atual incorreta");
+        }
+        tutor.setSenha(passwordEncoder.encode(request.novaSenha()));
+
+        usuarioRepository.save(tutor);
+    }
+
     public List<AlergiaResponse> listarAlergias() {
         List<AlergiasEntity> alergiaCatalago = alergiasRepository.findAll();
         return alergiaCatalago.stream().map(TutorMapper::entityParaResponse).toList();

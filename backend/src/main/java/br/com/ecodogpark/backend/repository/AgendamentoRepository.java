@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.repository;
 
+import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.AgendamentosTutorResponse;
 import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.DiasComAgendamentoResponse;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse;
@@ -31,7 +32,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
             a.tutorCheckout,
             a.pertences,
             a.racaoMarca,
-            a.racaoQuantidade
+            a.quantidade
         )
         FROM AgendamentosEntity a
         JOIN a.fkPet p
@@ -115,4 +116,30 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     """)
     List<AgendamentosEntity> buscarAgendamentosDoTutor(@Param("idTutor") UUID idTutor);
 
+    @Query("""
+        SELECT new br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse(
+            c.data
+            )
+        FROM AgendamentosEntity a
+        JOIN a.fkCalendario c
+        JOIN a.fkPet p
+        WHERE p.idPet = :idPet
+        AND c.data <= CURRENT_DATE
+        AND a.situacao IN (SituacaoAgendamento.CONFIRMADO, SituacaoAgendamento.RETIRADO)
+        ORDER BY c.data DESC
+    """)
+    List<DataAgendadaResponse> buscarDatasDeAgendamentosAnteriores(@Param("idPet") UUID idPet);
+
+    @Query("""
+        SELECT
+            c.data
+        FROM AgendamentosEntity a
+        JOIN a.fkCalendario c
+        JOIN a.fkPet p
+        WHERE p.idPet = :idPet
+        AND c.data <= CURRENT_DATE
+        AND a.situacao IN (SituacaoAgendamento.CONFIRMADO, SituacaoAgendamento.RETIRADO)
+        ORDER BY c.data DESC LIMIT 1
+    """)
+    LocalDate buscarUltimoAgendamento(@Param("idPet") UUID idPet);
 }

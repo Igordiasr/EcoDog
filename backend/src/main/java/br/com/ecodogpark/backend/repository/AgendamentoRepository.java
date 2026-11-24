@@ -68,17 +68,29 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     List<AgendamentosEntity> listarAgendamentosDoDia(@Param("data") LocalDate data);
 
     @Query(value = """
-        SELECT DATE(a.data_entrada) AS data, COUNT(*) AS quantidade
-        FROM agendamentos a
-        WHERE (
-            (:servico IN('CRECHE', 'DAYUSE') AND a.servico IN ('CRECHE', 'DAYUSE'))
+    SELECT 
+        c.data AS data,
+        COUNT(a.id_agendamentos) AS quantidade,
+        CASE 
+            WHEN :servico IN ('CRECHE', 'DAYUSE') THEN c.vagas_creche
+            WHEN :servico = 'HOTEL' THEN c.vagas_hotel
+            ELSE 0
+        END AS totalVagas
+    FROM calendario c
+    LEFT JOIN agendamentos a 
+        ON a.fk_calendario = c.id_calendario
+        AND (
+            (:servico IN ('CRECHE', 'DAYUSE') AND a.servico IN ('CRECHE', 'DAYUSE'))
             OR  
             (:servico = 'HOTEL' AND a.servico = 'HOTEL')
         )
-          AND a.data_entrada >= :inicio
-          AND a.data_entrada < :fim
-          AND a.situacao IN ('CONFIRMADO', 'AGENDADO')
-        GROUP BY DATE(a.data_entrada)
+        AND a.data_entrada >= :inicio
+        AND a.data_entrada < :fim
+        AND a.situacao IN ('CONFIRMADO', 'AGENDADO')
+    WHERE c.data >= DATE(:inicio)
+      AND c.data < :fim
+    GROUP BY c.id_calendario, c.data, c.vagas_creche, c.vagas_hotel
+    ORDER BY c.data
     """, nativeQuery = true)
     List<DiasComAgendamentoResponse> buscarAgendamentoPorServico(
             @Param("servico") String servico,

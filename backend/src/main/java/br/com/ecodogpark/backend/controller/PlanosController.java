@@ -25,19 +25,19 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/planos")
 @CrossOrigin(origins = "http://localhost:5173")
-@Tag(name = "Gestão de Planos", description = "CRUD de planos disponíveis no EcoDog Park")
+@Tag(name = "Gestão de Planos", description = "Gestão de serviços da modalidade PLANO cadastrados em servicos")
 public class PlanosController {
     private final PlanosService planosService;
 
     public PlanosController(PlanosService planosService) { this.planosService = planosService; }
 
     @GetMapping
-    @Operation(summary = "Listar planos", description = "Retorna todos os planos cadastrados, ordenados pelo nome. A resposta inclui os dados do serviço associado e o status de cada plano.")
+    @Operation(summary = "Listar planos", description = "Retorna os registros de servicos cuja modalidade é PLANO, ordenados pelo nome.")
     @ApiResponse(responseCode = "200", description = "Lista de planos retornada", content = @Content(array = @ArraySchema(schema = @Schema(implementation = PlanoResponse.class))))
     public List<PlanoResponse> listar() { return planosService.listarTodos(); }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar plano por identificador", description = "Retorna os dados de um plano cadastrado.")
+    @Operation(summary = "Buscar plano por identificador", description = "Retorna um serviço cadastrado com modalidade PLANO.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Plano encontrado", content = @Content(schema = @Schema(implementation = PlanoResponse.class))),
             @ApiResponse(responseCode = "404", description = "Plano não encontrado", content = @Content)
@@ -47,7 +47,7 @@ public class PlanosController {
     }
 
     @PostMapping
-    @Operation(summary = "Criar plano", description = "Cadastra um plano associado a um serviço existente. O plano é criado ativo; o campo ativo não deve ser enviado no corpo.")
+    @Operation(summary = "Criar plano", description = "Cria um registro em servicos com modalidade PLANO. A categoria é herdada de um serviço de referência ativo e o novo serviço é criado ativo.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Plano criado", content = @Content(schema = @Schema(implementation = PlanoResponse.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos ou serviço inexistente", content = @Content)
@@ -58,7 +58,7 @@ public class PlanosController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Editar plano", description = "Substitui os dados editáveis do plano, incluindo nome, serviço, quantidade de diárias, valor e status ativo.")
+    @Operation(summary = "Editar plano", description = "Atualiza nome, categoria derivada do serviço de referência, frequência, valor e status do serviço PLANO.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Plano atualizado", content = @Content(schema = @Schema(implementation = PlanoResponse.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos ou serviço inexistente", content = @Content),
@@ -70,7 +70,7 @@ public class PlanosController {
     }
 
     @PatchMapping("/{id}/ativo")
-    @Operation(summary = "Alternar status do plano", description = "Inverte o status ativo do plano: ativo passa a inativo e inativo passa a ativo.")
+    @Operation(summary = "Alternar status do plano", description = "Inverte a coluna status do serviço cuja modalidade é PLANO.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Status do plano atualizado", content = @Content(schema = @Schema(implementation = PlanoResponse.class))),
             @ApiResponse(responseCode = "404", description = "Plano não encontrado", content = @Content)
@@ -80,7 +80,7 @@ public class PlanosController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Excluir plano", description = "Remove o plano. A exclusão não é permitida quando existem registros relacionados ao plano.")
+    @Operation(summary = "Excluir plano", description = "Remove o serviço cuja modalidade é PLANO. A exclusão não é permitida quando há contratos vinculados.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Plano excluído"),
             @ApiResponse(responseCode = "404", description = "Plano não encontrado", content = @Content),
@@ -96,7 +96,7 @@ public class PlanosController {
     }
 
     @GetMapping("/servicos-ativos")
-    @Operation(summary = "Listar serviços ativos para seleção", description = "Retorna os serviços ativos disponíveis para associar a um plano, ordenados pelo nome.")
+    @Operation(summary = "Listar serviços ativos para seleção", description = "Retorna serviços ativos de referência (modalidades diferentes de PLANO) em categorias válidas, ordenados pelo nome.")
     @ApiResponse(responseCode = "200", description = "Lista de serviços ativos retornada", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ServicoPlanoResponse.class))))
     public List<ServicoPlanoResponse> listarServicosAtivos() { return planosService.listarServicosAtivos(); }
 }

@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 public record PlanoResponse(
         @Schema(description = "Identificador do plano", example = "1") Long id,
         @Schema(description = "Nome do plano", example = "Hotel Premium") String nome,
-        @Schema(description = "Identificador do serviço", example = "1") Long idServico,
-        @Schema(description = "Nome do serviço associado", example = "Hotel") String nomeServico,
+        @Schema(description = "Identificador de serviço ativo representativo da categoria do plano; a tabela servicos não guarda vínculo com o serviço de referência", example = "1") Long idServico,
+        @Schema(description = "Serviço ativo representativo da categoria do plano", example = "Hotel") String nomeServico,
         @Schema(description = "Quantidade de diárias", example = "8") Integer diarias,
         @Schema(description = "Valor do plano", example = "150.00") BigDecimal valor,
         @Schema(description = "Status ativo do plano", example = "true") Boolean ativo

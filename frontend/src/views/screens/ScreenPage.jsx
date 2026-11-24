@@ -39,7 +39,6 @@ import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
 import { PetCatalogDialog } from '../components/PetCatalogDialog';
 import { addValidityToVaccineRecord, petInsuranceField, vaccineValidityField } from '../design/pet-health';
-import { PlanosManagement } from '../components/PlanosManagement';
 import { useTutorPets } from '../../viewmodels/use-tutor-pets';
 import { screens } from './catalog';
 import { createAuthViewModel } from '../../viewmodels/auth';
@@ -1035,7 +1034,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
       <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
     </aside>}
-    <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}${id === 'TL17' ? ' management-plans-page' : ''}`} aria-label={info.name}>
+    <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
       {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
       {id === 'TL10' && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
        {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
@@ -1044,12 +1043,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
       {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
       {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
       {!design && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-       {screen && id !== 'TL17' && <DesignContext.Provider value={{ ...context, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
+       {screen && <DesignContext.Provider value={{ ...context, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
         </form>
       </DesignContext.Provider>}
-      {id === 'TL17' && <PlanosManagement session={session} enabled={!preview} />}
       {menu && <Menu current={id} profile={info.profile || 'public'} go={go} close={closeMenu}/>}
     </main>
     <input ref={fileRef} type="file" className="sr-only" tabIndex={-1} aria-label="Foto do pet" accept="image/*" onChange={e => {

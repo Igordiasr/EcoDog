@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/planos")
+@RequestMapping("/planos")
 @CrossOrigin(origins = "http://localhost:5173")
 @Tag(name = "Gestão de Planos", description = "Gestão de serviços da modalidade PLANO cadastrados em servicos")
 public class PlanosController {
@@ -54,7 +54,7 @@ public class PlanosController {
     })
     public ResponseEntity<PlanoResponse> criar(@Valid @RequestBody CriarPlanoRequest request) {
         PlanoResponse criado = planosService.criar(request);
-        return ResponseEntity.created(URI.create("/api/planos/" + criado.id())).body(criado);
+        return ResponseEntity.created(URI.create("/planos/" + criado.id())).body(criado);
     }
 
     @PutMapping("/{id}")

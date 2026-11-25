@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Modal } from './Modal';
 import { deleteTutorPet } from '../../api/pets-api';
+import { petPhotoDesign } from '../design/pet-photo';
 export function petCardFromPrototype(template, pet, { onDelete, busy = false } = {}) {
     let description = 0;
     const map = node => {
@@ -17,9 +18,7 @@ export function petCardFromPrototype(template, pet, { onDelete, busy = false } =
         else if (node.name === 'Descrição') {
             copy.children = [[pet.raca || 'Não informada', `Nascimento: ${pet.dataNascimento ? pet.dataNascimento.split('-').reverse().join('/') : 'Não informado'}`, `Sexo: ${pet.sexo || 'Não informado'} • ${pet.castrado === true ? (pet.sexo === 'F' ? 'Castrada' : 'Castrado') : pet.castrado === false ? 'Não castrado' : 'Castração não informada'}`][description++]];
         } else if (node.name === 'Foto do pet') {
-            // The list endpoint does not return photos; do not assign another pet's image.
-            copy.className = node.className.replace(/bg-\[url\([^]*?\)\]/g, '') + ' bg-[var(--background)] flex items-center justify-center';
-            copy.children = [{ tag: 'span', name: 'Foto indisponível', className: 'text-[14px] text-[var(--brand)] font-[Roboto,system-ui,sans-serif]', children: ['Sem foto'] }];
+            return petPhotoDesign(copy, pet.fotoUrl, pet.nome);
         } else copy.children = node.children?.map(map);
         return copy;
     };

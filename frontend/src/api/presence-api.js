@@ -16,7 +16,7 @@ export function createPresenceApi(baseUrl, request, token) {
             const raw = await requestJson(baseUrl, '/checkin-checkout', { headers, query: { data: day } }, signal, request);
             return list(raw, 'presenças').map(item => {
                 const p = object(item, 'presença');
-                return { idAgendamento: positiveId(p.idAgendamento, 'agendamento'), idPet: uuid(p.idPet, 'pet'), nomePet: text(p.nomePet, 'pet'), situacao: enumValue(p.situacao, ['AGENDADO', 'CONFIRMADO', 'RETIRADO', 'CANCELADO'], 'presença'), dataEntradaRaw: optionalText(p.dataEntrada, 'entrada'), dataSaidaRaw: optionalText(p.dataSaida, 'saída'), tutorCheckin: optionalText(p.tutorCheckin, 'responsável na entrada'), tutorCheckout: optionalText(p.tutorCheckout, 'responsável na saída'), pertences: optionalText(p.pertences, 'pertences'), racaoMarca: optionalText(p.racaoMarca, 'ração'), quantidade: p.quantidade };
+                return { idAgendamento: positiveId(p.idAgendamento, 'agendamento'), idPet: uuid(p.idPet, 'pet'), nomePet: text(p.nomePet, 'pet'), fotoUrl: optionalText(p.fotoUrl, 'foto'), situacao: enumValue(p.situacao, ['AGENDADO', 'CONFIRMADO', 'RETIRADO', 'CANCELADO'], 'presença'), dataEntradaRaw: optionalText(p.dataEntrada, 'entrada'), dataSaidaRaw: optionalText(p.dataSaida, 'saída'), tutorCheckin: optionalText(p.tutorCheckin, 'responsável na entrada'), tutorCheckout: optionalText(p.tutorCheckout, 'responsável na saída'), pertences: optionalText(p.pertences, 'pertences'), racaoMarca: optionalText(p.racaoMarca, 'ração'), quantidade: p.quantidade };
             });
         },
     };

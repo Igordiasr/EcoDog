@@ -24,6 +24,8 @@ import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions, integratedMonitorDesign } from '../design/monitor-records';
 import { useMonitorFeed } from '../../viewmodels/use-monitor-feed';
 import { usePetDiary } from '../../viewmodels/use-pet-diary';
+import { PageFeedback } from '../components/PageFeedback';
+import { userFeedback } from '../../viewmodels/user-feedback';
 import { integratedPetDiaryDesign } from '../design/pet-diary';
 import { presenceDay } from '../../viewmodels/use-presence';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
@@ -46,7 +48,7 @@ import { useTutorPets } from '../../viewmodels/use-tutor-pets';
 import { screens } from './catalog';
 import { createAuthViewModel } from '../../viewmodels/auth';
 import { registrationDesign } from '../design/auth';
-import { prototypeOperationBlock, recordIdentityUnavailable, monitorDataUnavailable, presenceDataUnavailable } from '../../viewmodels/prototype-safety';
+import { prototypeOperationBlock, recordIdentityUnavailable } from '../../viewmodels/prototype-safety';
 const imports = import.meta.glob('../design/*.json');
 import { correctDesignCopy } from '../design/copy-corrections';
 const load = async (key) => {
@@ -1047,24 +1049,27 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const screen = id === 'TL15' && !preview ? null : design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);
     const info = screens.find(s => s.id === id);
+    const pageNotices = [];
+    if (id === 'TL07' && !preview && (petDiary.loading || petDiary.error)) pageNotices.push({ message: petDiary.error || 'Estamos buscando os registros do seu pet…', error: !!petDiary.error, retry: petDiary.error ? petDiary.reload : undefined, disabled: petDiary.loading });
+    if (id === 'TL10' && !monitorBlockReason && (preview || monitorFeed.loading || monitorFeed.error)) pageNotices.push({ message: preview ? 'Esta é uma demonstração. As alterações não serão salvas na sua conta.' : monitorFeed.error || 'Carregando rotina do pet…', error: !!monitorFeed.error });
+    if (id === 'TL11' && preview) pageNotices.push({ message: 'Esta é uma demonstração. Os horários e registros de presença são exemplos.' });
+    if (id === 'TL11' && !preview && presence.error) pageNotices.push({ message: presence.error, error: true });
+    if (id === 'TL12' && !preview && dailyActivities.error) pageNotices.push({ message: dailyActivities.error, error: true, retry: dailyActivities.retry, disabled: dailyActivities.saving || dailyActivities.loading });
+    if (id === 'TL06' && petHealthCatalog.message) pageNotices.push({ message: petHealthCatalog.message });
+    if (id === 'TL13' && (dashboard.loading || dashboard.loadError)) pageNotices.push({ message: dashboard.loadError || 'Carregando suas informações…', error: !!dashboard.loadError });
+    const pageFeedback = <>
+      {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
+        <span>Demonstração • dados de exemplo</span>
+        <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
+        <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
+      </aside>}
+      <PageFeedback notices={pageNotices}/>
+    </>;
     return <>
     <a className="skip-link" href="#main-content">Ir para o conteúdo</a>
-    {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
-      <span>Protótipo • dados ilustrativos</span>
-      <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
-      <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
-    </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
-      {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
-      {id === 'TL10' && !monitorBlockReason && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
-       {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
-       {id === 'TL11' && !preview && presence.error && <p className="loading-message" role="alert">{presence.error}</p>}
-       {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
-      {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
-      {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
       {id === 'TL15' && !preview && <UserManagement session={session} onMenu={() => setMenu(true)} />}
-      {!design && id !== 'TL15' && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-       {screen && <DesignContext.Provider value={{ ...context, session, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
+       {screen && <DesignContext.Provider value={{ ...context, session, pageFeedback, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
         </form>
@@ -1082,7 +1087,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         return;
                     }
                     setPetPhoto(file);
-                    setMessage('Foto selecionada. Ao cadastrar, ela será salva localmente e somente a URL será enviada ao backend.');
+                    setMessage('Foto selecionada para o cadastro. Ela ficará disponível neste navegador.');
                 }
                 if (photoRef.current)
                     URL.revokeObjectURL(photoRef.current);
@@ -1090,7 +1095,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setPhoto(photoRef.current);
             }
         }}/>
-    {(message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
+    {(screen || id === 'TL15') && (message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : userFeedback(message, 'Não foi possível concluir a ação. Confira as informações e tente novamente.')}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
     {id === 'TL14' && <ManagementCalendarDialogs calendar={managementCalendar}/>}
     {id === 'TL06' && <PetCatalogDialog catalog={petHealthCatalog}/>}
     {id === 'TL12' && !preview && dailyActivities.detailsPet && <Modal title={`Detalhes de ${dailyActivities.detailsPet.nome}`} onClose={dailyActivities.closePet}>

@@ -402,6 +402,16 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .preview-bar select { max-width: 260px; border: 1px solid #6b8f7d; border-radius: 6px; padding: 6px; }
 .preview-bar button { text-decoration: underline; }
 .loading-message { padding: 40px; text-align: center; }
+.page-feedback { position: relative; width: calc(100% - 40px); max-width: 1120px; margin: 24px auto 0; display: grid; gap: 12px; }
+.page-feedback-card { padding: 20px 24px; border: 1px solid #6b8f7d; border-radius: 12px; background: var(--surface); color: #182d21; box-shadow: 0 5px 14px #17472a14; }
+.page-feedback-card h2 { margin: 0 0 8px; color: var(--brand); font: 20px/1.3 "Lilita One", sans-serif; }
+.page-feedback-card p { margin: 0; font: 16px/1.5 Roboto, sans-serif; }
+.page-feedback-error { border-left: 4px solid var(--error); }
+.page-feedback-card button { margin-top: 16px; min-height: 44px; padding: 10px 20px; border: 1px solid var(--brand); border-radius: 10px; background: var(--brand); color: var(--surface); font-family: "Lilita One", sans-serif; }
+@media (max-width: 600px) {
+  .page-feedback { width: calc(100% - 32px); margin-top: 16px; }
+  .page-feedback-card { padding: 16px; }
+}
 .monitor-availability-notice { margin: 20px auto; padding: 16px 20px; width: calc(100% - 32px); max-width: 1120px; border-radius: 12px; background: var(--accent); color: var(--text); font-family: var(--font-heading); }
 .monitor-availability-notice h2 { margin-bottom: 8px; font-size: 22px; line-height: 1.3; font-weight: normal; }
 .monitor-availability-notice p { font-size: 18px; line-height: 1.5; }

@@ -14,12 +14,10 @@ export function createPetDiaryApi(baseUrl, request, token) {
         async day(petId, day, signal) {
             uuid(petId, 'pet');
             date(day, 'dia');
-            return parseDiary(await requestJson(baseUrl, `/api/diario/${petId}`, { headers, query: { data: day } }, signal, request), petId, day);
+            return parseDiary(await requestJson(baseUrl, '/diario', { headers, query: { idPet: petId, data: day } }, signal, request), petId, day);
         },
         async historyDay(petId, day, signal) {
-            uuid(petId, 'pet');
-            date(day, 'dia');
-            return parseDiary(await requestJson(baseUrl, `/api/diario/${petId}/historico`, { headers, query: { data: day } }, signal, request), petId, day);
+            return this.day(petId, day, signal);
         },
     };
 }

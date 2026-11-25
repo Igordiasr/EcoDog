@@ -4,6 +4,7 @@ import br.com.ecodogpark.backend.dto.DashboardDTO.response.GraficoContratosPorSe
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.NovosServicosMensaisResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.PlanosAtivosResponse;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
+import br.com.ecodogpark.backend.enums.TipoUsuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -126,4 +127,20 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
           AND c.dataFim >= :hoje
     """)
     List<ContratosEntity> buscarContratosParaListaClientes(@Param("hoje") LocalDate hoje);
+
+    @Query("""
+    SELECT c
+    FROM ContratosEntity c
+    JOIN FETCH c.pet p
+    JOIN FETCH c.servico s
+    WHERE p.idPet IN :idsPets
+      AND c.situacao = 'ATIVO'
+      AND c.dataInicio <= :hoje
+      AND c.dataFim >= :hoje
+    ORDER BY p.nome ASC, c.dataInicio DESC
+""")
+    List<ContratosEntity> buscarContratosDosPetsParaGerenciamento(
+            @Param("idsPets") List<UUID> idsPets,
+            @Param("hoje") LocalDate hoje
+    );
 }

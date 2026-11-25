@@ -1,15 +1,22 @@
 package br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @Schema(description = "Dados para alterar a situação de um contrato")
 public record AlterarStatusContratoRequest(
-        @NotNull
-        @Schema(
-                description = "True para ativar e false para encerrar o contrato",
-                example = "false"
+
+        @NotBlank
+        @Pattern(
+                regexp = "ATIVO|PENDENTE|CANCELADO|ENCERRADO",
+                message = "Situação inválida"
         )
-        Boolean ativo
+        @Schema(
+                description = "Nova situação do contrato",
+                allowableValues = {"ATIVO", "PENDENTE", "CANCELADO", "ENCERRADO"},
+                example = "ATIVO"
+        )
+        String situacao
 ) {
 }

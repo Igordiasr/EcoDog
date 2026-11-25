@@ -1,51 +1,143 @@
 package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AlterarStatusContratoRequest;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AtualizarContratoRequest;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.VincularPlanoRequest;
-
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.GerenciamentoClienteResponse;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.PlanoDisponivelResponse;
-import br.com.ecodogpark.backend.entity.ContratosEntity;
-import br.com.ecodogpark.backend.entity.ServicosEntity;
-import br.com.ecodogpark.backend.repository.ContratoRepository;
-import br.com.ecodogpark.backend.repository.ServicosRepository;
-
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AtualizarValorContratoRequest;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.*;
+import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.enums.TipoUsuario;
+import br.com.ecodogpark.backend.mapper.GerenciamentoClienteMapper;
+import br.com.ecodogpark.backend.mapper.PetMapper;
+import br.com.ecodogpark.backend.mapper.TutorMapper;
+import br.com.ecodogpark.backend.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GerenciamentoClienteService {
 
     private final ContratoRepository contratoRepository;
+    private final ContratoDiasSemanaRepository contratoDiasSemanaRepository;
     private final ServicosRepository servicosRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PetRepository petRepository;
+    private final AgendamentoRepository agendamentoRepository;
+    private final CalendarioRepository calendarioRepository;
 
     public GerenciamentoClienteService(
             ContratoRepository contratoRepository,
-            ServicosRepository servicosRepository
+            ContratoDiasSemanaRepository contratoDiasSemanaRepository,
+            ServicosRepository servicosRepository,
+            UsuarioRepository usuarioRepository,
+            PetRepository petRepository,
+            AgendamentoRepository agendamentoRepository,
+            CalendarioRepository calendarioRepository
     ) {
         this.contratoRepository = contratoRepository;
+        this.contratoDiasSemanaRepository = contratoDiasSemanaRepository;
         this.servicosRepository = servicosRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.petRepository = petRepository;
+        this.agendamentoRepository = agendamentoRepository;
+        this.calendarioRepository = calendarioRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<GerenciamentoClienteResponse> listarClientes(String pesquisa) {
-        List<ContratosEntity> contratos;
+    public List<PetGerenciamentoResponse> buscarContratos(String pesquisa) {
 
-        if (pesquisa == null || pesquisa.isBlank()) {
-            contratos = contratoRepository.buscarContratosGerenciamento();
-        } else {
-            contratos = contratoRepository.pesquisarContratosGerenciamento(
-                    pesquisa.trim()
-            );
+        LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
+
+        List<PetsEntity> pets = petRepository.buscarPetsParaGerenciamento(
+                pesquisa,
+                TipoUsuario.TUTOR
+        );
+
+        if (pets.isEmpty()) {
+            return List.of();
         }
-        return contratos.stream()
-                .map(this::paraResponse)
+        List<UUID> idsPets = pets.stream()
+                .map(PetsEntity::getIdPet)
+                .toList();
+
+        List<ContratosEntity> contratos =
+                contratoRepository.buscarContratosDosPetsParaGerenciamento(
+                        idsPets,
+                        hoje
+                );
+
+        List<Long> idsContratos = contratos.stream()
+                .map(ContratosEntity::getIdContrato)
+                .toList();
+
+        List<ContratoDiasSemanaEntity> diasContratados = idsContratos.isEmpty()
+                ? List.of()
+                : contratoDiasSemanaRepository.findByContrato_idContratoIn(idsContratos);
+
+        Map<Long, List<String>> diasPorContrato = diasContratados.stream()
+                .collect(Collectors.groupingBy(
+                        dia -> dia.getContrato().getIdContrato(),
+                        Collectors.mapping(
+                                dia -> dia.getDiaSemana().name(),
+                                Collectors.toList()
+                        )
+                ));
+
+        List<QuantidadeDiariasProjection> quantidades = idsContratos.isEmpty()
+                ? List.of()
+                : agendamentoRepository.contarDiariasPorContrato(idsContratos);
+
+        Map<Long, Long> quantidadePorContrato = quantidades.stream()
+                .collect(Collectors.toMap(
+                        QuantidadeDiariasProjection::getIdContrato,
+                        QuantidadeDiariasProjection::getQuantidade
+                ));
+
+        Map<UUID, List<ContratosEntity>> contratosPorPet = contratos.stream()
+                .collect(Collectors.groupingBy(
+                        contrato -> contrato.getPet().getIdPet()
+                ));
+
+        return pets.stream()
+                .map(pet -> {
+
+                    List<ContratosEntity> contratosDoPet =
+                            contratosPorPet.getOrDefault(pet.getIdPet(), List.of());
+
+                    List<ContratoGerenciamentoResponse> listaContratos =
+                            contratosDoPet.stream()
+                                    .map(contrato -> {
+
+                                        Long idContrato = contrato.getIdContrato();
+                                        String categoria = contrato.getServicos().getCategoria();
+
+                                        Long quantidadeDiarias = null;
+                                        List<String> diasSemana = null;
+
+                                        if ("HOTEL".equals(categoria) || "DAYUSE".equals(categoria)) {
+                                            quantidadeDiarias = quantidadePorContrato.getOrDefault(idContrato, 0L);
+                                        } else if ("CRECHE".equals(categoria)) {
+                                            diasSemana = diasPorContrato.getOrDefault(idContrato, List.of());
+                                        }
+
+                                        return GerenciamentoClienteMapper.entityParaContratoResponse(
+                                                contrato,
+                                                quantidadeDiarias,
+                                                diasSemana
+                                        );
+                                    })
+                                    .toList();
+
+                    return PetMapper.entityParaGerenciamentoResponse(
+                            pet,
+                            listaContratos
+                    );
+                })
                 .toList();
     }
 
@@ -53,113 +145,50 @@ public class GerenciamentoClienteService {
     public List<PlanoDisponivelResponse> listarPlanos() {
         return servicosRepository.findByStatusTrueOrderByNomeAsc()
                 .stream()
-                .map(servico -> new PlanoDisponivelResponse(
-                        servico.getIdServico(),
-                        servico.getNome(),
-                        servico.getCategoria(),
-                        servico.getModalidade(),
-                        servico.getFrequencia(),
-                        servico.getValor()
-                ))
+                .map(GerenciamentoClienteMapper::entityParaPlanoResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TutorDisponivelResponse> listarTutores() {
+        return usuarioRepository.findByTipoAndStatusUsuarioTrue(TipoUsuario.TUTOR)
+                .stream()
+                .map(TutorMapper::entityParaTutorDisponivelResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<VincularPetResponse> listarPetsDoTutor(UUID idTutor) {
+        return petRepository.findByFkUsuarioIdUsuario(idTutor)
+                .stream()
+                .map(PetMapper::entityParaVincularResponse)
                 .toList();
     }
 
     @Transactional
-    public GerenciamentoClienteResponse atualizarContrato(
-            Long idContrato,
-            AtualizarContratoRequest requisicao
-    ) {
-        ContratosEntity contrato = buscarContrato(idContrato);
+    public void atualizarContrato(Long idContrato, AtualizarValorContratoRequest request) {
 
-        if (requisicao.dataFim().isBefore(requisicao.dataInicio())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "A data de término não pode ser anterior à data de início."
-            );
-        }
-        contrato.setDataInicio(requisicao.dataInicio());
-        contrato.setDataFim(requisicao.dataFim());
-        contrato.setValor(requisicao.valor());
-
-        contratoRepository.save(contrato);
-
-        return paraResponse(contrato);
-    }
-
-    @Transactional
-    public GerenciamentoClienteResponse alterarStatus(
-            Long idContrato,
-            AlterarStatusContratoRequest requisicao
-    ) {
-        ContratosEntity contrato = buscarContrato(idContrato);
-
-        if (requisicao.ativo()) {
-            contrato.setSituacao("ATIVO");
-        } else {
-            contrato.setSituacao("ENCERRADO");
-        }
-
-        contratoRepository.save(contrato);
-
-        return paraResponse(contrato);
-    }
-
-    @Transactional
-    public GerenciamentoClienteResponse vincularPlano(
-            Long idContrato,
-            VincularPlanoRequest requisicao
-    ) {
-        ContratosEntity contrato = buscarContrato(idContrato);
-
-        ServicosEntity servico = servicosRepository.findById(
-                requisicao.idServico()
-        ).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Plano não encontrado."
-        ));
-        if (!Boolean.TRUE.equals(servico.getStatus())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Não é possível vincular um plano inativo."
-            );
-        }
-
-        contrato.setServicos(servico);
-        contrato.setValor(servico.getValor());
-
-        contratoRepository.save(contrato);
-
-        return paraResponse(contrato);
-    }
-
-    private ContratosEntity buscarContrato(Long idContrato) {
-        return contratoRepository.buscarContratoPorIdGerenciamento(idContrato)
+        ContratosEntity contrato = contratoRepository.findById(idContrato)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Contrato não encontrado."
+                        "Contrato não encontrado"
                 ));
+
+        contrato.setValor(request.valor());
+        contratoRepository.save(contrato);
     }
 
-    private GerenciamentoClienteResponse paraResponse(
-            ContratosEntity contrato
-    ) {
-        long quantidadeDias = ChronoUnit.DAYS.between(
-                contrato.getDataInicio(),
-                contrato.getDataFim()
-        ) + 1;
+    @Transactional
+    public void alterarStatusContrato(Long idContrato, AlterarStatusContratoRequest request) {
 
-        String pacote = quantidadeDias +
-                (quantidadeDias == 1 ? " diária" : " diárias");
+        ContratosEntity contrato = contratoRepository.findById(idContrato)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Contrato não encontrado"
+                ));
 
-        return new GerenciamentoClienteResponse(
-                contrato.getIdContrato(),
-                contrato.getPet().getFkUsuario().getNome(),
-                contrato.getPet().getNome(),
-                contrato.getServicos().getCategoria(),
-                contrato.getValor(),
-                contrato.getServicos().getFrequencia(),
-                pacote,
-                "ATIVO".equalsIgnoreCase(contrato.getSituacao())
-        );
+        contrato.setSituacao(request.situacao());
+        contratoRepository.save(contrato);
     }
-}
+
+   }

@@ -1,10 +1,8 @@
 package br.com.ecodogpark.backend.controller;
 
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AlterarStatusContratoRequest;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AtualizarContratoRequest;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.VincularPlanoRequest;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.GerenciamentoClienteResponse;
-import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.PlanoDisponivelResponse;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AtualizarValorContratoRequest;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.*;
 import br.com.ecodogpark.backend.service.GerenciamentoClienteService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,23 +12,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(
-        name = "Gerenciamento de clientes",
-        description = "Endpoints para gerenciamento de contratos dos clientes"
+        name = "Requisições gerenciamento de clientes",
+        description = "Consulta de pets e gerenciamento de contratos de serviços"
 )
 @RestController
 @RequestMapping("/gerenciamento-clientes")
@@ -39,107 +29,106 @@ public class GerenciamentoClienteController {
 
     private final GerenciamentoClienteService service;
 
-    public GerenciamentoClienteController(
-            GerenciamentoClienteService service
-    ) {
+    public GerenciamentoClienteController(GerenciamentoClienteService service) {
         this.service = service;
     }
 
     @Operation(
-            summary = "Listar clientes",
-            description = "Lista os contratos dos tutores e permite pesquisar pelo nome."
-    )
+            summary = "Listar clientes", description = "Retorna pets agrupados com seus contratos ativos e vigentes. A pesquisa considera somente o nome do pet ou o nome do tutor.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Clientes encontrados"),
-            @ApiResponse(responseCode = "204", description = "Nenhum cliente encontrado", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
+            @ApiResponse(responseCode = "204", description = "Nenhum resultado encontrado", content = @Content)
     })
+
     @GetMapping
-    public ResponseEntity<List<GerenciamentoClienteResponse>> listarClientes(
-            @Parameter(
-                    description = "Nome do tutor utilizado na pesquisa",
-                    example = "Viviane"
-            )
+    public ResponseEntity<List<PetGerenciamentoResponse>> buscarContratos(
+            @Parameter(description = "Nome do pet ou nome do tutor para pesquisa", example = "Bob")
             @RequestParam(required = false) String pesquisa
     ) {
-        List<GerenciamentoClienteResponse> clientes =
-                service.listarClientes(pesquisa);
+        List<PetGerenciamentoResponse> resposta =
+                service.buscarContratos(pesquisa);
 
-        if (clientes.isEmpty()) {
+        if (resposta.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(clientes);
+        return ResponseEntity.ok(resposta);
     }
 
-    @Operation(
-            summary = "Listar planos disponíveis",
-            description = "Retorna os serviços ativos que podem ser vinculados aos contratos."
+    @Operation(summary = "Listar planos disponíveis", description = "Retorna os serviços ativos disponíveis para vinculação dos contratos."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Planos encontrados")
+            @ApiResponse(responseCode = "200", description = "Planos retornados com sucesso"),
+            @ApiResponse(responseCode = "204", description = "Nenhum plano disponível", content = @Content)
     })
     @GetMapping("/planos")
     public ResponseEntity<List<PlanoDisponivelResponse>> listarPlanos() {
-        return ResponseEntity.ok(service.listarPlanos());
+
+        List<PlanoDisponivelResponse> resposta = service.listarPlanos();
+
+        if (resposta.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resposta);
+    }
+
+    @Operation( summary = "Listar tutores disponíveis", description = "Retorna os tutores ativos para seleção no gerenciamento de clientes."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Tutores retornados com sucesso"),
+            @ApiResponse(responseCode = "204", description = "Nenhum tutor disponível", content = @Content)
+    })
+    @GetMapping("/tutores")
+    public ResponseEntity<List<TutorDisponivelResponse>> listarTutores() {
+        List<TutorDisponivelResponse> resposta = service.listarTutores();
+        if (resposta.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resposta);
+    }
+
+    @Operation(summary = "Listar pets de um tutor", description = "Retorna o ID e o nome dos pets vinculados ao tutor informado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pets retornados com sucesso"),
+            @ApiResponse(responseCode = "204", description = "Nenhum pet encontrado para o tutor", content = @Content)
+    })
+    @GetMapping("/tutores/{idTutor}/pets")
+    public ResponseEntity<List<VincularPetResponse>> listarPetsDoTutor(
+
+            @Parameter(description = "ID do tutor", example = "061ac032-803c-5b03-802c-2f597eb6976a")
+            @PathVariable UUID idTutor
+    ) {
+        List<VincularPetResponse> resposta = service.listarPetsDoTutor(idTutor);
+        if (resposta.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resposta);
     }
 
     @Operation(
-            summary = "Editar contrato",
-            description = "Atualiza as datas e o valor de um contrato."
+            summary = "Atualizar valor do contrato", description = "Atualiza o valor de um contrato existente."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Contrato atualizado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Contrato não encontrado", content = @Content)
-    })
-    @PutMapping("/{idContrato}")
-    public ResponseEntity<GerenciamentoClienteResponse> atualizarContrato(
-            @Parameter(description = "Identificador do contrato", example = "1")
+    @PutMapping("/contratos/{idContrato}")
+    public ResponseEntity<Void> atualizarContrato(
             @PathVariable Long idContrato,
-            @Valid @RequestBody AtualizarContratoRequest requisicao
+            @Valid @RequestBody AtualizarValorContratoRequest request
     ) {
-        return ResponseEntity.ok(
-                service.atualizarContrato(idContrato, requisicao)
-        );
+        service.atualizarContrato(idContrato, request);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(
-            summary = "Alterar status do contrato",
-            description = "Ativa ou desativa um contrato sem desativar a conta do tutor."
+            summary = "Alterar status do contrato", description = "Altera o status de um contrato existente. Ex: ENCERRADO "
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Status atualizado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Contrato não encontrado", content = @Content)
-    })
-    @PatchMapping("/{idContrato}/status")
-    public ResponseEntity<GerenciamentoClienteResponse> alterarStatus(
-            @Parameter(description = "Identificador do contrato", example = "1")
+    @PatchMapping("/contratos/{idContrato}/status")
+    public ResponseEntity<Void> alterarStatusContrato(
             @PathVariable Long idContrato,
-            @Valid @RequestBody AlterarStatusContratoRequest requisicao
-
+            @Valid @RequestBody AlterarStatusContratoRequest request
     ) {
-        return ResponseEntity.ok(
-                service.alterarStatus(idContrato, requisicao)
-        );
+        service.alterarStatusContrato(idContrato, request);
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Vincular plano ao contrato",
-            description = "Associa um serviço ativo ao contrato e atualiza seu valor."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Plano vinculado"),
-            @ApiResponse(responseCode = "400", description = "Plano inativo ou dados inválidos", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Contrato ou plano não encontrado", content = @Content)
-    })
-    @PutMapping("/{idContrato}/plano")
-    public ResponseEntity<GerenciamentoClienteResponse> vincularPlano(
-            @Parameter(description = "Identificador do contrato", example = "1")
-            @PathVariable Long idContrato,
-            @Valid @RequestBody VincularPlanoRequest requisicao
-    ) {
-        return ResponseEntity.ok(
-                service.vincularPlano(idContrato, requisicao)
-        );
-    }
+
+
 }
+

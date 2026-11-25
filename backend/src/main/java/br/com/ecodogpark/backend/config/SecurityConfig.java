@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/whatsapp/atendimentos-pendentes").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/whatsapp/webhook").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

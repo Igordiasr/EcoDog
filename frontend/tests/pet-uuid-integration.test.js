@@ -62,7 +62,18 @@ it('consulta diário por UUID e rejeita retorno de outro pet', async () => {
     const request = vi.fn().mockResolvedValueOnce(response(data)).mockResolvedValueOnce(response({ ...data, idPet: tutorId }));
     const api = createPetDiaryApi(base, request, token);
     expect((await api.day(petId, data.data)).idPet).toBe(petId);
-    expect(request.mock.calls[0][0]).toBe(`${base}/api/diario/${petId}?data=2026-11-19`);
+    expect(request.mock.calls[0][0]).toBe(`${base}/diario?idPet=${petId}&data=2026-11-19`);
+    expect(request.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${token}`);
+    await expect(api.historyDay(petId, data.data)).rejects.toThrow('diferente');
+    expect(request.mock.calls[1][0]).toBe(`${base}/diario?idPet=${petId}&data=2026-11-19`);
+});
+it('consulta histórico do diário na mesma rota com a data selecionada', async () => {
+    const data = { idPet: petId, data: '2026-11-18', resumo: {}, atividades: [], medicacoes: [] };
+    const request = vi.fn().mockResolvedValueOnce(response(data)).mockResolvedValueOnce(response({ ...data, data: '2026-11-17' }));
+    const api = createPetDiaryApi(base, request, token);
+    expect(await api.historyDay(petId, data.data)).toMatchObject(data);
+    expect(request.mock.calls[0][0]).toBe(`${base}/diario?idPet=${petId}&data=2026-11-18`);
+    expect(request.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${token}`);
     await expect(api.historyDay(petId, data.data)).rejects.toThrow('diferente');
 });
 it('calendário administrativo aceita aluno com UUID e agendamento numérico', async () => {

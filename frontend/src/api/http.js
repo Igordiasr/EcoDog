@@ -26,7 +26,7 @@ function messageForStatus(status) {
   if (status === 403) return 'Acesso negado.';
   if (status === 404) return 'Recurso não disponível.';
   if (status === 409) return 'A operação encontrou um conflito no sistema.';
-  return `Não foi possível consultar o sistema (HTTP ${status}).`;
+  return 'Não foi possível carregar as informações. Tente novamente em instantes.';
 }
 
 function errorFields(body) {

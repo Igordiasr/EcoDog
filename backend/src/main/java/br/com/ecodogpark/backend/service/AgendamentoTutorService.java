@@ -61,9 +61,6 @@ public class  AgendamentoTutorService {
     }
 
     public List<ServicoAtivoResponse> listarServicos(String servico) {
-        servico = formatar(servico);
-        validarServico(servico);
-
         return servicosRepository.buscarServicosAtivos(servico);
     }
 
@@ -286,7 +283,6 @@ public class  AgendamentoTutorService {
         int frequencia = Integer.parseInt(servico.getFrequencia());
         if (diaSemanas.size() != frequencia) {
             throw new DiasSelecionadosInvalidosException("Este plano exige a seleção de " + frequencia + " dias da semana");
-
         }
     }
 

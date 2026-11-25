@@ -3,7 +3,7 @@ import { date, enumValue, list, object, uuid, text } from '../models/integration
 import { sessionFromToken } from '../models/auth';
 export async function deleteTutorPet(baseUrl, session, petId, request) {
     const auth = sessionFromToken(session?.token);
-    if (!auth || auth.profile !== 'tutor' || auth.id !== String(session.id)) throw new Error('Sua sessão expirou. Entre novamente.');
+    if (!auth || auth.profile !== 'tutor' || auth.id !== String(session?.id).toLowerCase()) throw new Error('Sua sessão expirou. Entre novamente.');
     uuid(petId, 'pet');
     uuid(auth.id, 'tutor');
     return requestJson(baseUrl, `/tutores/${encodeURIComponent(auth.id)}/pets/${petId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${auth.token}` } }, undefined, request);

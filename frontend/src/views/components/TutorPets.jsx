@@ -35,11 +35,11 @@ export function TutorPets({ model, node, renderCard, session }) {
         try {
             await deleteTutorPet(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, target.idPet);
             setTarget(null); setMessage('Pet excluído com sucesso.'); model.reload();
-        } catch (error) { setMessage(error.message); }
+        } catch { setMessage('Não foi possível excluir seu pet. Consulte a EcoDog antes de tentar novamente.'); }
         finally { inFlight.current = false; setBusy(false); }
     };
     if (model.loading) return <p role="status">Carregando seus pets…</p>;
-    if (model.error) return <div><p role="alert">{model.error}</p><button type="button" className="management-button" onClick={model.reload}>Tentar novamente</button></div>;
+    if (model.error) return <div><p role="alert">Não foi possível consultar seus pets. Tente novamente ou consulte a EcoDog.</p><button type="button" className="management-button" onClick={model.reload}>Tentar novamente</button></div>;
     if (!model.pets.length) return <div>{message && <p role="status">{message}</p>}<p role="status">Você ainda não possui pets cadastrados.</p></div>;
     const group = node.children.find(child => child.name === 'Grupo de pets');
     const template = group ? group.children.find(child => child.name === 'Pet cadastrado') : node.children.find(child => child.name === 'Pet cadastrado');

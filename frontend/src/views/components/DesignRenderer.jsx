@@ -19,6 +19,7 @@ import { ManagementCalendar, ManagementCapacity, ManagementAvailability, Managem
 import { findDesignNode } from '../design/structure-booking';
 import { ScheduledPetDays } from './ScheduledPetDays';
 import { TutorPets } from './TutorPets';
+import { TutorPlans } from './TutorPlans';
 import { PetField } from './PetField';
 import { PetAllergies } from './PetAllergies';
 import { petRecordFields } from '../../models/pet-validation';
@@ -108,6 +109,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (node.editPetId) return <button {...props} type="button" aria-label="Editar pet" onClick={() => ctx.action('Editar pet integrado', node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     if (ctx.screen === 'TL05' && name === 'Pets cadastrados')
         return <TutorPets model={ctx.tutorPets} session={ctx.session} node={node} renderCard={card => <DesignRenderer key={card.id} node={card} ancestors={[...ancestors, node]} inert/>}/>;
+    if (ctx.screen === 'TL05' && name === 'Plano contratado')
+        return <TutorPlans session={ctx.session} node={node} renderNode={plan => <DesignRenderer key={plan.id} node={plan} ancestors={ancestors} inert/>}/>;
     const isHeaderProfile = name === 'Perfil' && parentIsHeader && node.tag !== 'img';
     if (isHeaderProfile && !inert) {
         const identity = ctx.userName ? `${ctx.userName}${ctx.userRole ? ` • ${ctx.userRole}` : ''}` : undefined;

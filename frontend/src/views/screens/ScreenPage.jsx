@@ -971,20 +971,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         if (id === 'TL02')
             children = children?.map(child => typeof child === 'string' ? child.replace('acompanhar seus aumigos.', 'acompanhar seus pets.') : child);
-        if (id === 'TL05' && node.name === 'Meus planos' && children) {
-            const parts = children.filter((child) => typeof child !== 'string');
-            const header = parts.find(child => child.name === 'Título e agendamento');
-            const card = parts.find(child => child.name === 'Plano contratado');
-            const schedule = parts.find(child => child.name === 'Ação');
-            if (header && card) {
-                const table = {
-                    tag: 'div', id: `${card.id}-contents`, name: 'Plano contratado',
-                    className: `box-border w-full h-fit flex flex-col${mobile ? ' gap-[20px]' : ''}`,
-                    children: card.children,
-                };
-                children = [{ ...card, tag: 'section', name: 'Meus Planos • Card', children: [header, table, ...(schedule ? [schedule] : [])] }];
-            }
-        }
         if (id === 'TL03' && !mobile && node.id === 'PyCgJ') {
             let valuesCard;
             const removeValuesCard = child => {
@@ -997,10 +983,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             };
             children = children?.map(removeValuesCard).filter(item => item !== null);
             if (valuesCard && children?.length) children = [children[0], ...children.slice(1), { ...valuesCard, tag: 'aside' }];
-        }
-        if (id === 'TL05' && node.name === 'Plano contratado') {
-            const header = children?.filter(child => typeof child !== 'string' && child.name === 'Cabeçalho da tabela') || [];
-            return { ...node, children: [...header, { tag: 'p', id: `${node.id}-unavailable`, name: 'Consulta de planos indisponível', className: 'w-full p-[16px] text-[16px]/[23px] text-[var(--text)] font-[Roboto,system-ui,sans-serif]', children: ['Não foi possível consultar seus planos: o backend ainda não disponibiliza essa consulta.'] }] };
         }
         if (repeats[node.id] && children) {
             const group = children.findLast(c => typeof c !== 'string' && c.name === 'Grupo de campos');

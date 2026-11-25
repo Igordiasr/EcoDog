@@ -626,3 +626,10 @@ input.design-input, select.design-input, textarea.design-input { display: block;
   .registration-form .dialog-actions { display: flex; gap: 12px; flex-wrap: wrap; }
   .registration-form button { flex: 1; min-width: 0; }
 }
+.tutor-plans-mobile { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+.tutor-plan-dates { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tutor-plan-date { display: inline-flex; align-items: center; justify-content: center; padding: 5px 10px; border: 1px solid var(--brand); border-radius: 8px; background: var(--surface); color: var(--brand); font: 400 14px/18px Roboto, system-ui, sans-serif; white-space: nowrap; }
+.design-page [data-design-name="Planos integrados"] > :is([data-design-name="Cabeçalho da tabela"], [data-design-name="Plano"]) { display: grid; grid-template-columns: 160px 230px 230px minmax(0, 1fr); gap: 16px; }
+.design-page [data-design-name="Planos integrados"] [data-design-name="Dado"], .design-page [data-design-name="Planos integrados"] [data-design-name="Coluna"] { width: 100%; min-width: 0; overflow-wrap: anywhere; }
+.design-page [data-design-name="Planos integrados"] > [data-design-name="Plano"] { border-radius: 0; }
+.design-page [data-design-name="Planos integrados"] > [data-design-name="Plano"]:last-child { border-radius: 0 0 10px 10px; }

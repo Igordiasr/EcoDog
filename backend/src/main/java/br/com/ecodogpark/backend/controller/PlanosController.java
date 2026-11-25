@@ -84,7 +84,7 @@ public class PlanosController {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Plano excluído"),
             @ApiResponse(responseCode = "404", description = "Plano não encontrado", content = @Content),
-            @ApiResponse(responseCode = "409", description = "Plano vinculado a outro registro", content = @Content)
+            @ApiResponse(responseCode = "409", description = "Plano vinculado1 a outro registro", content = @Content)
     })
     public ResponseEntity<Void> excluir(@Parameter(description = "Identificador do plano", example = "1") @PathVariable Long id) {
         try {

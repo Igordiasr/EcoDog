@@ -1,0 +1,438 @@
+### =====================================================================
+### EcoDog Park - Consultas de teste dos endpoints
+### Base URL: http://localhost:8080 (porta padrão do Spring Boot)
+### Compatível com: IntelliJ IDEA (HTTP Client) e VS Code (REST Client)
+### =====================================================================
+
+### Variáveis de apoio (ajuste conforme os IDs retornados pelas requisições)
+@host = http://localhost:8080
+@idTutor = 1
+@idMonitor = 1
+@idPet = 1
+@idAtividadeDoDia = 1
+@dataReferencia = 2026-10-19
+
+### =====================================================================
+### 1. USUÁRIOS (Tutores)  ->  /usuarios
+### =====================================================================
+
+### 1.1 Cadastrar tutor (sucesso) - esperado: 201 Created
+POST {{host}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Maria da Silva",
+  "email": "maria.silva@email.com",
+  "cpf": "52998224725",
+  "telefone": "11999998888",
+  "senha": "senha123"
+}
+
+### 1.2 Cadastrar tutor - e-mail duplicado - esperado: 409 Conflict
+POST {{host}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "João Pereira",
+  "email": "maria.silva@email.com",
+  "cpf": "11144477735",
+  "telefone": "11988887777",
+  "senha": "senha123"
+}
+
+### 1.3 Cadastrar tutor - dados inválidos (e-mail, CPF e senha) - esperado: 400 Bad Request
+POST {{host}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "",
+  "email": "email-invalido",
+  "cpf": "12345678900",
+  "telefone": "119",
+  "senha": "123"
+}
+
+### 1.4 Listar todos os tutores - esperado: 200 OK (ou 204 se vazio)
+GET {{host}}/usuarios
+
+### 1.5 Buscar tutor por ID (existente) - esperado: 200 OK
+GET {{host}}/usuarios/{{idTutor}}
+
+### 1.6 Buscar tutor por ID (inexistente) - esperado: 404 Not Found
+GET {{host}}/usuarios/999999
+
+### 1.7 Atualizar tutor - esperado: 200 OK
+PUT {{host}}/usuarios/{{idTutor}}
+Content-Type: application/json
+
+{
+  "nome": "Maria Souza",
+  "email": "maria.silva@email.com",
+  "cpf": "52998224725",
+  "telefone": "11999990000",
+  "senha": "senha456"
+}
+
+### 1.8 Atualizar tutor inexistente - esperado: 404 Not Found
+PUT {{host}}/usuarios/999999
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "teste@email.com",
+  "cpf": "11144477735",
+  "telefone": "11977776666",
+  "senha": "senha123"
+}
+
+### 1.9 Excluir tutor - esperado: 204 No Content
+DELETE {{host}}/usuarios/{{idTutor}}
+
+### 1.10 Excluir tutor inexistente - esperado: 404 Not Found
+DELETE {{host}}/usuarios/999999
+
+### =====================================================================
+### 2. MONITORES  ->  /usuarios/monitores
+### =====================================================================
+
+### 2.1 Cadastrar monitor (sucesso) - esperado: 201 Created
+POST {{host}}/usuarios/monitores
+Content-Type: application/json
+
+{
+  "nome": "Carlos Monitor",
+  "email": "carlos.monitor@ecodog.com",
+  "cpf": "11144477735",
+  "telefone": "11966665555",
+  "senha": "senha123"
+}
+
+### 2.2 Cadastrar monitor - e-mail já cadastrado - esperado: 409 Conflict
+POST {{host}}/usuarios/monitores
+Content-Type: application/json
+
+{
+  "nome": "Outro Monitor",
+  "email": "carlos.monitor@ecodog.com",
+  "cpf": "12345678909",
+  "telefone": "11955554444",
+  "senha": "senha123"
+}
+
+### 2.3 Cadastrar monitor - CPF já cadastrado - esperado: 409 Conflict
+POST {{host}}/usuarios/monitores
+Content-Type: application/json
+
+{
+  "nome": "Monitor Duplicado",
+  "email": "duplicado@ecodog.com",
+  "cpf": "11144477735",
+  "telefone": "11944443333",
+  "senha": "senha123"
+}
+
+### 2.4 Cadastrar monitor - dados inválidos - esperado: 400 Bad Request
+POST {{host}}/usuarios/monitores
+Content-Type: application/json
+
+{
+  "nome": "",
+  "email": "invalido",
+  "cpf": "00000000000",
+  "telefone": "",
+  "senha": "123"
+}
+
+### 2.5 Listar monitores - esperado: 200 OK (ou 204 se vazio)
+GET {{host}}/usuarios/monitores
+
+### 2.6 Buscar monitor por ID - esperado: 200 OK
+GET {{host}}/usuarios/monitores/{{idMonitor}}
+
+### 2.7 Buscar monitor inexistente - esperado: 404 Not Found
+GET {{host}}/usuarios/monitores/999999
+
+### 2.8 Atualizar monitor - esperado: 200 OK
+PUT {{host}}/usuarios/monitores/{{idMonitor}}
+Content-Type: application/json
+
+{
+  "nome": "Carlos Atualizado",
+  "email": "carlos.monitor@ecodog.com",
+  "cpf": "11144477735",
+  "telefone": "11933332222",
+  "senha": "senha456"
+}
+
+### 2.9 Atualizar monitor inexistente - esperado: 404 Not Found
+PUT {{host}}/usuarios/monitores/999999
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "teste@ecodog.com",
+  "cpf": "12345678909",
+  "telefone": "11922221111",
+  "senha": "senha123"
+}
+
+### 2.10 Excluir monitor - esperado: 204 No Content
+DELETE {{host}}/usuarios/monitores/{{idMonitor}}
+
+### 2.11 Excluir monitor inexistente - esperado: 404 Not Found
+DELETE {{host}}/usuarios/monitores/999999
+
+### =====================================================================
+### 3. PETS  ->  /pets
+### =====================================================================
+
+### 3.1 Criar pet (sucesso) - esperado: 201 Created
+# @name criaPet
+POST {{host}}/pets
+Content-Type: application/json
+
+{
+  "nome": "Rex",
+  "raca": "Labrador",
+  "castrado": true,
+  "idTutor": {{idTutor}},
+  "dataNascimento": "2021-06-15",
+  "relacaoComOutros": "Sociável",
+  "sexo": "M",
+  "cuidadosEspeciais": "Nenhum"
+}
+
+### 3.2 Criar pet sem tutor (idTutor nulo) - esperado: 400 Bad Request
+POST {{host}}/pets
+Content-Type: application/json
+
+{
+  "nome": "Thor",
+  "raca": "Poodle",
+  "castrado": false,
+  "idTutor": null,
+  "dataNascimento": "2022-01-10",
+  "relacaoComOutros": "Sociável",
+  "sexo": "M",
+  "cuidadosEspeciais": ""
+}
+
+### 3.3 Criar pet - tutor inexistente - esperado: 404 Not Found
+POST {{host}}/pets
+Content-Type: application/json
+
+{
+  "nome": "Bela",
+  "raca": "Beagle",
+  "castrado": true,
+  "idTutor": 999999,
+  "dataNascimento": "2020-03-20",
+  "relacaoComOutros": "Sociável",
+  "sexo": "F",
+  "cuidadosEspeciais": ""
+}
+
+### 3.4 Criar pet - nome em branco - esperado: 400 Bad Request
+POST {{host}}/pets
+Content-Type: application/json
+
+{
+  "nome": "",
+  "raca": "SRD",
+  "castrado": true,
+  "idTutor": {{idTutor}},
+  "dataNascimento": "2019-05-05",
+  "relacaoComOutros": "Sociável",
+  "sexo": "F",
+  "cuidadosEspeciais": ""
+}
+
+### 3.5 Criar pet - data de nascimento no futuro - esperado: 400 Bad Request
+POST {{host}}/pets
+Content-Type: application/json
+
+{
+  "nome": "Futuro",
+  "raca": "SRD",
+  "castrado": false,
+  "idTutor": {{idTutor}},
+  "dataNascimento": "2030-01-01",
+  "relacaoComOutros": "Sociável",
+  "sexo": "M",
+  "cuidadosEspeciais": ""
+}
+
+### 3.6 Listar todos os pets - esperado: 200 OK
+GET {{host}}/pets
+
+### 3.7 Buscar pet por ID - esperado: 200 OK
+GET {{host}}/pets/{{idPet}}
+
+### 3.8 Buscar pet inexistente - esperado: 404 Not Found
+GET {{host}}/pets/999999
+
+### 3.9 Atualizar pet - esperado: 200 OK
+PUT {{host}}/pets/{{idPet}}
+Content-Type: application/json
+
+{
+  "nome": "Rex Atualizado",
+  "raca": "Labrador",
+  "castrado": true,
+  "idTutor": {{idTutor}},
+  "dataNascimento": "2021-06-15",
+  "relacaoComOutros": "Sociável",
+  "sexo": "M",
+  "cuidadosEspeciais": "Dieta sem grãos"
+}
+
+### 3.10 Atualizar pet inexistente - esperado: 404 Not Found
+PUT {{host}}/pets/999999
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "raca": "SRD",
+  "castrado": false,
+  "idTutor": {{idTutor}},
+  "dataNascimento": "2021-01-01",
+  "relacaoComOutros": "Sociável",
+  "sexo": "M",
+  "cuidadosEspeciais": ""
+}
+
+### 3.11 Excluir pet - esperado: 204 No Content
+DELETE {{host}}/pets/{{idPet}}
+
+### 3.12 Excluir pet inexistente - esperado: 404 Not Found
+DELETE {{host}}/pets/999999
+
+### =====================================================================
+### 4. ATIVIDADES  ->  /atividades
+### =====================================================================
+
+### 4.1 Buscar atividades do dia - esperado: 200 OK
+GET {{host}}/atividades
+
+### 4.2 Concluir atividade - esperado: 204 No Content
+PUT {{host}}/atividades
+Content-Type: application/json
+
+{
+  "situacao": "CONCLUIDA",
+  "idAtividadeDoDia": {{idAtividadeDoDia}}
+}
+
+### 4.3 Marcar atividade como não concluída - esperado: 204 No Content
+PUT {{host}}/atividades
+Content-Type: application/json
+
+{
+  "situacao": "NAO_CONCLUIDA",
+  "idAtividadeDoDia": {{idAtividadeDoDia}}
+}
+
+### 4.4 Voltar atividade para pendente - esperado: 204 No Content
+PUT {{host}}/atividades
+Content-Type: application/json
+
+{
+  "situacao": "PENDENTE",
+  "idAtividadeDoDia": {{idAtividadeDoDia}}
+}
+
+### 4.5 Atualizar atividade inexistente - esperado: 404 Not Found
+PUT {{host}}/atividades
+Content-Type: application/json
+
+{
+  "situacao": "CONCLUIDA",
+  "idAtividadeDoDia": 999999
+}
+
+### 4.6 Situação inválida - esperado: 400 Bad Request
+PUT {{host}}/atividades
+Content-Type: application/json
+
+{
+  "situacao": "FINALIZADA",
+  "idAtividadeDoDia": {{idAtividadeDoDia}}
+}
+
+### 4.7 Atividade nula/ID zerado - esperado: 400 Bad Request
+PUT {{host}}/atividades
+Content-Type: application/json
+
+{
+  "situacao": "CONCLUIDA",
+  "idAtividadeDoDia": 0
+}
+
+### 4.8 Concluir atividade para todos os pets (lista de participações) - esperado: 204 No Content
+PUT {{host}}/atividades/atualizarPets
+Content-Type: application/json
+
+[1, 2, 3]
+
+### 4.9 Concluir atividade para todos os pets - lista vazia - esperado: 204 No Content (verificar comportamento)
+PUT {{host}}/atividades/atualizarPets
+Content-Type: application/json
+
+[]
+
+### =====================================================================
+### 5. DIÁRIO DO PET  ->  /api/diario
+### =====================================================================
+
+### 5.1 Obter diário do pet - data atual (America/Sao_Paulo) - esperado: 200 OK
+GET {{host}}/api/diario/{{idPet}}
+
+### 5.2 Obter diário do pet - data específica - esperado: 200 OK
+GET {{host}}/api/diario/{{idPet}}?data={{dataReferencia}}
+
+### 5.3 Obter diário de pet inexistente - esperado: 404 Not Found (ou 500 - verificar serviço)
+GET {{host}}/api/diario/999999
+
+### 5.4 Diário com data em formato inválido - esperado: 400 Bad Request
+GET {{host}}/api/diario/{{idPet}}?data=19-10-2026
+
+### =====================================================================
+### 6. FLUXO COMPLETO DE FUMO (executar nesta ordem)
+### =====================================================================
+
+### 6.1 Criar tutor e capturar o ID da resposta
+# @name tutorFluxo
+POST {{host}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Tutor Fluxo",
+  "email": "fluxo.tutor@email.com",
+  "cpf": "52998224725",
+  "telefone": "11999990000",
+  "senha": "senha123"
+}
+
+### 6.2 Usar o ID retornado no passo 6.1 para criar o pet
+POST {{host}}/pets
+Content-Type: application/json
+
+{
+  "nome": "Pet do Fluxo",
+  "raca": "SRD",
+  "castrado": true,
+  "idTutor": {{tutorFluxo.response.body.id}},
+  "dataNascimento": "2022-04-01",
+  "relacaoComOutros": "Sociável",
+  "sexo": "M",
+  "cuidadosEspeciais": ""
+}
+
+### 6.3 Listar atividades do dia e anotar um idAtividadeDoDia para usar nos testes da seção 4
+GET {{host}}/atividades
+
+### 6.4 Consultar o diário do pet criado
+GET {{host}}/api/diario/{{idPet}}
+
+### 6.5 Limpeza - excluir o tutor criado no fluxo
+DELETE {{host}}/usuarios/{{tutorFluxo.response.body.id}}

@@ -28,6 +28,7 @@ import { frontendLinks } from '../../models/frontend-config';
 import { InstitutionalLinks } from './InstitutionalLinks';
 import { currentBookingMonthOffset } from '../design/calendar';
 import { PetHealthSection } from './PetHealthSection';
+import { PetPhoto } from './PetPhoto';
 export const DesignContext = createContext(null);
 const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
 const stripPosition = (c) => c.replace(/(?:^|\s)(?:absolute|left-\S+|top-\S+)/g, ' ').trim();
@@ -181,6 +182,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         return <span {...props} className={`${className} arrow-icon-slot text-[var(--brand)]`}><ArrowIcon direction={direction}/></span>;
     }
     // Informative photos use their exact imported fills, but are exposed as images.
+    if (node.petPhoto)
+        return <PetPhoto key={node.src || 'no-photo'} {...props} src={node.src} name={name}/>;
     if (node.tag === 'img')
         return <img {...props} className={className} src={node.src} alt={node.decorative ? '' : name} aria-hidden={node.decorative || undefined} loading="lazy" draggable={false}/>;
     if (node.tag === 'br' || node.tag === 'hr')

@@ -90,6 +90,7 @@ button:disabled { cursor: not-allowed; }
 .monitor-save-pending { background: var(--brand) !important; color: var(--surface) !important; }
 .monitor-save-pending * { color: var(--surface) !important; }
 .monitor-pet-photo { background-color: #eef7f2; object-fit: cover; }
+.pet-photo-placeholder { display: flex; align-items: center; justify-content: center; color: var(--brand); font: 12px Roboto, system-ui, sans-serif; }
 .design-input { min-height: 44px; min-width: 0; font-family: Roboto, sans-serif; font-size: 16px; line-height: 22px; color: var(--text); background: var(--surface); }
 input.design-input, select.design-input, textarea.design-input { display: block; width: 100%; }
 .design-input::placeholder { color: #42544a; opacity: 1; }

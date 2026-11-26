@@ -7,7 +7,7 @@ export function Modal({ title, children, onClose, wide, className = '' }) {
         dialog.showModal();
         return () => { dialog.close(); trigger?.focus(); };
     }, []);
-    return <dialog ref={ref} aria-label={title} onCancel={onClose} className={`modal ${wide ? 'modal-wide' : ''} ${className}`}>
+    return <dialog ref={ref} aria-label={title} onCancel={event => { event.preventDefault(); onClose(); }} className={`modal ${wide ? 'modal-wide' : ''} ${className}`}>
     <button type="button" className="modal-close" aria-label="Fechar" onClick={onClose}>×</button>
     {children}
   </dialog>;

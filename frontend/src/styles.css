@@ -260,10 +260,44 @@ input.design-input, select.design-input, textarea.design-input { display: block;
  .management-record p { font: 16px/1.5 Roboto, sans-serif; }
  .management-booking-identification { display: flex; align-items: center; gap: 12px; width: 100%; }
  .management-booking-text { flex: 1; min-width: 0; }
+ .management-student-card { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; padding: 16px; border-radius: 16px; background: #eef7f2; color: #000; }
+ .management-student-identification { display: flex; align-items: center; gap: 12px; min-width: 0; }
+ .management-student-photo { display: flex; flex: 0 0 64px; align-items: center; justify-content: center; width: 64px; height: 76px; overflow: hidden; border-radius: 16px; background: #add9cc; }
+ .management-student-text { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+ .management-student-text h3 { margin: 0; color: var(--brand); font: 18px/1.2 "Lilita One", sans-serif; }
+ .management-student-text p { margin: 0; font: 14px/1.45 Roboto, sans-serif; }
+ .management-student-remove { flex: 0 0 44px; height: 48px; border: 1px solid #f25835; border-radius: 10px; background: var(--surface); color: #9b2c16; font: 16px "Lilita One", sans-serif; }
+ .management-student-remove:disabled { opacity: .45; cursor: not-allowed; }
+ .management-student-time, .management-student-details-content p { margin: 0; font: 16px/1.45 Roboto, sans-serif; overflow-wrap: anywhere; }
+ .management-student-details { width: 100%; min-width: 0; }
+ .management-student-details summary { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 16px; border: 1px solid var(--brand); border-radius: 10px; background: var(--surface); color: var(--brand); cursor: pointer; list-style: none; font: 16px "Lilita One", sans-serif; }
+ .management-student-details summary::-webkit-details-marker { display: none; }
+ .management-student-details[open] summary svg { transform: rotate(180deg); }
+ .management-student-details-content { display: grid; gap: 6px; padding: 12px 4px 0; }
+ .management-student-details summary:focus-visible, .management-student-remove:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
  .management-error { color: #a73320; white-space: pre-line; font: 14px/1.5 Roboto, sans-serif; }
  .management-dialog h2 { color: var(--brand); font-family: "Lilita One", sans-serif; }
- .management-message { padding: 12px 20px; white-space: pre-line; color: #182d21; font: 14px/1.5 Roboto, sans-serif; }
+ .management-message { display: grid; gap: 12px; width: 100%; min-width: 0; }
  .management-calendar-page .management-month-navigation .management-button { flex-shrink: 0; }
+ /* Keep the calendar, activities and aulunos balanced as space allows. */
+ .management-calendar-columns-side { display: contents; }
+ .management-calendar-page.design-desktop .page-layout > [data-design-name="Conteúdo"] { max-width: 1600px; margin-inline: auto; }
+ .management-calendar-page.design-desktop [data-design-name="Calendário e rotina do dia"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 24px; }
+ .management-calendar-page.design-desktop [data-design-name="Calendário e rotina do dia"] > * { width: 100%; min-width: 0; }
+ .management-calendar-page.design-desktop .management-calendar-columns-side > * { width: 100%; min-width: 0; }
+ @media (min-width: 768px) and (max-width: 1439px) {
+   .management-calendar-page.design-mobile .page-layout > [data-design-name="Conteúdo"] { width: 100%; max-width: 1600px; padding-inline: 32px; }
+   .management-calendar-page.design-mobile [data-design-name="Calendário e rotina do dia"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 24px; }
+   .management-calendar-page.design-mobile [data-design-name="Calendário e rotina do dia"] > * { width: 100%; min-width: 0; }
+   .management-calendar-page.design-mobile .management-calendar-columns-side { display: flex; flex-direction: column; gap: 24px; }
+   .management-calendar-page.design-mobile .management-calendar-columns-side > * { width: 100%; min-width: 0; }
+ }
+ @media (min-width: 1200px) and (max-width: 1439px) {
+   .management-calendar-page.design-mobile [data-design-name="Calendário e rotina do dia"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+   .management-calendar-page.design-mobile .management-calendar-columns-side { display: contents; }
+ }
+ .management-calendar-modal { top: 110px; bottom: 12px; max-height: calc(100svh - 122px); }
+ .management-calendar-modal::backdrop { background: transparent; }
  .dashboard-page [data-design-name="Painel"], .dashboard-page [data-design-name="Indicador"] { min-width: 0; }
  .dashboard-chart { display: grid; grid-template-rows: 244px minmax(96px, auto); height: auto; min-height: 340px; width: 100%; min-width: 0; }
  .dashboard-chart-scroll { width: 100%; min-width: 0; overflow: auto; }
@@ -409,6 +443,11 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .page-feedback-card p { margin: 0; font: 16px/1.5 Roboto, sans-serif; }
 .page-feedback-error { border-left: 4px solid var(--error); }
 .page-feedback-card button { margin-top: 16px; min-height: 44px; padding: 10px 20px; border: 1px solid var(--brand); border-radius: 10px; background: var(--brand); color: var(--surface); font-family: "Lilita One", sans-serif; }
+.calendar-notice { width: 100%; min-width: 0; white-space: pre-line; }
+.calendar-notice-success { border-left: 4px solid var(--brand); background: #eef7f2; }
+.calendar-notice-info, .calendar-notice-loading { border-left: 4px solid #6b8f7d; }
+.calendar-notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.page-feedback-card .calendar-notice-dismiss { background: var(--surface); color: var(--brand); }
 @media (max-width: 600px) {
   .page-feedback { width: calc(100% - 32px); margin-top: 16px; }
   .page-feedback-card { padding: 16px; }

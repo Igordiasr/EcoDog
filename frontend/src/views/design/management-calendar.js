@@ -2,6 +2,14 @@ import { content, nodes } from './types';
 export function managementCalendarDesign(node, calendar) {
     if (node.name === 'Apresentação')
         return { ...node, children: [...(node.children || []), { tag: 'div', name: 'Management state', className: 'w-full' }] };
+    if (node.name === 'Calendário e rotina do dia') {
+        const children = nodes(node);
+        const calendarColumn = children.find(child => child.name === 'Calendário e configuração');
+        const activityColumn = children.find(child => child.name === 'Atividades do dia');
+        const studentColumn = children.find(child => child.name === 'Aulunos agendados');
+        if (calendarColumn && activityColumn && studentColumn && children.length === 3)
+            return { ...node, children: [calendarColumn, { tag: 'div', name: 'Painéis de atividades e aulunos', className: 'management-calendar-columns-side', children: [activityColumn, studentColumn] }] };
+    }
     if (node.name === 'Calendário de setembro')
         return { ...node, name: 'Management calendar', children: [] };
     if (node.name === 'Configuração de vagas')
@@ -28,12 +36,12 @@ export function managementCalendarDesign(node, calendar) {
                 return [];
             inserted = true;
             const students = activities ? [] : calendar.data?.students?.filter(row => row.date === calendar.selectedDate) || [];
-            const cards = activities ? rows.map(row => ({ ...template, id: row.id, name: 'Management activity' })) : students.map(row => ({ tag: 'article', name: 'Aluno agendado', className: 'management-record', children: [{ tag: 'h3', children: [row.name] }, { tag: 'p', children: [row.breed || 'Raça não informada', ' • ', row.age === undefined ? 'Idade não informada' : `${row.age} anos`] }, { tag: 'p', children: [`Tutor: ${row.tutor || 'não informado'}`] }, { tag: 'p', children: [`Situação: ${row.status} • Serviço e horário não informados pela API`] }] }));
+            const cards = activities ? rows.map(row => ({ ...template, id: row.id, name: 'Management activity' })) : calendar.example ? rows.map(row => ({ ...template, id: row.id, name: 'Management booking' })) : students.map(row => ({ ...template, id: row.id, name: 'Management student' }));
             return [{ tag: 'div', name: 'Management list', className: 'management-list w-full', children: cards.length ? cards : [{ tag: 'p', name: 'Estado da lista', className: 'w-full', children: [calendar.loading ? 'Carregando…' : calendar.loadError ? 'Não foi possível carregar os registros.' : activities ? 'Nenhuma atividade cadastrada para esta data.' : 'Nenhum agendamento para esta data.'] }] }];
         });
         const visit = (current) => {
             if (current.name === 'Descrição' && /\d+ (atividades|agendamentos)/.test(content(current)))
-                return { ...current, children: [`${activities ? rows.length : (calendar.data?.students?.filter(row => row.date === calendar.selectedDate).length || 0)} ${activities ? 'atividades' : 'agendamentos'} • ${calendar.selectedDate.split('-').reverse().join('/')}`] };
+                return { ...current, children: [`${activities || calendar.example ? rows.length : (calendar.data?.students?.filter(row => row.date === calendar.selectedDate).length || 0)} ${activities ? 'atividades' : 'agendamentos'} • ${calendar.selectedDate.split('-').reverse().join('/')}`] };
             return { ...current, children: current.children?.map(child => typeof child === 'string' ? child : visit(child)) };
         };
         return visit({ ...node, children: updated });

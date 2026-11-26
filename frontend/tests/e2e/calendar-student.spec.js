@@ -24,9 +24,9 @@ for (const [device, width, height] of [['desktop', 1440, 900], ['mobile', 390, 8
         await expect(card.getByText('Labrador • 1 ano')).toBeVisible();
         await expect(card.getByText('Tutor: Ana')).toBeVisible();
         await expect(card.getByText('Horários não informados')).toBeVisible();
-        await expect(card.getByRole('button', { name: /Remoção.*indisponível/ })).toBeDisabled();
+        await expect(card.getByRole('button', { name: /Cancelamento.*indisponível/ })).toBeDisabled();
         await card.getByText('Ver detalhes').click();
-        await expect(card.getByText('Situação: Confirmado')).toBeVisible();
+        await expect(card.getByText('Situação: Entrada registrada')).toBeVisible();
         expect(await card.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     });

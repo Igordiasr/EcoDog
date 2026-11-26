@@ -36,8 +36,23 @@ export function managementCalendarDesign(node, calendar) {
                 return [];
             inserted = true;
             const students = activities ? [] : calendar.data?.students?.filter(row => row.date === calendar.selectedDate) || [];
-            const cards = activities ? rows.map(row => ({ ...template, id: row.id, name: 'Management activity' })) : calendar.example ? rows.map(row => ({ ...template, id: row.id, name: 'Management booking' })) : students.map(row => ({ ...template, id: row.id, name: 'Management student' }));
-            return [{ tag: 'div', name: 'Management list', className: 'management-list w-full', children: cards.length ? cards : [{ tag: 'p', name: 'Estado da lista', className: 'w-full', children: [calendar.loading ? 'Carregando…' : calendar.loadError ? 'Não foi possível carregar os registros.' : activities ? 'Nenhuma atividade cadastrada para esta data.' : 'Nenhum agendamento para esta data.'] }] }];
+            const listRows = activities || calendar.example ? rows : students;
+            const cardName = activities ? 'Management activity' : calendar.example ? 'Management booking' : 'Management student';
+            const makeCards = items => items.map(row => ({ ...template, id: row.id, name: cardName }));
+            let list;
+            if (activities || !calendar.data) {
+                const cards = makeCards(listRows);
+                list = cards.length ? cards : [{ tag: 'p', name: 'Estado da lista', className: 'w-full', children: [calendar.loading ? 'Carregando…' : calendar.loadError ? 'Não foi possível carregar os registros.' : activities ? 'Nenhuma atividade cadastrada para esta data.' : 'Nenhum agendamento para esta data.'] }];
+            } else {
+                const pending = listRows.filter(row => row.status === 'PENDENTE' || row.status === 'pending');
+                const others = listRows.filter(row => row.status !== 'PENDENTE' && row.status !== 'pending');
+                const group = (name, title, items, empty) => ({ tag: 'section', name, className: 'management-student-group', children: [
+                    { tag: 'h3', name: 'Título do grupo', className: 'management-student-group-title', children: [`${title} (${items.length})`] },
+                    ...(items.length ? makeCards(items) : [{ tag: 'p', name: 'Estado do grupo', className: 'management-student-group-empty', children: [empty] }]),
+                ] });
+                list = [group('Aulunos a confirmar', 'A confirmar', pending, 'Nenhum auluno aguardando confirmação.'), group('Demais aulunos', 'Demais aulunos', others, 'Nenhum outro auluno agendado para esta data.')];
+            }
+            return [{ tag: 'div', name: 'Management list', className: 'management-list w-full', children: list }];
         });
         const visit = (current) => {
             if (current.name === 'Descrição' && /\d+ (atividades|agendamentos)/.test(content(current)))

@@ -893,6 +893,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const enhance = (node, inDashboardForm = false) => {
+        if (id === 'TL17' && !preview && !dialog) {
+            if (node.name === 'Tabela de planos') return { ...node, name: 'Serviços administrativos integrados', children: [] };
+            if (['Ao9hK', 'zzn30'].includes(node.id)) return { ...node, className: 'hidden', children: [] };
+            if (['rAmJV', 'zCeQs'].includes(node.id)) return { ...node, children: ['A criação, edição, alteração de situação e exclusão de planos ainda não estão disponíveis no sistema.'] };
+        }
         if (id === 'TL06' && !nodes(node).length && ['Adicionar', '+ Adicionar', '+  Adicionar', 'Adicionar alergia'].includes(content(node).trim())) return { ...node, className: 'hidden', children: [] };
         if (['TL10', 'TL11', 'TL12', 'TL13', 'TL14', 'TL15', 'TL16', 'TL17'].includes(id) && node.name === 'Ajuda') return { ...node, className: 'hidden', children: [] };
         if (['TL10', 'TL11', 'TL12'].includes(id) && node.name === 'Navegação' && nodes(node).length) {

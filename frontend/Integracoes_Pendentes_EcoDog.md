@@ -352,7 +352,7 @@ POST envia o JSON abaixo sem ID no caminho; PUT envia também `idContrato` no ca
 
 Validar propriedade do pet, períodos, preço, conflitos e efeitos em saldo/agendamentos. `quantidadeDiarias` não existe em `ContratosEntity`; `ativo`/`periodo` são propostas, não valores garantidos pelo modelo atual.
 
-### TL17 — Planos: criação, edição, situação e exclusão | Pendente
+### TL17 — Planos: criação, edição, situação e exclusão | Consulta parcial
 
 **Já tem:** consulta de serviços por `/dashboard/servicos` e ativos por `/calendario/servicos?categoria=CRECHE`.
 
@@ -363,7 +363,9 @@ Validar propriedade do pet, períodos, preço, conflitos e efeitos em saldo/agen
 
 Nenhuma dessas consultas retorna `idPlano` ou `quantidadeDiarias` como no contrato sugerido abaixo.
 
-**Falta:** CRUD de planos/serviços e conexão das ações da tela.
+**Consulta conectada:** a tela administrativa usa `GET /dashboard/servicos` com o token da sessão e exibe os serviços retornados, inclusive modalidades diferentes de `PLANO`, com busca local, carregamento, lista vazia e nova tentativa. Exibe frequência como recebida, sem convertê-la em diárias. Dados de exemplo não aparecem no fluxo autenticado. A integração depende da disponibilidade e autorização do backend em execução.
+
+**Falta:** CRUD de planos/serviços e conexão das ações da tela. Criar, editar, alterar situação e excluir continuam indisponíveis: as rotas abaixo são sugestões, não contratos existentes.
 
 **Envio sugerido — `POST /planos` / `PUT /planos/{idPlano}`:**
 

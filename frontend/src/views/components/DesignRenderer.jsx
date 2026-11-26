@@ -29,6 +29,7 @@ import { InstitutionalLinks } from './InstitutionalLinks';
 import { currentBookingMonthOffset } from '../design/calendar';
 import { PetHealthSection } from './PetHealthSection';
 import { PetPhoto } from './PetPhoto';
+import { AdminPlanServices } from './AdminPlanServices';
 export const DesignContext = createContext(null);
 const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
 const stripPosition = (c) => c.replace(/(?:^|\s)(?:absolute|left-\S+|top-\S+)/g, ' ').trim();
@@ -41,6 +42,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const value = content(node);
     const childNodes = nodes(node);
     const parent = ancestors.at(-1);
+    if (name === 'Serviços administrativos integrados') return <AdminPlanServices session={ctx.session}/>;
     if (ctx.screen === 'TL02' && ['YtHBL', 'PaegW'].includes(node.id)) return <div className="auth-links"><Link to="/cadastro">Não tem login? Cadastre-se</Link><Link to="/esqueceu-senha">Esqueceu a senha?</Link></div>;
     if (!inert && ctx.screen === 'TL06' && ['Pet records', 'Pet allergies'].includes(name)) return <PetHealthSection key={node.id} kind={name === 'Pet allergies' ? 'alergias' : node.id === 'pet-vacinas' ? 'vacinas' : 'medicamentos'} ctx={ctx}/>;
     if (ctx.screen === 'TL02' && !nodes(node).length && /Esqueceu.*senha/i.test(value)) return null;

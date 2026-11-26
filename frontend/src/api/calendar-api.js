@@ -87,6 +87,11 @@ export function createCalendarSource(baseUrl, request, token, onSessionExpired) 
             }
             if (command.kind === 'activity') return call(`/calendario/${command.activity.date}/atividades`, { method: 'POST', body: { idAtividade: Number(command.activity.catalogId), horaInicio: `${command.activity.start}:00`, horaFim: `${command.activity.end}:00` } });
             if (command.kind === 'removeActivity') return call(`/calendario/atividades/${command.id}`, { method: 'DELETE' });
+            if (command.kind === 'cancelBooking') {
+                const bookingId = Number(command.id);
+                if (!Number.isSafeInteger(bookingId) || bookingId <= 0 || String(bookingId) !== String(command.id)) throw new Error('Agendamento inválido.');
+                return call(`/calendario/agendamentos/${bookingId}`, { method: 'PATCH', body: { situacao: 'CANCELADO' } });
+            }
             throw new Error('Esta alteração não está disponível.');
         },
         async loadMonth(period, selectedDate, signal) {

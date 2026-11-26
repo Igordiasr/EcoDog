@@ -14,6 +14,13 @@ describe('integração do gerenciamento de calendário', () => {
         expect(request.mock.calls[0][0]).toContain('/calendario/dias?mes=2026-11');
     });
 
+    it('lê alunos pendentes do dia usando os campos do contrato existente', async () => {
+        const student = { idAgendamento: 15, idPet: '550e8400-e29b-41d4-a716-446655440000', nome: 'Mel', raca: 'SRD', idade: 2, tutor: 'Ana', situacao: 'PENDENTE' };
+        const request = vi.fn().mockResolvedValueOnce(response([])).mockResolvedValueOnce(response({ ...day, alunosAgendados: [student] }));
+        const data = await createCalendarSource('http://localhost:8080', request, 'sessao').loadMonth('2026-11', '2026-11-15');
+        expect(data.students).toEqual([{ id: '15', petId: student.idPet, date: '2026-11-15', name: 'Mel', breed: 'SRD', age: 2, tutor: 'Ana', status: 'PENDENTE' }]);
+    });
+
     it('preserva as vagas do outro serviço ao atualizar', async () => {
         const request = vi.fn().mockResolvedValueOnce(response(day)).mockResolvedValueOnce(response(day));
         const source = createCalendarSource('http://localhost:8080', request, 'sessao');
@@ -40,5 +47,22 @@ describe('integração do gerenciamento de calendário', () => {
         await expect(source.loadMonth('2026-11', '2026-11-15')).rejects.toMatchObject({ status: 403 });
         await expect(source.catalog()).rejects.toMatchObject({ status: 401 });
         expect(expired).toHaveBeenCalledOnce();
+    });
+
+    it('cancela pelo identificador do agendamento, com a sessão e o corpo esperados', async () => {
+        const request = vi.fn().mockResolvedValueOnce(response({ mensagem: 'Agendamento cancelado.' }));
+        const source = createCalendarSource('http://localhost:8080', request, 'sessao');
+        await source.apply({ kind: 'cancelBooking', id: '15', date: '2026-11-15' });
+        expect(request.mock.calls[0][0]).toBe('http://localhost:8080/calendario/agendamentos/15');
+        expect(request.mock.calls[0][1].method).toBe('PATCH');
+        expect(request.mock.calls[0][1].headers.Authorization).toBe('Bearer sessao');
+        expect(JSON.parse(request.mock.calls[0][1].body)).toEqual({ situacao: 'CANCELADO' });
+    });
+
+    it('rejeita identificadores inválidos antes de enviar o cancelamento', async () => {
+        const request = vi.fn();
+        const source = createCalendarSource('http://localhost:8080', request, 'sessao');
+        await expect(source.apply({ kind: 'cancelBooking', id: '../outro', date: '2026-11-15' })).rejects.toThrow();
+        expect(request).not.toHaveBeenCalled();
     });
 });

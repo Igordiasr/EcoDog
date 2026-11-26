@@ -16,6 +16,7 @@ import { DashboardCharts } from './DashboardCharts';
 import { DashboardField, isDashboardField } from './DashboardField';
 import { dashboardSummary } from '../../models/dashboard-model';
 import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking, ManagementStudent } from './ManagementCalendar';
+import { canCancelStudentBooking } from '../../models/calendar-model';
 import { CalendarNotice } from './CalendarNotice';
 import { findDesignNode } from '../design/structure-booking';
 import { ScheduledPetDays } from './ScheduledPetDays';
@@ -157,7 +158,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         if (name === 'Management student') {
             const row = calendar.data?.students?.find(row => row.id === node.id && row.date === calendar.selectedDate);
             const photo = findDesignNode(node, 'Foto a preencher');
-            return row ? <ManagementStudent row={row} photo={photo && <DesignRenderer node={photo} inert/>}/> : null;
+            return row ? <ManagementStudent row={row} photo={photo && <DesignRenderer node={photo} inert/>} saving={calendar.saving} onRemove={canCancelStudentBooking(row) ? () => calendar.cancelBooking(row.id) : undefined}/> : null;
         }
     }
     if (ctx.screen === 'TL13' && ctx.dashboard) {

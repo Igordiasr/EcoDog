@@ -172,12 +172,24 @@ export function useManagementCalendar(enabled, preview, api, source) {
                         return true;
                     }
                 }
-                setMessage(command.kind === 'removeActivity' ? 'Atividade removida.' : command.kind === 'activity' ? 'Atividade adicionada.' : 'Pronto! As vagas foram atualizadas.', 'success');
+                setMessage(command.kind === 'cancelBooking' ? 'Agendamento cancelado.' : command.kind === 'removeActivity' ? 'Atividade removida.' : command.kind === 'activity' ? 'Atividade adicionada.' : 'Pronto! As vagas foram atualizadas.', 'success');
             }
             return true;
         }
         catch (error) {
-            setMessage(error instanceof HttpError && error.status === 403 ? 'Esta área está disponível apenas para usuários administrativos autorizados.' : error instanceof HttpError && error.status === 409 ? (command.kind === 'removeActivity' ? 'Esta atividade já possui pets vinculados e não pode ser removida.' : 'Este horário já está ocupado. Escolha outro horário.') : 'Não foi possível concluir a alteração. Confira as informações e tente novamente.');
+            if (command.kind === 'cancelBooking' && error instanceof HttpError && error.status === 409) {
+                try { setData(await source.loadMonth(period, selectedDate)); }
+                catch { setData(null); setLoadError('Não conseguimos atualizar o calendário. Tente novamente.'); }
+                setMessage('Não foi possível cancelar o agendamento. Ele pode já ter sido cancelado ou o auluno já deu entrada. Confira as informações atualizadas.');
+            } else if (command.kind === 'cancelBooking' && error instanceof HttpError && (error.status === 0 || error.status >= 500 || error.status >= 200 && error.status < 300)) {
+                setData(null);
+                setLoadError('Não conseguimos confirmar o cancelamento. Atualize o calendário antes de tentar novamente.');
+            } else if (command.kind === 'cancelBooking' && error instanceof HttpError && error.status === 404) {
+                setData(null);
+                setLoadError('Este agendamento não foi encontrado. Atualize o calendário e confira novamente.');
+            } else {
+                setMessage(error instanceof HttpError && error.status === 403 ? 'Esta área está disponível apenas para usuários administrativos autorizados.' : error instanceof HttpError && error.status === 409 ? (command.kind === 'removeActivity' ? 'Esta atividade já possui pets vinculados e não pode ser removida.' : 'Este horário já está ocupado. Escolha outro horário.') : 'Não foi possível concluir a alteração. Confira as informações e tente novamente.');
+            }
             return false;
         }
         finally {
@@ -229,7 +241,7 @@ export function useManagementCalendar(enabled, preview, api, source) {
     const removeActivity = (row) => setConfirmation({ title: 'Remover atividade', message: `Remover ${row.name} de ${row.date.split('-').reverse().join('/')}?`, run: async () => { if (await commit({ kind: 'removeActivity', id: row.id, date: row.date }))
             setActivity(null); } });
     const cancelBooking = (id) => {
-        const booking = data?.bookings.find(row => row.id === id);
+        const booking = data?.students?.find(row => row.id === id && row.date === selectedDate) || data?.bookings.find(row => row.id === id && row.date === selectedDate);
         if (!booking || !data)
             return;
         const validation = validateCalendarCommand({ kind: 'cancelBooking', id, date: booking.date }, data, source);
@@ -237,7 +249,8 @@ export function useManagementCalendar(enabled, preview, api, source) {
             setMessage(validation.join('\n'));
             return;
         }
-        setConfirmation({ title: 'Cancelar agendamento', message: `Cancelar o agendamento de ${booking.petName} em ${booking.date.split('-').reverse().join('/')}? O cadastro do pet e do tutor será preservado. A operação está sujeita à política do sistema.`, run: async () => { if (await commit({ kind: 'cancelBooking', id, date: booking.date }))
+        setMessage('');
+        setConfirmation({ title: 'Cancelar agendamento?', message: `Deseja cancelar o agendamento de ${booking.name || booking.petName} em ${booking.date.split('-').reverse().join('/')}? O cadastro do pet e do tutor será preservado.`, confirmLabel: 'Cancelar agendamento', cancelLabel: 'Manter agendamento', run: async () => { if (await commit({ kind: 'cancelBooking', id, date: booking.date }))
                 setBookingId(null); } });
     };
     const reload = async () => {

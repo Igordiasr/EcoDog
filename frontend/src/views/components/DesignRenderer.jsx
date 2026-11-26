@@ -15,7 +15,8 @@ import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLo
 import { DashboardCharts } from './DashboardCharts';
 import { DashboardField, isDashboardField } from './DashboardField';
 import { dashboardSummary } from '../../models/dashboard-model';
-import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking } from './ManagementCalendar';
+import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking, ManagementStudent } from './ManagementCalendar';
+import { CalendarNotice } from './CalendarNotice';
 import { findDesignNode } from '../design/structure-booking';
 import { ScheduledPetDays } from './ScheduledPetDays';
 import { TutorPets } from './TutorPets';
@@ -29,6 +30,7 @@ import { InstitutionalLinks } from './InstitutionalLinks';
 import { currentBookingMonthOffset } from '../design/calendar';
 import { PetHealthSection } from './PetHealthSection';
 import { PetPhoto } from './PetPhoto';
+import { AdminPlanServices } from './AdminPlanServices';
 export const DesignContext = createContext(null);
 const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
 const stripPosition = (c) => c.replace(/(?:^|\s)(?:absolute|left-\S+|top-\S+)/g, ' ').trim();
@@ -41,6 +43,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const value = content(node);
     const childNodes = nodes(node);
     const parent = ancestors.at(-1);
+    if (name === 'Serviços administrativos integrados') return <AdminPlanServices session={ctx.session}/>;
     if (ctx.screen === 'TL02' && ['YtHBL', 'PaegW'].includes(node.id)) return <div className="auth-links"><Link to="/cadastro">Não tem login? Cadastre-se</Link><Link to="/esqueceu-senha">Esqueceu a senha?</Link></div>;
     if (!inert && ctx.screen === 'TL06' && ['Pet records', 'Pet allergies'].includes(name)) return <PetHealthSection key={node.id} kind={name === 'Pet allergies' ? 'alergias' : node.id === 'pet-vacinas' ? 'vacinas' : 'medicamentos'} ctx={ctx}/>;
     if (ctx.screen === 'TL02' && !nodes(node).length && /Esqueceu.*senha/i.test(value)) return null;
@@ -128,7 +131,12 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (ctx.screen === 'TL14' && ctx.managementCalendar) {
         const calendar = ctx.managementCalendar;
         if (name === 'Management state')
-            return <div className="management-message"><p role={calendar.loadError ? 'alert' : 'status'}>{calendar.loading ? 'Carregando calendário…' : calendar.loadError || (calendar.example ? 'Prévia com dados mock. Alterações somente em memória.' : 'Dados carregados pelo adaptador do calendário.')}</p>{calendar.loadError && <button type="button" className="management-button" onClick={() => void calendar.reload()}>Recarregar dados</button>}{calendar.message && <p role="status">{calendar.message}</p>}</div>;
+            return <div className="management-message" aria-label="Avisos do calendário">
+                {calendar.loading && <CalendarNotice kind="loading" message="Estamos buscando as atividades e os aulunos deste dia. Só um instante…"/>}
+                {!calendar.loading && calendar.loadError && <CalendarNotice kind="error" title="Não conseguimos carregar o calendário" message={calendar.loadError} retry={() => void calendar.reload()} disabled={calendar.loading}/>}
+                {!calendar.loading && !calendar.loadError && calendar.example && <CalendarNotice title="Prévia do calendário" message="Você está visualizando uma prévia."/>}
+                {!calendar.activity && !calendar.bulk && calendar.message && <CalendarNotice kind={calendar.messageKind} message={calendar.message} onDismiss={() => calendar.setMessage('')} bringIntoView/>}
+            </div>;
         if (name === 'Management calendar')
             return <ManagementCalendar calendar={calendar} className={className}/>;
         if (name === 'Management availability')
@@ -145,6 +153,11 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             const row = calendar.data?.bookings.find(row => row.id === node.id);
             const photo = findDesignNode(node, 'Foto a preencher');
             return row ? <ManagementBooking calendar={calendar} className={className} row={row} photo={photo && <DesignRenderer node={photo} inert/>}/> : null;
+        }
+        if (name === 'Management student') {
+            const row = calendar.data?.students?.find(row => row.id === node.id && row.date === calendar.selectedDate);
+            const photo = findDesignNode(node, 'Foto a preencher');
+            return row ? <ManagementStudent row={row} photo={photo && <DesignRenderer node={photo} inert/>}/> : null;
         }
     }
     if (ctx.screen === 'TL13' && ctx.dashboard) {

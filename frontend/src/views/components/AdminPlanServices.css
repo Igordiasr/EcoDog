@@ -1,0 +1,28 @@
+.admin-services { width: 100%; min-width: 0; padding: 20px; border-radius: 24px; background: #fefefe; color: #182d21; }
+.admin-services-tools { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
+.admin-services-tools h2 { color: #247346; font: 22px/1.2 'Lilita One', sans-serif; }
+.admin-services-tools p { margin-top: 6px; font-size: 14px; }
+.admin-services-tools label { width: min(100%, 340px); flex-shrink: 0; }
+.admin-services-tools input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #9bb8a9; border-radius: 8px; background: #fff; color: #182d21; }
+.admin-services-table { width: 100%; overflow-x: auto; }
+.admin-services-table table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+.admin-services-table th { padding: 14px; background: #247346; color: #fff; }
+.admin-services-table td { padding: 14px; border-bottom: 1px solid #dcebe3; overflow-wrap: anywhere; }
+.admin-services-table tbody tr:nth-child(even) { background: #eef7f2; }
+.admin-service-status { display: inline-block; padding: 5px 10px; border-radius: 20px; background: #edf1ef; color: #485b50; font-size: 13px; font-weight: 700; }
+.admin-service-status.is-active { background: #d9efe2; color: #1f653d; }
+.admin-services-message { padding: 20px 0; }
+.admin-services-message button { min-height: 44px; margin-top: 12px; padding: 8px 14px; border: 1px solid #247346; border-radius: 8px; color: #1f653d; background: #fff; }
+.admin-services-count { margin-top: 16px; font-size: 14px; }
+@media (max-width: 767px) {
+  .admin-services { padding: 16px; }
+  .admin-services-tools { flex-direction: column; align-items: stretch; }
+  .admin-services-tools label { width: 100%; }
+  .admin-services-table { overflow: visible; }
+  .admin-services-table table, .admin-services-table tbody, .admin-services-table tr, .admin-services-table td { display: block; width: 100%; }
+  .admin-services-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .admin-services-table tr { padding: 12px; border: 1px solid #dcebe3; border-radius: 10px; }
+  .admin-services-table tr + tr { margin-top: 12px; }
+  .admin-services-table td { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 7px 0; border: 0; text-align: right; }
+  .admin-services-table td::before { content: attr(data-label); color: #53675b; font-size: 13px; font-weight: 700; text-align: left; }
+}

@@ -96,7 +96,7 @@ public class CheckinCheckoutService {
     }
 
     private AgendamentosEntity buscarAgendamento(Long id) {
-        return agendamentoRepository.findById(id)
+        return agendamentoRepository.buscarPorIdParaAtualizacao(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Agendamento não encontrado."

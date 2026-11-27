@@ -37,6 +37,8 @@ export function dashboardFormDesign(node, mode, values, data) {
 }
 export function dashboardDesign(node, data) {
     const view = data ? dashboardSummary(data) : null;
+    if (node.name === 'Rótulo' && content(node) === 'Adicionar receita' && view?.distribution.unit === 'registros')
+        return { ...node, children: ['Registrar pagamento'] };
     const children = nodes(node);
     const panelWithTitle = (text) => children.find(child => nodes(child).some(node => node.name === 'Título' && content(node) === text));
     const revenuePanel = panelWithTitle('Receita prevista × Receita recebida');
@@ -54,6 +56,8 @@ export function dashboardDesign(node, data) {
     const title = children.find(child => child.name === 'Título');
     const text = title && content(title);
     if (node.name === 'Indicador' && text) {
+        if (text === 'Pets previstos para hoje')
+            return { ...node, className: `${node.className} dashboard-occupancy-indicator`, children: node.children?.map(child => typeof child !== 'string' && child.name === 'Ocupação' ? { ...child, name: 'Dashboard occupancy', children: [] } : child) };
         const service = dashboardServices.find(service => text === `Receita mensal (${service})`);
         const metric = service && view?.monthly.find(row => row.service === service);
         if (service)
@@ -82,12 +86,12 @@ export function dashboardDesign(node, data) {
     }
     if (text === 'Distribuição de pets') {
         let index = 0;
-        const labels = view?.distribution.unit === 'contratos' ? ['Contratos ativos de Creche', 'Contratos ativos de Hotel', 'Contratos ativos de DayUse', 'Contratos inativos'] : ['Cães ativos com pacote de Creche', 'Cães ativos com reserva de Hotel', 'Cães ativos com reserva de DayUse', 'Cães inativos'];
+        const labels = view?.distribution.unit === 'registros' ? ['Pets com contrato ativo de Creche', 'Pets com contrato ativo de Hotel', 'Pets com contrato ativo de Day Use', 'Pets sem contrato ativo'] : view?.distribution.unit === 'contratos' ? ['Contratos ativos de Creche', 'Contratos ativos de Hotel', 'Contratos ativos de DayUse', 'Contratos inativos'] : ['Cães ativos com pacote de Creche', 'Cães ativos com reserva de Hotel', 'Cães ativos com reserva de DayUse', 'Cães inativos'];
         return { ...node, children: node.children?.map(child => {
                 if (typeof child === 'string')
                     return child;
-                if (child.name === 'Título' && view?.distribution.unit === 'contratos')
-                    return { ...child, children: ['Distribuição de contratos'] };
+                if (child.name === 'Título' && ['contratos', 'registros'].includes(view?.distribution.unit))
+                    return { ...child, children: [view.distribution.unit === 'registros' ? 'Distribuição de pets por serviço' : 'Distribuição de contratos'] };
                 if (child.name === 'Distribuição')
                     return { ...child, name: 'Dashboard distribution chart', children: [] };
                 if (child.name === 'Descrição' && index < 4) {
@@ -95,7 +99,7 @@ export function dashboardDesign(node, data) {
                     return { ...child, className: `${child.className} dashboard-distribution-legend dashboard-category-${category}`, children: [`${labels[category]} (${count ?? '—'})${view ? ` • ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(view.distribution.total ? count / view.distribution.total * 100 : 0)}%` : ''}`] };
                 }
                 if (child.name === 'Descrição')
-                    return { ...child, name: 'Pendência de classificação', children: [view?.distribution.unit === 'contratos' ? 'Distribuição de Pets indisponível: a API fornece contagens de contratos, não de pets.' : view?.distribution.unclassified.length ? `${view.distribution.unclassified.length} pet(s) precisam de classificação de serviço; não foram contados duas vezes.` : !view ? 'Dados de distribuição indisponíveis.' : ''] };
+                    return { ...child, name: 'Pendência de classificação', children: [view?.distribution.unit === 'registros' ? 'Um pet com contratos em serviços diferentes pode aparecer em mais de uma categoria; o total representa a soma dos registros.' : view?.distribution.unit === 'contratos' ? 'Distribuição de Pets indisponível: a API fornece contagens de contratos, não de pets.' : view?.distribution.unclassified.length ? `${view.distribution.unclassified.length} pet(s) precisam de classificação de serviço; não foram contados duas vezes.` : !view ? 'Dados de distribuição indisponíveis.' : ''] };
                 return child;
             }).filter(child => typeof child === 'string' || child.name !== 'Pendência de classificação' || content(child)) };
     }

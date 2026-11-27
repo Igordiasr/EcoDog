@@ -56,7 +56,7 @@ Conferência estática dos consumidores em `src/models/auth.js`, `src/models/pet
 | TL16/TL17 — contratos e planos | Consultas futuras precisam de IDs para ações/seleção, nomes para exibição, condições mostradas/editadas e situação para ativar/desativar. | Objetos completos nas respostas POST/PUT só se a tela atualizar o estado diretamente; com recarga, status basta. PATCH de situação pode retornar 204 com recarga, sem eco de ID/`ativo`. Não exigir objetos aninhados completos onde ID/rótulo resolve. |
 | TL13 — dashboard e metas | Resumo usa KPIs, **`planosAtivos.planosAtivos`**, ocupação, séries, distribuição e movimentações. Serviços fornecem ID/nome/categoria/frequência para seleção; consulta de metas usa `idMeta`, `mesReferencia`, `valor`, `servico.idServico`. | `saveGoal` aguarda a gravação mas não utiliza seu corpo: não exigir objeto completo nem `idMeta` no POST/PUT atual. O ID é necessário na consulta para editar. Não exigir campos extras de serviço apenas para gravar uma meta. |
 | TL13 — receitas | Consulta de pendências fornece IDs reais para futura baixa; criação avulsa ainda não tem HTTP. Sucesso de gravação seguido de recarga pode usar apenas status. | O eco integral de tutor/pet/serviço/valor/pagamento no POST sugerido não tem consumidor atual. Não exigir `MovimentacoesEntity` nem relações JPA como resposta de uma futura baixa; preferir DTO mínimo ou 204 com adaptação. |
-| TL14 — calendário | Fonte opcional lê datas, identidade/configuração do dia, vagas, IDs/nome/horários das atividades e IDs/dados/situação dos alunos. IDs distinguem catálogo, programação e agendamento. | Fonte atual é somente leitura e não está ligada por padrão. Corpos de edição/lote/aprovação não têm consumidor de gravação: podem ser substituídos por status e recarga. Metadados de catálogo só se exibidos no seletor/detalhe. |
+| TL14 — calendário | A fonte padrão administrativa lê as datas, vagas, atividades e alunos do dia; usa `idAgendamento` e `situacao` para separar pendentes e cancelar quando permitido. Vagas, inclusão/remoção de atividades e cancelamento usam os contratos existentes e recarregam os dados. | A confirmação da estadia ainda não tem operação disponível; não enviar alteração nem simular sucesso. A aplicação mensal atual faz alterações individuais e não é atômica. Metadados de catálogo só são necessários quando exibidos. |
 | Meus Dados | Leitura atual usa nome/e-mail/telefone. Formulário completo futuro requer os campos efetivamente exibidos e endereço editável, com autorização. | Respostas de PATCH contato/endereço podem ser 204 se houver recarga; não é necessário eco de ID. Nascimento/perfil/CPF pertencem à leitura futura, não à resposta de cadastro. Complemento omitido deve ser preservado no servidor, independentemente de ser devolvido. |
 | Recuperação / EcoMigo web | Recuperação precisa de confirmação genérica, sem revelar existência da conta. Chat futuro precisa do texto da resposta; ID de conversa apenas se houver continuidade gerenciada pelo servidor. | `idMensagem`, `autor`, `dataHora` e `atendimentoHumanoSolicitado` são condicionais a histórico/identificação/exibição/encaminhamento implementados. Nenhum desses campos é consumido por HTTP hoje. Não exigir chat web JSON para abrir o WhatsApp. |
 
@@ -352,7 +352,7 @@ POST envia o JSON abaixo sem ID no caminho; PUT envia também `idContrato` no ca
 
 Validar propriedade do pet, períodos, preço, conflitos e efeitos em saldo/agendamentos. `quantidadeDiarias` não existe em `ContratosEntity`; `ativo`/`periodo` são propostas, não valores garantidos pelo modelo atual.
 
-### TL17 — Planos: criação, edição, situação e exclusão | Pendente
+### TL17 — Planos: criação, edição, situação e exclusão | Consulta parcial
 
 **Já tem:** consulta de serviços por `/dashboard/servicos` e ativos por `/calendario/servicos?categoria=CRECHE`.
 
@@ -363,7 +363,9 @@ Validar propriedade do pet, períodos, preço, conflitos e efeitos em saldo/agen
 
 Nenhuma dessas consultas retorna `idPlano` ou `quantidadeDiarias` como no contrato sugerido abaixo.
 
-**Falta:** CRUD de planos/serviços e conexão das ações da tela.
+**Consulta conectada:** a tela administrativa usa `GET /dashboard/servicos` com o token da sessão e exibe os serviços retornados, inclusive modalidades diferentes de `PLANO`, com busca local, carregamento, lista vazia e nova tentativa. Exibe frequência como recebida, sem convertê-la em diárias. Dados de exemplo não aparecem no fluxo autenticado. A integração depende da disponibilidade e autorização do backend em execução.
+
+**Falta:** CRUD de planos/serviços e conexão das ações da tela. Criar, editar, alterar situação e excluir continuam indisponíveis: as rotas abaixo são sugestões, não contratos existentes.
 
 **Envio sugerido — `POST /planos` / `PUT /planos/{idPlano}`:**
 
@@ -448,7 +450,7 @@ Consulta sugerida: `GET /metas?mesReferencia=2026-11&idServico=2`. **Envia:** m�
 
 Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obrigatório a contrato, duplicidade e efeitos contábeis. Alternativa sem novo endpoint: adaptar tela à baixa de pendências com `id`/`idContrato` reais, sem preço avulso.
 
-### TL14 — Calendário administrativo | Pendente no fluxo padrão
+### TL14 — Calendário administrativo | Confirmação de estadia pendente
 
 **Já tem:** cliente `calendar-api.js` e endpoints:
 
@@ -456,6 +458,7 @@ Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obriga
 - `PUT /calendario/2026-11-10/vagas`: `{"vagasCreche":20,"vagasHotel":10}`.
 - `POST /calendario/2026-11-10/atividades`: `{"idAtividade":3,"horaInicio":"09:00:00","horaFim":"10:00:00"}`.
 - `DELETE /calendario/atividades/{id}`, sem corpo.
+- `PATCH /calendario/agendamentos/{idAgendamento}`: `{"situacao":"CANCELADO"}`, somente administrador; cancela antes da entrada, sem excluir o cadastro do pet.
 
 | Operação **existente** | O que é enviado | O que é retornado |
 | --- | --- | --- |
@@ -465,12 +468,25 @@ Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obriga
 | `PUT /calendario/{data}/vagas` | Data no caminho; JSON `{"vagasCreche":20,"vagasHotel":10}` | 200, `CalendarioDiaResponse` com vagas atualizadas |
 | `POST /calendario/{data}/atividades` | Data no caminho; JSON `{"idAtividade":3,"horaInicio":"09:00:00","horaFim":"10:00:00"}` | 201, objeto com `idAtividadeDoDia`, `idAtividade`, `nome`, `descricao`, `categoria`, `horaInicio`, `horaFim`, `situacao` |
 | `DELETE /calendario/atividades/{id}` | ID da atividade programada no caminho; sem corpo | 204, sem corpo |
+| `PATCH /calendario/agendamentos/{idAgendamento}` | ID do agendamento no caminho; `{"situacao":"CANCELADO"}` | 200, `{"mensagem":"Agendamento cancelado."}`; 404 se não encontrado; 409 se não puder ser cancelado |
 
 No retorno do dia, `atividades` contém os campos de programação acima; `alunosAgendados` contém `idAgendamento`, `idPet`, `nome`, `raca`, `idade`, `tutor`, `situacao`. Dia não configurado retorna ID nulo, vagas zeradas e atividades vazias.
 
-**Retorno esperado com foto — GET do dia 200 / PUT de vagas 200:** acrescentar `fotoUrl: string | null` a cada item de `alunosAgendados`, preservando todos os campos atuais. Exemplo de aluno: `{"idAgendamento":15,"idPet":9,"nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"CONFIRMADO","fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Foto preenche o espaço “Foto a preencher” do aluno; não pertence ao catálogo de atividades. A coleção vazia continua `[]`. Tipos/valores dos demais campos devem seguir o DTO existente; a única inclusão proposta aqui é `fotoUrl`.
+**Retorno esperado com foto — GET do dia 200 / PUT de vagas 200:** acrescentar `fotoUrl: string | null` a cada item de `alunosAgendados`, preservando todos os campos atuais. Exemplo de aluno: `{"idAgendamento":15,"idPet":"550e8400-e29b-41d4-a716-446655440000","nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"PENDENTE","fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Foto preenche o espaço “Foto a preencher” do aluno; não pertence ao catálogo de atividades. A coleção vazia continua `[]`. Tipos/valores dos demais campos devem seguir o DTO existente; a única inclusão proposta aqui é `fotoUrl`.
 
-**Falta:** criar/conectar `calendarSource` no App padrão. Edição de horários, lote e aprovação administrativa não têm endpoints equivalentes.
+**Aulunos a confirmar — consulta existente:** a tela consulta `GET /calendario/dia?data=2026-11-10` e separa, no início da lista da data selecionada, os itens de `alunosAgendados` com `situacao: "PENDENTE"`. São usados os campos já documentados `idAgendamento` (número), `idPet` (UUID), `nome`, `raca`, `idade`, `tutor` e `situacao`; a data vem da consulta. Não é necessário um novo endpoint para essa lista por dia. O retorno atual não informa serviço, horário ou foto; não inventar esses valores. Se não houver pendentes, a lista deve estar vazia, não conter exemplos.
+
+**Consulta dedicada opcional — proposta, não existente:** se for necessário buscar pendências separadamente no futuro, sugerir `GET /calendario/agendamentos/pendentes?data=2026-11-10`, restrito a administradores. Retorno 200: array com os mesmos campos do aluno do dia e `data`; lista vazia `[]`. Exemplo:
+
+```json
+[{"idAgendamento":15,"idPet":"550e8400-e29b-41d4-a716-446655440000","data":"2026-11-10","nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"PENDENTE"}]
+```
+
+**Confirmação da estadia — pendente no backend:** não existe operação administrativa para confirmar a estadia. O botão é apresentado desabilitado e nenhuma confirmação é simulada. Proposta: `PATCH /calendario/agendamentos/{idAgendamento}/aprovacao`, com `{"aprovar":true}`; resposta sugerida 200: `{"idAgendamento":15,"data":"2026-11-10","situacao":"AGENDADO"}`. A tela deverá então recarregar a data e só apresentar sucesso após confirmação. Alternativamente, 204 sem corpo também é suficiente se o consumidor for adaptado.
+
+`PENDENTE` indica agendamento aguardando aprovação; `AGENDADO` é a situação esperada após aprovação para permitir entrada. Não usar `CONFIRMADO` como aprovação administrativa: o check-in do monitor já usa essa situação para registrar a entrada. A operação proposta deve validar permissão de administrador, existência, situação atual e disponibilidade; definir conflitos (409), repetição, concorrência e efeitos sobre contrato, pagamentos e saldo antes da implementação. Agendamentos por contratação podem abranger vários dias, e o vínculo entre agendamento e contrato precisa ser esclarecido antes de modificar contratos ou finanças.
+
+**Demais pendências:** edição de horários e lote atômico não têm endpoints equivalentes. A alteração mensal atual envia cada dia separadamente e pode terminar parcialmente; a aprovação segue desabilitada até existir um contrato real.
 
 **Envios e respostas sugeridos, se essas ações forem mantidas:**
 
@@ -478,7 +494,7 @@ No retorno do dia, `atividades` contém os campos de programação acima; `aluno
 | --- | --- | --- |
 | `PUT /calendario/atividades/{idAtividadeDoDia}` | `{"horaInicio":"09:30:00","horaFim":"10:30:00"}` | `{"idAtividadeDoDia":7,"idAtividade":3,"horaInicio":"09:30:00","horaFim":"10:30:00"}` |
 | `PUT /calendario/vagas/lote` | `{"datas":["2026-11-10","2026-11-11"],"vagasCreche":20,"vagasHotel":10}` | `{"datasAtualizadas":["2026-11-10","2026-11-11"]}` |
-| `PATCH /calendario/agendamentos/{idAgendamento}/aprovacao` | `{"aprovar":true}` | `{"idAgendamento":15,"situacao":"CONFIRMADO"}` |
+| `PATCH /calendario/agendamentos/{idAgendamento}/aprovacao` | `{"aprovar":true}` | `{"idAgendamento":15,"data":"2026-11-10","situacao":"AGENDADO"}` |
 
 Vagas não negativas; horários sem sobreposição e fim posterior ao início. Exclusão pode falhar com pets vinculados. Definir atomicidade do lote, rejeição de agendamento e efeitos financeiros/saldo. Não confundir ID do catálogo com ID da atividade programada.
 

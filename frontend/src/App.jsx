@@ -7,7 +7,8 @@ import { DevelopmentNav } from './views/components/DevelopmentNav';
 import { authApi } from './models/auth';
 import { unconfiguredHolidayCalendar } from './models/holidays';
 import { createDashboardSource } from './api/dashboard-source';
-export function App({ api = authApi, holidayCalendar = unconfiguredHolidayCalendar, dashboardSource: providedDashboardSource, calendarSource, petHealthCatalogSource, tutorScheduleSource }) {
+import { createCalendarSource } from './api/calendar-api';
+export function App({ api = authApi, holidayCalendar = unconfiguredHolidayCalendar, dashboardSource: providedDashboardSource, calendarSource: providedCalendarSource, petHealthCatalogSource, tutorScheduleSource }) {
     const [session, setSession] = useState(null);
     const expireSession = useCallback(() => {
         void api.logout();
@@ -16,6 +17,9 @@ export function App({ api = authApi, holidayCalendar = unconfiguredHolidayCalend
     const dashboardSource = useMemo(() => providedDashboardSource ?? (session?.profile === 'admin' && session?.token
         ? createDashboardSource(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', undefined, session.token, expireSession)
         : undefined), [providedDashboardSource, session?.profile, session?.token, expireSession]);
+    const calendarSource = useMemo(() => providedCalendarSource ?? (session?.profile === 'admin' && session?.token
+        ? createCalendarSource(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', undefined, session.token, expireSession)
+        : undefined), [providedCalendarSource, session?.profile, session?.token, expireSession]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         let active = true;

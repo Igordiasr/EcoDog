@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { createPetDiaryApi } from '../api/pet-diary-api';
 import { loadTutorPets } from '../models/tutor-pets';
 import { presenceDay } from './use-presence';
+import { petDiaryFeedback } from './user-feedback';
 
 export function usePetDiary(enabled, requestedId, day, session) {
     const [state, setState] = useState({ data: null, pet: null, loading: false, error: '' });
+    const [attempt, setAttempt] = useState(0);
     useEffect(() => {
         if (!enabled) return;
         const controller = new AbortController();
@@ -17,8 +19,8 @@ export function usePetDiary(enabled, requestedId, day, session) {
             const api = createPetDiaryApi(base, undefined, session?.token);
             const data = await (day === presenceDay() ? api.day(pet.idPet, day, controller.signal) : api.historyDay(pet.idPet, day, controller.signal));
             if (!controller.signal.aborted) setState({ data, pet, loading: false, error: '' });
-        })().catch(error => { if (!controller.signal.aborted) setState({ data: null, pet: null, loading: false, error: error.message }); });
+        })().catch(error => { if (!controller.signal.aborted) setState({ data: null, pet: null, loading: false, error: petDiaryFeedback(error) }); });
         return () => controller.abort();
-    }, [enabled, requestedId, day, session?.token, session?.id]);
-    return state;
+    }, [enabled, requestedId, day, session?.token, session?.id, attempt]);
+    return { ...state, reload: () => setAttempt(value => value + 1) };
 }

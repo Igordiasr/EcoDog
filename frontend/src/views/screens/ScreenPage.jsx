@@ -24,10 +24,13 @@ import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions, integratedMonitorDesign } from '../design/monitor-records';
 import { useMonitorFeed } from '../../viewmodels/use-monitor-feed';
 import { usePetDiary } from '../../viewmodels/use-pet-diary';
+import { PageFeedback } from '../components/PageFeedback';
+import { userFeedback } from '../../viewmodels/user-feedback';
 import { integratedPetDiaryDesign } from '../design/pet-diary';
 import { presenceDay } from '../../viewmodels/use-presence';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
 import { useDashboard } from '../../viewmodels/use-dashboard';
+import { DashboardPayments } from '../components/DashboardPayments';
 import { useManagementCalendar } from '../../viewmodels/use-management-calendar';
 import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
@@ -46,7 +49,7 @@ import { useTutorPets } from '../../viewmodels/use-tutor-pets';
 import { screens } from './catalog';
 import { createAuthViewModel } from '../../viewmodels/auth';
 import { registrationDesign } from '../design/auth';
-import { prototypeOperationBlock, recordIdentityUnavailable, monitorDataUnavailable, presenceDataUnavailable } from '../../viewmodels/prototype-safety';
+import { prototypeOperationBlock, recordIdentityUnavailable } from '../../viewmodels/prototype-safety';
 const imports = import.meta.glob('../design/*.json');
 import { correctDesignCopy } from '../design/copy-corrections';
 const load = async (key) => {
@@ -333,7 +336,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             setAllergyDraft([...allergies]);
             setAllergyDescription('');
         }
-        if (!['confirm', 'allergies', 'details', 'profile'].includes(key)) {
+        if (!['confirm', 'allergies', 'details', 'profile'].includes(key) && !(key === 'revenue' && dashboardSource?.pendingMovements)) {
             try {
                 const data = await load(key);
                 setDialogDesign(data);
@@ -802,7 +805,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             void openDialog('linkPlan');
             return;
         }
-        if (label === 'Adicionar receita') {
+        if (label === 'Adicionar receita' || label === 'Registrar pagamento') {
             void openDialog('revenue');
             return;
         }
@@ -891,6 +894,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const enhance = (node, inDashboardForm = false) => {
+        if (id === 'TL17' && !preview && !dialog) {
+            if (node.name === 'Tabela de planos') return { ...node, name: 'Serviços administrativos integrados', children: [] };
+            if (['Ao9hK', 'zzn30'].includes(node.id)) return { ...node, className: 'hidden', children: [] };
+            if (['rAmJV', 'zCeQs'].includes(node.id)) return { ...node, children: ['A criação, edição, alteração de situação e exclusão de planos ainda não estão disponíveis no sistema.'] };
+        }
         if (id === 'TL06' && !nodes(node).length && ['Adicionar', '+ Adicionar', '+  Adicionar', 'Adicionar alergia'].includes(content(node).trim())) return { ...node, className: 'hidden', children: [] };
         if (['TL10', 'TL11', 'TL12', 'TL13', 'TL14', 'TL15', 'TL16', 'TL17'].includes(id) && node.name === 'Ajuda') return { ...node, className: 'hidden', children: [] };
         if (['TL10', 'TL11', 'TL12'].includes(id) && node.name === 'Navegação' && nodes(node).length) {
@@ -971,20 +979,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         if (id === 'TL02')
             children = children?.map(child => typeof child === 'string' ? child.replace('acompanhar seus aumigos.', 'acompanhar seus pets.') : child);
-        if (id === 'TL05' && node.name === 'Meus planos' && children) {
-            const parts = children.filter((child) => typeof child !== 'string');
-            const header = parts.find(child => child.name === 'Título e agendamento');
-            const card = parts.find(child => child.name === 'Plano contratado');
-            const schedule = parts.find(child => child.name === 'Ação');
-            if (header && card) {
-                const table = {
-                    tag: 'div', id: `${card.id}-contents`, name: 'Plano contratado',
-                    className: `box-border w-full h-fit flex flex-col${mobile ? ' gap-[20px]' : ''}`,
-                    children: card.children,
-                };
-                children = [{ ...card, tag: 'section', name: 'Meus Planos • Card', children: [header, table, ...(schedule ? [schedule] : [])] }];
-            }
-        }
         if (id === 'TL03' && !mobile && node.id === 'PyCgJ') {
             let valuesCard;
             const removeValuesCard = child => {
@@ -997,10 +991,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             };
             children = children?.map(removeValuesCard).filter(item => item !== null);
             if (valuesCard && children?.length) children = [children[0], ...children.slice(1), { ...valuesCard, tag: 'aside' }];
-        }
-        if (id === 'TL05' && node.name === 'Plano contratado') {
-            const header = children?.filter(child => typeof child !== 'string' && child.name === 'Cabeçalho da tabela') || [];
-            return { ...node, children: [...header, { tag: 'p', id: `${node.id}-unavailable`, name: 'Consulta de planos indisponível', className: 'w-full p-[16px] text-[16px]/[23px] text-[var(--text)] font-[Roboto,system-ui,sans-serif]', children: ['Não foi possível consultar seus planos: o backend ainda não disponibiliza essa consulta.'] }] };
         }
         if (repeats[node.id] && children) {
             const group = children.findLast(c => typeof c !== 'string' && c.name === 'Grupo de campos');
@@ -1065,24 +1055,27 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     const screen = id === 'TL15' && !preview ? null : design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);
     const info = screens.find(s => s.id === id);
+    const pageNotices = [];
+    if (id === 'TL07' && !preview && (petDiary.loading || petDiary.error)) pageNotices.push({ message: petDiary.error || 'Estamos buscando os registros do seu pet…', error: !!petDiary.error, retry: petDiary.error ? petDiary.reload : undefined, disabled: petDiary.loading });
+    if (id === 'TL10' && !monitorBlockReason && (preview || monitorFeed.loading || monitorFeed.error)) pageNotices.push({ message: preview ? 'Esta é uma demonstração. As alterações não serão salvas na sua conta.' : monitorFeed.error || 'Carregando rotina do pet…', error: !!monitorFeed.error });
+    if (id === 'TL11' && preview) pageNotices.push({ message: 'Esta é uma demonstração. Os horários e registros de presença são exemplos.' });
+    if (id === 'TL11' && !preview && presence.error) pageNotices.push({ message: presence.error, error: true });
+    if (id === 'TL12' && !preview && dailyActivities.error) pageNotices.push({ message: dailyActivities.error, error: true, retry: dailyActivities.retry, disabled: dailyActivities.saving || dailyActivities.loading });
+    if (id === 'TL06' && petHealthCatalog.message) pageNotices.push({ message: petHealthCatalog.message });
+    if (id === 'TL13' && (dashboard.loading || dashboard.loadError)) pageNotices.push({ message: dashboard.loadError || 'Carregando suas informações…', error: !!dashboard.loadError });
+    const pageFeedback = <>
+      {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
+        <span>Demonstração • dados de exemplo</span>
+        <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
+        <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
+      </aside>}
+      <PageFeedback notices={pageNotices}/>
+    </>;
     return <>
     <a className="skip-link" href="#main-content">Ir para o conteúdo</a>
-    {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
-      <span>Protótipo • dados ilustrativos</span>
-      <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
-      <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
-    </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
-      {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
-      {id === 'TL10' && !monitorBlockReason && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
-       {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
-       {id === 'TL11' && !preview && presence.error && <p className="loading-message" role="alert">{presence.error}</p>}
-       {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
-      {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
-      {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
       {id === 'TL15' && !preview && <UserManagement session={session} onMenu={() => setMenu(true)} />}
-      {!design && id !== 'TL15' && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-       {screen && <DesignContext.Provider value={{ ...context, session, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
+       {screen && <DesignContext.Provider value={{ ...context, session, pageFeedback, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
         </form>
@@ -1100,7 +1093,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         return;
                     }
                     setPetPhoto(file);
-                    setMessage('Foto selecionada. Ao cadastrar, ela será salva localmente e somente a URL será enviada ao backend.');
+                    setMessage('Foto selecionada para o cadastro. Ela ficará disponível neste navegador.');
                 }
                 if (photoRef.current)
                     URL.revokeObjectURL(photoRef.current);
@@ -1108,7 +1101,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setPhoto(photoRef.current);
             }
         }}/>
-    {(message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
+    {(screen || id === 'TL15') && (message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : userFeedback(message, 'Não foi possível concluir a ação. Confira as informações e tente novamente.')}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
     {id === 'TL14' && <ManagementCalendarDialogs calendar={managementCalendar}/>}
     {id === 'TL06' && <PetCatalogDialog catalog={petHealthCatalog}/>}
     {id === 'TL12' && !preview && dailyActivities.detailsPet && <Modal title={`Detalhes de ${dailyActivities.detailsPet.nome}`} onClose={dailyActivities.closePet}>
@@ -1132,7 +1125,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     </Modal>}
     {dialog && <Modal title={dialog === 'profile' ? 'Meu Perfil' : dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'} className={dialog === 'profile' ? 'profile-modal' : ''}>
       {dialog === 'linkPlan' && <p className="dialog-content" role="status">{recordIdentityUnavailable} O formulário permanece apenas como rascunho ilustrativo de vínculo.</p>}
-      {modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
+      {dialog === 'revenue' && dashboardSource?.pendingMovements ? <DashboardPayments source={dashboardSource} onClose={close} onPaid={() => { close(); dashboard.reload(); setMessage('Pagamento registrado com sucesso.'); }}/>
+          : modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
                 : dialog === 'confirm' ? <div className="dialog-content"><h2>Confirmar operação</h2><p>Deseja confirmar esta ação?</p><div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="button" disabled={busy} onClick={() => confirmAction && void run(confirmAction)}>Confirmar</button></div></div>
                     : dialog === 'allergies' ? <form ref={modalFormRef} className="dialog-content" onSubmit={e => {
                             e.preventDefault();

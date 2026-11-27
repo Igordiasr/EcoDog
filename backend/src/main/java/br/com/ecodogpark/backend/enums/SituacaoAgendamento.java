@@ -1,4 +1,4 @@
-package br.com.ecodogpark.backend.entity;
+package br.com.ecodogpark.backend.enums;
 
 public enum SituacaoAgendamento {
     PENDENTE,

@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.MonitorRequest;
 import br.com.ecodogpark.backend.dto.FuncionarioResponse;
+import br.com.ecodogpark.backend.dto.QuantidadeDiariasResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.*;
 import br.com.ecodogpark.backend.entity.ContratoDiasSemanaEntity;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
@@ -61,11 +62,11 @@ public class UsuarioService {
                         Collectors.mapping(ContratoDiasSemanaEntity::getDiaSemana, Collectors.toList())
                 ));
 
-        List<QuantidadeDiariasProjection> quantidades = agendamentoRepository.contarDiariasPorContrato(idsContratos);
+        List<QuantidadeDiariasResponse> quantidades = contratoRepository.contarDiariasPorContrato(idsContratos);
         Map<Long, Integer> quantidadePorContrato = quantidades.stream()
                 .collect(Collectors.toMap(
-                        QuantidadeDiariasProjection::getIdContrato,
-                        projection -> projection.getQuantidade().intValue()
+                        QuantidadeDiariasResponse::idContrato,
+                        quantidade -> quantidade.quantidade().intValue()
                 ));
 
         return contratos.stream().map(contrato -> {

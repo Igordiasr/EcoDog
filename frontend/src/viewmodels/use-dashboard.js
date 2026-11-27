@@ -2,11 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { dashboardServices, dateKey, moneyBRL, parseMoney, validISODate } from '../models/dashboard-model';
 import { selectedGoal, validateDashboardForm } from '../models/dashboard-validation';
 import { petDateISO } from '../models/pet-validation';
-import { goalReferenceForMonth } from '../models/goal-reference';
 export function useDashboard(enabled, preview, api, source) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [loadError, setLoadError] = useState('');
+    const [refresh, setRefresh] = useState(0);
     const [mode, setMode] = useState('createGoal');
     const [values, setValues] = useState({});
     const [errors, setErrors] = useState({});
@@ -15,6 +15,7 @@ export function useDashboard(enabled, preview, api, source) {
     const sequence = useRef(0);
     const [goalLoading, setGoalLoading] = useState(false);
     const [goalError, setGoalError] = useState('');
+    const [goalLookupKey, setGoalLookupKey] = useState('');
     const integratedGoals = !!source?.saveGoal;
     const example = import.meta.env.DEV && preview && !source;
     useEffect(() => {
@@ -31,7 +32,7 @@ export function useDashboard(enabled, preview, api, source) {
             setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar o dashboard.'); }).finally(() => { if (active)
             setLoading(false); });
         return () => { active = false; controller.abort(); };
-    }, [enabled, source, example]);
+    }, [enabled, source, example, refresh]);
     useEffect(() => {
         if (!enabled || !source?.services || !data || data.serviceOptions) return;
         const controller = new AbortController();
@@ -40,32 +41,35 @@ export function useDashboard(enabled, preview, api, source) {
         }).catch(error => { if (!controller.signal.aborted) setGoalError(error.message); });
         return () => controller.abort();
     }, [enabled, source, data]);
-    const referenceDate = mode === 'editGoal' || mode === 'loadedGoal' ? values['mes-cadastrado'] : goalReferenceForMonth(`${values.ano}-${values.mes}`, values.servico, data?.goals);
+    const referenceDate = mode === 'editGoal' || mode === 'loadedGoal' ? values['mes-cadastrado'] : values['data-referencia'];
+    const lookupKey = `${referenceDate || ''}:${values.servico || ''}`;
     useEffect(() => {
         if (!enabled || !source?.goals || !validISODate(referenceDate || '')) return;
         const service = data?.serviceOptions?.find(row => row.id === values.servico);
         if (!service) return;
         const controller = new AbortController();
+        setGoalLookupKey('');
+        setData(current => current ? { ...current, goals: [] } : current);
         setGoalLoading(true);
         setGoalError('');
         source.goals(referenceDate, service, controller.signal).then(goals => {
             if (controller.signal.aborted) return;
             setData(current => ({ ...current, goals }));
+            setGoalLookupKey(lookupKey);
             if (mode === 'editGoal' || mode === 'loadedGoal') setValues(current => ({ ...current, valor: goals.length === 1 ? moneyBRL(goals[0].cents) : '' }));
             if ((mode === 'editGoal' || mode === 'loadedGoal') && goals.length !== 1) setGoalError(goals.length ? 'Mais de uma meta encontrada para este serviço e data; não é possível escolher uma automaticamente.' : 'Nenhuma meta encontrada para este serviço e data.');
         }).catch(error => { if (!controller.signal.aborted) setGoalError(error.message); }).finally(() => { if (!controller.signal.aborted) setGoalLoading(false); });
         return () => controller.abort();
     }, [enabled, source, referenceDate, values.servico, data?.serviceOptions, mode]);
-    const begin = (formMode) => { setMode(formMode); setValues({}); setErrors({}); };
+    const begin = (formMode) => { setMode(formMode); setValues({}); setErrors({}); setGoalError(''); setGoalLookupKey(''); };
     const change = (key, value) => {
-        if (integratedGoals && ['mes-cadastrado', 'servico', 'ano', 'mes'].includes(key)) {
+        if (integratedGoals && ['mes-cadastrado', 'data-referencia', 'servico'].includes(key)) {
             setGoalLoading(false);
             setGoalError('');
+            setGoalLookupKey('');
         }
         setValues(current => {
             const next = { ...current, [key]: value };
-            if (integratedGoals && key === 'servico' && (mode === 'editGoal' || mode === 'loadedGoal'))
-                next['mes-cadastrado'] = goalReferenceForMonth(current['mes-cadastrado']?.slice(0, 7) || '', value, data?.goals) || '';
             if (key === 'cliente' && !data?.pets.some(pet => pet.id === next.pet && pet.clientId === value))
                 next.pet = '';
             if ((mode === 'editGoal' || mode === 'loadedGoal') && (key === 'mes-cadastrado' || key === 'servico')) {
@@ -91,6 +95,7 @@ export function useDashboard(enabled, preview, api, source) {
         const errors = validateDashboardForm(mode, values, data);
         if (integratedGoals && mode !== 'revenue' && !data?.serviceOptions) errors.formulario = 'Aguarde o carregamento dos serviços.';
         if (integratedGoals && mode !== 'revenue' && (goalLoading || goalError)) errors.formulario = goalError || 'Aguarde a consulta de metas.';
+        if (integratedGoals && mode !== 'revenue' && goalLookupKey !== lookupKey) errors.formulario = 'Consulte a meta para a data e o serviço selecionados.';
         if (integratedGoals && mode !== 'revenue' && !validISODate(referenceDate || '')) errors.formulario = 'O backend exige data completa. É necessário definir a convenção de referência ou consultar uma meta com data real.';
         setErrors(errors);
         if (Object.keys(errors).length || !data)
@@ -148,6 +153,6 @@ export function useDashboard(enabled, preview, api, source) {
             inFlight.current = false;
             setSaving(false);
         }
-    }, [mode, values, data, example, api, source, integratedGoals, referenceDate, goalLoading, goalError]);
-    return { data, loading, loadError, example, mode, values, errors, saving, begin, change, validate, save, integratedGoals, goalLoading, goalError, today: dateKey(new Date()), services: dashboardServices };
+    }, [mode, values, data, example, api, source, integratedGoals, referenceDate, goalLoading, goalError, goalLookupKey, lookupKey]);
+    return { data, loading, loadError, example, mode, values, errors, saving, begin, change, validate, save, reload: () => setRefresh(value => value + 1), integratedGoals, goalLoading, goalError, today: dateKey(new Date()), services: dashboardServices };
 }

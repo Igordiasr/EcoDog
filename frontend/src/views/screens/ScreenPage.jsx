@@ -30,6 +30,7 @@ import { integratedPetDiaryDesign } from '../design/pet-diary';
 import { presenceDay } from '../../viewmodels/use-presence';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
 import { useDashboard } from '../../viewmodels/use-dashboard';
+import { DashboardPayments } from '../components/DashboardPayments';
 import { useManagementCalendar } from '../../viewmodels/use-management-calendar';
 import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
@@ -335,7 +336,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             setAllergyDraft([...allergies]);
             setAllergyDescription('');
         }
-        if (!['confirm', 'allergies', 'details', 'profile'].includes(key)) {
+        if (!['confirm', 'allergies', 'details', 'profile'].includes(key) && !(key === 'revenue' && dashboardSource?.pendingMovements)) {
             try {
                 const data = await load(key);
                 setDialogDesign(data);
@@ -804,7 +805,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             void openDialog('linkPlan');
             return;
         }
-        if (label === 'Adicionar receita') {
+        if (label === 'Adicionar receita' || label === 'Registrar pagamento') {
             void openDialog('revenue');
             return;
         }
@@ -1124,7 +1125,8 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     </Modal>}
     {dialog && <Modal title={dialog === 'profile' ? 'Meu Perfil' : dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'} className={dialog === 'profile' ? 'profile-modal' : ''}>
       {dialog === 'linkPlan' && <p className="dialog-content" role="status">{recordIdentityUnavailable} O formulário permanece apenas como rascunho ilustrativo de vínculo.</p>}
-      {modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
+      {dialog === 'revenue' && dashboardSource?.pendingMovements ? <DashboardPayments source={dashboardSource} onClose={close} onPaid={() => { close(); dashboard.reload(); setMessage('Pagamento registrado com sucesso.'); }}/>
+          : modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
                 : dialog === 'confirm' ? <div className="dialog-content"><h2>Confirmar operação</h2><p>Deseja confirmar esta ação?</p><div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="button" disabled={busy} onClick={() => confirmAction && void run(confirmAction)}>Confirmar</button></div></div>
                     : dialog === 'allergies' ? <form ref={modalFormRef} className="dialog-content" onSubmit={e => {
                             e.preventDefault();

@@ -4,7 +4,6 @@ import { dashboardServices, moneyBRL, parseMoney, periodLabel, validPeriod } fro
 import { selectedGoal, validateDashboardForm } from '../../models/dashboard-validation';
 import { maskPetDate } from '../../models/pet-validation';
 import { ArrowIcon } from './ArrowIcon';
-import { goalReferenceForMonth } from '../../models/goal-reference';
 function control(node) {
     if (/^Entrada/.test(node.name || ''))
         return node;
@@ -15,7 +14,6 @@ export function isDashboardField(node) {
 }
 export function DashboardField({ node, dashboard }) {
     const [touched, setTouched] = useState(false);
-    const [month, setMonth] = useState('');
     const children = nodes(node), labelNode = children[0], label = content(labelNode), key = fieldKey(label);
     const input = control(node);
     if (!input)
@@ -40,11 +38,11 @@ export function DashboardField({ node, dashboard }) {
             }
         } };
     return <div className={`${node.className} dashboard-finance-field`} data-design-id={node.id}>
-    <label className={labelNode.className} htmlFor={id}>{exactDate ? 'Mês e ano de referência' : label}</label>
+    <label className={labelNode.className} htmlFor={id}>{exactDate ? 'Data de referência da meta' : label}</label>
     {options ? <span className="select-arrow-slot"><select {...props} onChange={e => { setTouched(true); dashboard.change(key, e.target.value); }}><option value="">Selecione</option>{options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select><ArrowIcon direction="down"/></span>
-            : <input {...props} value={exactDate ? month || value.slice(0, 7) : value} type={exactDate ? 'month' : 'text'} inputMode={key === 'valor' ? 'decimal' : 'numeric'} maxLength={key === 'data' ? 10 : key === 'ano' ? 4 : 32} placeholder={key === 'data' ? 'dd/mm/aaaa' : key === 'valor' ? 'R$ 0,00' : content(input)} onChange={e => {
+            : <input {...props} type={exactDate ? 'date' : 'text'} inputMode={key === 'valor' ? 'decimal' : 'numeric'} maxLength={key === 'data' ? 10 : key === 'ano' ? 4 : 32} placeholder={key === 'data' ? 'dd/mm/aaaa' : key === 'valor' ? 'R$ 0,00' : content(input)} onChange={e => {
                     setTouched(true);
-                    if (exactDate) { setMonth(e.target.value); dashboard.change(key, goalReferenceForMonth(e.target.value, dashboard.values.servico, dashboard.data?.goals) || ''); return; }
+                    if (exactDate) { dashboard.change(key, e.target.value); return; }
                     const value = key === 'data' ? maskPetDate(e.target.value) : key === 'ano' ? e.target.value.replace(/\D/g, '').slice(0, 4) : e.target.value;
                     e.target.value = value;
                     dashboard.change(key, value);
@@ -61,7 +59,11 @@ export function DashboardField({ node, dashboard }) {
     {children.filter(child => ['Orientação', 'Descrição'].includes(child.name || '')).map(child => <p key={child.id} className={child.className}>{content(child)}</p>)}
     {error && <p id={`${id}-error`} className="dashboard-field-error" role="status">{error}</p>}
     {goalForm && key === 'servico' && (dashboard.goalLoading || dashboard.goalError) && <p className="dashboard-field-error" role="status">{dashboard.goalLoading ? 'Consultando metas…' : dashboard.goalError}</p>}
-    {goalForm && (key === 'mes' || exactDate) && <p className="dashboard-field-error" role="status">O backend exige uma data completa. Sem uma data já retornada para este serviço e mês, a consulta e o salvamento ficam indisponíveis até definir a convenção de referência.</p>}
+    {goalForm && key === 'mes' && <label className="management-field">Data de referência da meta
+      <input type="date" name="data-referencia" className="design-input" required value={dashboard.values['data-referencia'] || ''} disabled={dashboard.saving} onChange={e => dashboard.change('data-referencia', e.target.value)}/>
+      <span>Informe a data completa usada para cadastrar e consultar a meta.</span>
+      {dashboard.errors['data-referencia'] && <span className="dashboard-field-error" role="status">{dashboard.errors['data-referencia']}</span>}
+    </label>}
     {goalForm && key === 'servico' && dashboard.data?.goals.filter(goal => goal.service === dashboard.values.servico).map(goal => <p key={goal.id}>Meta {goal.id}: referência {goal.period.split('-').reverse().join('/')}</p>)}
   </div>;
 }

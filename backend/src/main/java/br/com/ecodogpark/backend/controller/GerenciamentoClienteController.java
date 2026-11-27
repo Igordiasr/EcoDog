@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.controller;
 
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AlterarStatusContratoRequest;
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AtualizarValorContratoRequest;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.VincularPlanoRequest;
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.*;
 import br.com.ecodogpark.backend.service.GerenciamentoClienteService;
 
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,14 +42,12 @@ public class GerenciamentoClienteController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum resultado encontrado", content = @Content)
     })
-
     @GetMapping
     public ResponseEntity<List<PetGerenciamentoResponse>> buscarContratos(
             @Parameter(description = "Nome do pet ou nome do tutor para pesquisa", example = "Bob")
             @RequestParam(required = false) String pesquisa
     ) {
-        List<PetGerenciamentoResponse> resposta =
-                service.buscarContratos(pesquisa);
+        List<PetGerenciamentoResponse> resposta = service.buscarContratos(pesquisa);
 
         if (resposta.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -116,9 +117,7 @@ public class GerenciamentoClienteController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Alterar status do contrato", description = "Altera o status de um contrato existente. Ex: ENCERRADO "
-    )
+    @Operation(summary = "Alterar status do contrato", description = "Altera o status de um contrato existente. Ex: ENCERRADO")
     @PatchMapping("/contratos/{idContrato}/status")
     public ResponseEntity<Void> alterarStatusContrato(
             @PathVariable Long idContrato,
@@ -126,6 +125,11 @@ public class GerenciamentoClienteController {
     ) {
         service.alterarStatusContrato(idContrato, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/contratos")
+    public ResponseEntity<VincularPlanoResponse> vincularPlano(@Valid @RequestBody VincularPlanoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.vincularPlano(request));
     }
 
 

@@ -2,6 +2,8 @@ package br.com.ecodogpark.backend.mapper;
 
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.ContratoGerenciamentoResponse;
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.PlanoDisponivelResponse;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.VincularPetResponse;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.VincularPlanoResponse;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
 import br.com.ecodogpark.backend.entity.ServicosEntity;
 
@@ -41,5 +43,15 @@ public class GerenciamentoClienteMapper {
         );
     }
 
-
+    public static VincularPlanoResponse entityParaVincularPlanoResponse(ContratosEntity contrato) {
+        return new VincularPlanoResponse(
+                contrato.getIdContrato(),
+                contrato.getPet().getIdPet(),
+                contrato.getServicos().getIdServico(),
+                contrato.getDataInicio(),
+                contrato.getDataFim(),
+                contrato.getValor(),
+                contrato.getSituacao()
+        );
+    }
 }

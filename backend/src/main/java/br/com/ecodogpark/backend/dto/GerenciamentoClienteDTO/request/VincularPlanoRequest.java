@@ -32,16 +32,11 @@ public record VincularPlanoRequest(
         @Schema(description = "Valor acordado para o contrato", example = "350.00")
         BigDecimal valor,
 
-        @Schema(
-                description = "Dias da semana. Obrigatório para CRECHE.",
-                example = "[\"SEGUNDA\", \"QUARTA\", \"SEXTA\"]"
-        )
+        @Schema(description = "Dias da semana. Obrigatório para CRECHE.", example = "[\"SEGUNDA\", \"QUARTA\", \"SEXTA\"]")
         List<DiaSemana> diasSemana,
 
         @NotNull
-        @Schema(description = "Data de início do contrato",
-                example = "2026-11-24"
-        )
+        @Schema(description = "Data de início do contrato", example = "2026-11-24")
         LocalDate dataInicio,
 
         @NotNull
@@ -49,13 +44,8 @@ public record VincularPlanoRequest(
         LocalDate dataFim,
 
         @NotBlank
-        @Pattern(regexp = "ATIVO|PENDENTE|CANCELADO|ENCERRADO",
-                message = "Situação inválida"
-        )
-        @Schema(description = "Situação inicial do contrato",
-                allowableValues = {"ATIVO", "PENDENTE", "CANCELADO", "ENCERRADO"},
-                example = "ATIVO"
-        )
+        @Pattern(regexp = "ATIVO|PENDENTE|CANCELADO|ENCERRADO", message = "Situação inválida")
+        @Schema(description = "Situação inicial do contrato", allowableValues = {"ATIVO", "PENDENTE", "CANCELADO", "ENCERRADO"}, example = "ATIVO")
         String situacao
 
 ) {

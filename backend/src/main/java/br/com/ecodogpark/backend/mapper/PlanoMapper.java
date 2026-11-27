@@ -3,64 +3,48 @@ package br.com.ecodogpark.backend.mapper;
 import br.com.ecodogpark.backend.dto.PlanoDTO.request.AtualizarPlanoRequest;
 import br.com.ecodogpark.backend.dto.PlanoDTO.request.CriarPlanoRequest;
 import br.com.ecodogpark.backend.dto.PlanoDTO.response.PlanoResponse;
-import br.com.ecodogpark.backend.dto.PlanoDTO.response.ServicoPlanoResponse;
 import br.com.ecodogpark.backend.entity.ServicosEntity;
+import br.com.ecodogpark.backend.enums.CategoriaServico;
+import br.com.ecodogpark.backend.enums.ModalidadeServico;
+import java.math.BigDecimal;
 
 public final class PlanoMapper {
-    public static final String MODALIDADE_PLANO = "PLANO";
-
-    private PlanoMapper() {}
-
-    public static ServicosEntity paraServico(CriarPlanoRequest request, ServicosEntity servicoBase) {
-        ServicosEntity plano = new ServicosEntity();
-        plano.setNome(request.nome().trim());
-        plano.setCategoria(servicoBase.getCategoria());
-        plano.setModalidade(MODALIDADE_PLANO);
-        plano.setFrequencia(Integer.toString(request.diarias()));
-        plano.setValor(request.valor());
-        plano.setStatus(true);
-        return plano;
+    private PlanoMapper() {
     }
 
-    public static void atualizarServico(ServicosEntity plano, AtualizarPlanoRequest request,
-                                        ServicosEntity servicoBase) {
-        plano.setNome(request.nome().trim());
-        plano.setCategoria(servicoBase.getCategoria());
-        plano.setModalidade(MODALIDADE_PLANO);
-        plano.setFrequencia(Integer.toString(request.diarias()));
-        plano.setValor(request.valor());
-        plano.setStatus(request.ativo());
+    public static ServicosEntity paraEntity(CriarPlanoRequest request) {
+        ServicosEntity servico = new ServicosEntity();
+        preencherDadosCadastrais(servico, request.nome(), request.categoria(), request.modalidade(),
+                request.frequencia(), request.valor());
+        servico.setStatus(request.status());
+        return servico;
     }
 
-    public static PlanoResponse paraResponse(ServicosEntity plano, ServicosEntity servicoBase) {
-        Long idServico = servicoBase == null ? plano.getIdServico().longValue()
-                : servicoBase.getIdServico().longValue();
-        String nomeServico = servicoBase == null ? rotuloCategoria(plano.getCategoria()) : servicoBase.getNome();
-        return new PlanoResponse(plano.getIdServico().longValue(), plano.getNome(), idServico, nomeServico,
-                quantidadeDiarias(plano.getFrequencia()), plano.getValor(), plano.getStatus());
+    public static void atualizarEntity(ServicosEntity servico, AtualizarPlanoRequest request) {
+        preencherDadosCadastrais(servico, request.nome(), request.categoria(), request.modalidade(),
+                request.frequencia(), request.valor());
     }
 
-    public static ServicoPlanoResponse paraServicoResponse(ServicosEntity servico) {
-        return new ServicoPlanoResponse(servico.getIdServico(), servico.getNome());
+    public static PlanoResponse paraResponse(ServicosEntity servico) {
+        return new PlanoResponse(
+                servico.getId(),
+                servico.getNome(),
+                servico.getCategoriaEnum(),
+                servico.getModalidadeEnum(),
+                servico.getFrequenciaInteger(),
+                servico.getValor(),
+                servico.getStatus()
+        );
     }
 
-    private static String rotuloCategoria(String categoria) {
-        return switch (categoria) {
-            case "CRECHE" -> "Creche";
-            case "HOTEL" -> "Hotel";
-            case "DAYUSE" -> "DayUse";
-            default -> categoria;
-        };
-    }
-
-    private static Integer quantidadeDiarias(String frequencia) {
-        if (frequencia == null || frequencia.isBlank()) {
-            return null;
-        }
-        try {
-            return Integer.valueOf(frequencia.trim());
-        } catch (NumberFormatException exception) {
-            return null;
-        }
+    private static void preencherDadosCadastrais(ServicosEntity servico, String nome,
+                                                  CategoriaServico categoria,
+                                                  ModalidadeServico modalidade,
+                                                  Integer frequencia, BigDecimal valor) {
+        servico.setNome(nome.trim());
+        servico.setCategoriaEnum(categoria);
+        servico.setModalidadeEnum(modalidade);
+        servico.setFrequenciaInteger(frequencia);
+        servico.setValor(valor);
     }
 }

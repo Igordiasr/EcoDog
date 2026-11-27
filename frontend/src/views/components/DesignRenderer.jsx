@@ -13,6 +13,7 @@ import { selectedPetsSentence } from '../../viewmodels/booking-presentation';
 import { petChoices } from '../../viewmodels/pet-draft';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLocked, monitorRecordSaved, monitorOptions, monitorOption } from '../design/monitor-records';
 import { DashboardCharts } from './DashboardCharts';
+import { DashboardOccupancy } from './DashboardOccupancy';
 import { DashboardField, isDashboardField } from './DashboardField';
 import { dashboardSummary } from '../../models/dashboard-model';
 import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking, ManagementStudent } from './ManagementCalendar';
@@ -32,7 +33,7 @@ import { PetHealthSection } from './PetHealthSection';
 import { PetPhoto } from './PetPhoto';
 import { AdminPlanServices } from './AdminPlanServices';
 export const DesignContext = createContext(null);
-const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
+const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Registrar pagamento', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
 const stripPosition = (c) => c.replace(/(?:^|\s)(?:absolute|left-\S+|top-\S+)/g, ' ').trim();
 const stripSize = (c) => c.replace(/(?:^|\s)(?:w-\[\d+(?:\.\d+)?px\]|h-\[\d+(?:\.\d+)?px\])/g, ' ').trim();
 function isLeaf(n) { return !nodes(n).length && n.tag !== 'img'; }
@@ -165,6 +166,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             return <DashboardField node={node} dashboard={ctx.dashboard}/>;
         if (name === 'Dashboard revenue chart' || name === 'Dashboard contracts chart' || name === 'Dashboard distribution chart')
             return <div {...props}><DashboardCharts data={ctx.dashboard.data} kind={name === 'Dashboard revenue chart' ? 'revenue' : name === 'Dashboard contracts chart' ? 'contracts' : 'distribution'}/></div>;
+        if (name === 'Dashboard occupancy')
+            return <div {...props}><DashboardOccupancy data={ctx.dashboard.data}/></div>;
         if (name.startsWith('Dashboard progress ') || name.startsWith('Dashboard occupancy progress ')) {
             const service = name.replace(/^Dashboard (?:occupancy )?progress /, '');
             const view = ctx.dashboard.data && dashboardSummary(ctx.dashboard.data);

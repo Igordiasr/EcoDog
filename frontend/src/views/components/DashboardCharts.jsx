@@ -34,7 +34,10 @@ export function DashboardCharts({ data, kind }) {
                     setSelected(index);
                 } }}><title>{categories[index]}: {count} {unit}</title></circle> : null;
             })}
-        <text x="90" y="95" textAnchor="middle" textLength={String(total).length > 3 ? 100 : undefined} lengthAdjust="spacingAndGlyphs" className="dashboard-donut-total">{total} {unit}</text>
+        <text textAnchor="middle" className="dashboard-donut-total">
+          <tspan x="90" y="80" textLength={String(total).length > 5 ? 90 : undefined} lengthAdjust="spacingAndGlyphs">{total}</tspan>
+          <tspan x="90" y="106" className="dashboard-donut-unit">{unit}</tspan>
+        </text>
       </svg>
       <span className="dashboard-donut-tooltip" role="status">{selected !== null ? `${categories[selected]}: ${counts[selected]} ${unit}` : ''}</span>
     </div>;

@@ -326,7 +326,21 @@ input.design-input, select.design-input, textarea.design-input { display: block;
  .dashboard-page [data-design-name="Dashboard distribution chart"] { height: 224px; }
  .dashboard-donut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 224px; }
  .dashboard-donut svg { flex-shrink: 0; }
- .dashboard-donut-total { font: 24px "Lilita One", sans-serif; fill: #000; dominant-baseline: central; transform: translateY(-5px); }
+ .dashboard-donut-total { font: 24px "Lilita One", sans-serif; fill: #000; dominant-baseline: central; }
+ .dashboard-donut-unit { font-size: 16px; }
+ .dashboard-occupancy-indicator { height: auto; min-height: 226px; overflow: visible; }
+ .dashboard-occupancy { display: flex; flex-direction: column; gap: 20px; width: 100%; color: #182d21; font: 14px/1.3 Roboto, sans-serif; }
+ .dashboard-occupancy-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+ .dashboard-occupancy-group p { margin: 0; }
+ .dashboard-occupancy-note { margin: 0; font-size: 12px; }
+ .dashboard-occupancy-bar { display: flex; width: 100%; height: 10px; overflow: hidden; border-radius: 100px; background: #add9cc; }
+ .dashboard-occupancy-bar span { height: 100%; flex: none; }
+ .dashboard-occupancy-hotel { height: 8px; }
+ .dashboard-occupancy-creche { background: #247346; }
+ .dashboard-occupancy-dayuse { background: #d16e29; }
+ .dashboard-occupancy-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; }
+ .dashboard-occupancy-legend span { display: inline-flex; align-items: center; gap: 5px; }
+ .dashboard-occupancy-legend i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
  .dashboard-donut-tooltip { min-height: 28px; font: 20px/28px Roboto, sans-serif; color: #000; }
  .dashboard-page :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) > [data-design-name="Título"] { font-size: 30px; line-height: 1.25; color: #000; }
  .dashboard-page.design-mobile :is(.dashboard-revenue-panel, .dashboard-secondary-charts > *) > [data-design-name="Título"] { font-size: 28px; }

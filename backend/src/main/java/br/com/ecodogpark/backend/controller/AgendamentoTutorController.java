@@ -45,7 +45,6 @@ public class AgendamentoTutorController {
             @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso"),
             @ApiResponse(responseCode = "400", description = "Categoria inválida ou parâmetros obrigatórios ausentes ou em formato inválido", content = @Content)
     })
-    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/disponibilidade")
     public ResponseEntity<List<VagasDisponiveisResponse>> buscarDisponibilidade(
             @Parameter(description = "Categoria do serviço: CRECHE, DAYUSE ou HOTEL", example = "CRECHE")

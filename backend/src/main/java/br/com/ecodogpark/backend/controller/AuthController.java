@@ -1,5 +1,7 @@
 package br.com.ecodogpark.backend.controller;
 
+import br.com.ecodogpark.backend.dto.RecuperarSenhaDTO.request.RedefinirSenhaRequest;
+import br.com.ecodogpark.backend.dto.RecuperarSenhaDTO.request.SolicitarRecuperacaoSenhaRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroTutorRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.TutorCadastroResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginRequest;
@@ -7,6 +9,7 @@ import br.com.ecodogpark.backend.dto.UsuarioDTO.LoginResponse;
 import br.com.ecodogpark.backend.exception.UsuarioNaoAutorizadoAEntrarException;
 import br.com.ecodogpark.backend.service.AuthService;
 import br.com.ecodogpark.backend.service.AuthSession;
+import br.com.ecodogpark.backend.service.RecuperacaoSenhaService;
 import br.com.ecodogpark.backend.service.TutorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,10 +33,16 @@ import java.time.ZoneId;
 public class AuthController {
     private final AuthService authService;
     private final TutorService tutorService;
+    private final RecuperacaoSenhaService recuperacaoSenhaService;
 
-    public AuthController(AuthService authService, TutorService tutorService) {
+    public AuthController(
+            AuthService authService,
+            TutorService tutorService,
+            RecuperacaoSenhaService recuperacaoSenhaService
+    ) {
         this.authService = authService;
         this.tutorService = tutorService;
+        this.recuperacaoSenhaService = recuperacaoSenhaService;
     }
 
     @Operation(summary = "Autenticar usuário", description = "Autentica o usuário por e-mail e senha e retorna um token JWT com validade de 10 minutos. Nas requisições seguintes, envie o token no cabeçalho Authorization no formato Bearer <token>")
@@ -76,6 +85,38 @@ public class AuthController {
     public ResponseEntity<TutorCadastroResponse> cadastrarTutor(@Valid @RequestBody CadastroTutorRequest tutorRequest) {
         TutorCadastroResponse tutor = tutorService.cadastrarTutor(tutorRequest);
         return ResponseEntity.created(URI.create("/cadastrar/" + tutor.id())).body(tutor);
+    }
+
+    @Operation(
+            summary = "Solicitar recuperação de senha",
+            description = "Envia um link de recuperação para o e-mail cadastrado. A resposta não revela se o e-mail existe."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "Solicitação aceita"),
+            @ApiResponse(responseCode = "400", description = "E-mail inválido", content = @Content)
+    })
+    @PostMapping("/esqueci-senha")
+    public ResponseEntity<Void> solicitarRecuperacao(
+            @Valid @RequestBody SolicitarRecuperacaoSenhaRequest request
+    ) {
+        recuperacaoSenhaService.solicitarRedefinicao(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    @Operation(
+            summary = "Redefinir senha",
+            description = "Altera a senha usando um token válido recebido por e-mail."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Senha redefinida com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou token inválido, expirado ou utilizado", content = @Content)
+    })
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<Void> redefinirSenha(
+            @Valid @RequestBody RedefinirSenhaRequest request
+    ) {
+        recuperacaoSenhaService.redefinirSenha(request.token(), request.novaSenha());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Renova o token JWT", description = "Requisição que valida se o token pode ser renovado e o renova em caso positivo")

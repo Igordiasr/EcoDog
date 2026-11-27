@@ -98,40 +98,34 @@ public class GerenciamentoClienteService {
 
         return pets.stream()
                 .map(pet -> {
+                    List<ContratosEntity> contratosDoPet = contratosPorPet
+                       .getOrDefault(pet.getIdPet(), List.of());
 
-                    List<ContratosEntity> contratosDoPet =
-                            contratosPorPet.getOrDefault(pet.getIdPet(), List.of());
+                    List<ContratoGerenciamentoResponse> listaContratos = contratosDoPet.stream()
+                            .map(contrato -> {
+                                Long idContrato = contrato.getIdContrato();
+                                String categoria = contrato.getServicos().getCategoria();
+                                Long quantidadeDiarias = null;
+                                List<String> diasSemana = null;
 
-                    List<ContratoGerenciamentoResponse> listaContratos =
-                            contratosDoPet.stream()
-                                    .map(contrato -> {
+                                if ("HOTEL".equals(categoria) || "DAYUSE".equals(categoria)) {
+                                    quantidadeDiarias = quantidadePorContrato.getOrDefault(idContrato, 0L);
+                                } else if ("CRECHE".equals(categoria)) {
+                                    diasSemana = diasPorContrato.getOrDefault(idContrato, List.of());
+                                }
 
-                                        Long idContrato = contrato.getIdContrato();
-                                        String categoria = contrato.getServicos().getCategoria();
-
-                                        Long quantidadeDiarias = null;
-                                        List<String> diasSemana = null;
-
-                                        if ("HOTEL".equals(categoria) || "DAYUSE".equals(categoria)) {
-                                            quantidadeDiarias = quantidadePorContrato.getOrDefault(idContrato, 0L);
-                                        } else if ("CRECHE".equals(categoria)) {
-                                            diasSemana = diasPorContrato.getOrDefault(idContrato, List.of());
-                                        }
-
-                                        return GerenciamentoClienteMapper.entityParaContratoResponse(
-                                                contrato,
-                                                quantidadeDiarias,
-                                                diasSemana
-                                        );
-                                    })
-                                    .toList();
+                                return GerenciamentoClienteMapper.entityParaContratoResponse(
+                                        contrato,
+                                        quantidadeDiarias,
+                                        diasSemana
+                                );
+                            }).toList();
 
                     return PetMapper.entityParaGerenciamentoResponse(
                             pet,
                             listaContratos
                     );
-                })
-                .toList();
+                }).toList();
     }
 
     @Transactional(readOnly = true)
@@ -201,8 +195,11 @@ public class GerenciamentoClienteService {
             throw new ServicoInvalidoException("Serviço inválido");
         }
 
-        if (request.dataFim().isBefore(request.dataInicio())) {
-            throw new DataInvalidaException("A data de fim não pode ser anterior à data de inicio");
+        if (request.dataInicio() == null) {
+            throw new DataInvalidaException("A data de início é obrigatória");
+        }
+        if (request.dataFim() != null && request.dataFim().isBefore(request.dataInicio())) {
+            throw new DataInvalidaException("A data de fim não pode ser anterior à data de início");
         }
 
         validarDiasSemana(servico, request.diasSemana());
@@ -219,20 +216,18 @@ public class GerenciamentoClienteService {
 
         if ("CRECHE".equals(servico.getCategoria())) {
             salvarDiasDaSemana(contrato, request.diasSemana());
-        }
-
-        gerarMovimentacoes(contrato, servico);
-
-        if ("CRECHE".equals(servico.getCategoria())) {
             gerarAgendamentosCreche(contrato, request.diasSemana());
+        } else {
+            gerarMovimentacoes(contrato);
         }
+
         return GerenciamentoClienteMapper.entityParaVincularPlanoResponse(contrato);
     }
 
     private void validarDiasSemana(ServicosEntity servico, List<DiaSemana> diaSemanas) {
-        int frequencia = Integer.parseInt(servico.getFrequencia());
-
         if ("CRECHE".equals(servico.getCategoria())) {
+            int frequencia = Integer.parseInt(servico.getFrequencia());
+
             if (diaSemanas == null || diaSemanas.isEmpty()) {
                 throw new DiasSelecionadosInvalidosException("Selecione os dias da semana");
             }
@@ -259,62 +254,48 @@ public class GerenciamentoClienteService {
         contratoDiasSemanaRepository.saveAll(dias);
     }
 
-    private void gerarMovimentacoes(ContratosEntity contrato, ServicosEntity servico) {
+    private void gerarMovimentacoes(ContratosEntity contrato) {
         LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
-        List<MovimentacoesEntity> movimentacoes = new ArrayList<>();
 
-        if ("CRECHE".equals(servico.getCategoria())) {
-            YearMonth mesAtual = YearMonth.from(contrato.getDataInicio());
-            YearMonth mesFinal = YearMonth.from(contrato.getDataFim());
+        MovimentacoesEntity movimentacao = new MovimentacoesEntity();
+        movimentacao.setValor(contrato.getValor());
+        movimentacao.setDataRegistro(hoje);
+        movimentacao.setSituacao("PENDENTE");
+        movimentacao.setContrato(contrato);
 
-            while (!mesAtual.isAfter(mesFinal)) {
-                MovimentacoesEntity movimentacao = new MovimentacoesEntity();
-                movimentacao.setContrato(contrato);
-                movimentacao.setValor(contrato.getValor());
-                movimentacao.setDataRegistro(hoje);
-                movimentacao.setSituacao("PENDENTE");
-
-                movimentacoes.add(movimentacao);
-                mesAtual = mesAtual.plusMonths(1);
-            }
-
-        } else {
-            MovimentacoesEntity movimentacao = new MovimentacoesEntity();
-            movimentacao.setContrato(contrato);
-            movimentacao.setValor(contrato.getValor());
-            movimentacao.setDataRegistro(hoje);
-            movimentacao.setSituacao("PENDENTE");
-
-            movimentacoes.add(movimentacao);
-        }
-        movimentacoesRepository.saveAll(movimentacoes);
+        movimentacoesRepository.save(movimentacao);
     }
 
     private void gerarAgendamentosCreche(ContratosEntity contrato, List<DiaSemana> diaSemanas) {
-        List<AgendamentosEntity> agendamentos = new ArrayList<>();
-        LocalDate dataAtual = contrato.getDataInicio();
-        LocalDate dataFim = contrato.getDataFim();
+        LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
+        LocalDate dataInicio = contrato.getDataInicio().isAfter(hoje)
+                ? contrato.getDataInicio()
+                : hoje;
 
+        LocalDate dataFim = hoje.plusDays(30);
         Set<DiaSemana> diasContratados = new HashSet<>(diaSemanas);
+        List<AgendamentosEntity> agendamentos = new ArrayList<>();
 
-        while (!dataAtual.isAfter(dataFim)) {
-            DiaSemana diaAtual = converterDiaSemana(dataAtual.getDayOfWeek());
+        while (!dataInicio.isAfter(dataFim)) {
+            if (dataInicio.getDayOfWeek().getValue() <= 5) {
+                DiaSemana diaAtual = converterDiaSemana(dataInicio.getDayOfWeek());
 
-            if (diasContratados.contains(diaAtual)) {
-                CalendarioEntity  calendario = calendarioRepository.findByData(dataAtual)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não existe calendario para " + diaAtual));
+                if (diasContratados.contains(diaAtual)) {
+                    CalendarioEntity  calendario = calendarioRepository.findByData(dataInicio)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não existe calendario para " + diaAtual));
 
-                AgendamentosEntity agendamento = new AgendamentosEntity();
-                agendamento.setFkPet(contrato.getPet());
-                agendamento.setFkCalendario(calendario);
-                agendamento.setDataEntrada(dataAtual.atStartOfDay());
-                agendamento.setDataSaida(null);
-                agendamento.setServico("CRECHE");
-                agendamento.setSituacao(SituacaoAgendamento.PENDENTE);
+                    AgendamentosEntity agendamento = new AgendamentosEntity();
+                    agendamento.setFkPet(contrato.getPet());
+                    agendamento.setFkCalendario(calendario);
+                    agendamento.setDataEntrada(dataInicio.atStartOfDay());
+                    agendamento.setDataSaida(null);
+                    agendamento.setServico("CRECHE");
+                    agendamento.setSituacao(SituacaoAgendamento.AGENDADO);
 
-                agendamentos.add(agendamento);
+                    agendamentos.add(agendamento);
+                }
             }
-            dataAtual = dataFim.plusDays(1);
+            dataInicio = dataInicio.plusDays(1);
         }
         if (!agendamentos.isEmpty()) {
             agendamentoRepository.saveAll(agendamentos);

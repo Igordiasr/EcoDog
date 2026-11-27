@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createAuthViewModel, registrationData, registrationAddressData } from '../../viewmodels/auth';
-import { loadCurrentUser } from '../../models/current-user';
+import { loadCurrentUser, updateCurrentTutor, updateTutorPassword } from '../../models/current-user';
 import { lookupAddress } from '../../models/address';
 import { Menu } from '../components/Menu';
 import { screens } from './catalog';
@@ -89,20 +89,94 @@ export function ForgotPasswordPage() {
     </div>;
 }
 
-export function MyProfile({ session, onLogout }) {
+export function MyProfile({ session, onLogout, onClose }) {
     const [state, setState] = useState({ loading: true }), [attempt, setAttempt] = useState(0);
+    const [tab, setTab] = useState('dados'), [fields, setFields] = useState({}), [password, setPassword] = useState({});
+    const [cepChanged, setCepChanged] = useState(false), [addressStatus, setAddressStatus] = useState('');
+    const [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [error, setError] = useState('');
+    const fieldsRef = useRef(fields), saving = useRef(false);
+    fieldsRef.current = fields;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const isTutor = session?.profile === 'tutor';
     useEffect(() => {
         const controller = new AbortController(); setState({ loading: true });
-        loadCurrentUser(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, controller.signal)
-            .then(user => { if (!controller.signal.aborted) setState({ user }); })
-            .catch(error => { if (!controller.signal.aborted) { setState({ error: error.message }); if (error.status === 401) void onLogout(); } });
+        loadCurrentUser(baseUrl, session, controller.signal)
+            .then(user => { if (!controller.signal.aborted) { setState({ user }); setFields({ ...user, ...(user.endereco || {}) }); } })
+            .catch(error => { if (!controller.signal.aborted) { setState({ error: error.message, status: error.status }); if (error.status === 401) void onLogout(); } });
         return () => controller.abort();
-    }, [session?.token, attempt]);
-    const role = { tutor: 'Tutor', monitor: 'Monitor', admin: 'Administrador' }[session?.profile];
+    }, [session?.token, session?.id, session?.profile, attempt, baseUrl]);
+    const cep = (fields.cep || '').replace(/\D/g, '');
+    useEffect(() => {
+        setAddressStatus('');
+        if (!isTutor || tab !== 'dados' || !cepChanged || cep.length !== 8) return;
+        const controller = new AbortController();
+        setAddressStatus('Consultando CEP…');
+        const timer = setTimeout(() => {
+            const original = fieldsRef.current;
+            lookupAddress(cep, controller.signal).then(address => {
+                if (controller.signal.aborted) return;
+                setFields(values => {
+                    if ((values.cep || '').replace(/\D/g, '') !== cep) return values;
+                    const changes = Object.fromEntries(Object.entries(address).filter(([key]) => values[key] === original[key]));
+                    return { ...values, ...changes };
+                });
+                setAddressStatus('Endereço consultado. Confira os dados e informe o número.');
+            }).catch(error => { if (!controller.signal.aborted) setAddressStatus(error.message); });
+        }, 300);
+        return () => { clearTimeout(timer); controller.abort(); };
+    }, [cep, cepChanged, tab, isTutor]);
+    const save = async event => {
+        event.preventDefault();
+        if (saving.current || !isTutor || !state.user) return;
+        saving.current = true; setBusy(true); setError(''); setMessage('');
+        try {
+            if (tab === 'dados') {
+                const user = await updateCurrentTutor(baseUrl, session, fields);
+                setState({ user }); setFields({ ...user, ...(user.endereco || {}) }); setCepChanged(false);
+                setMessage('Dados atualizados com sucesso.');
+            } else {
+                await updateTutorPassword(baseUrl, session, password);
+                setPassword({}); setMessage('Senha atualizada com sucesso.');
+            }
+        } catch (error) {
+            setError(error.message);
+            if (error.status === 401) void onLogout();
+        } finally { saving.current = false; setBusy(false); }
+    };
+    const changeTab = next => { setTab(next); setPassword({}); setError(''); setMessage(''); };
+    const field = (key, label, options = {}) => <label className={`profile-field profile-field-${key}`}>{label}<input className="design-input" name={key} type={options.type || 'text'} maxLength={options.maxLength} required={key !== 'complemento'} inputMode={key === 'cep' ? 'numeric' : undefined} autoComplete={options.autoComplete} value={fields[key] || ''} onChange={event => {
+        const value = key === 'cep' ? event.target.value.replace(/\D/g, '').slice(0, 8).replace(/^(\d{5})(\d)/, '$1-$2') : event.target.value;
+        if (key === 'cep') setCepChanged(true);
+        setFields(values => ({ ...values, [key]: value }));
+    }}/></label>;
+    const monitorBlocked = session?.profile === 'monitor' && state.status === 403;
+    const canShowForm = state.user || monitorBlocked;
     return <section className="dialog-content profile-content" aria-labelledby="my-profile-title">
-        <header className="profile-intro"><span className="profile-context">MINHA CONTA{role ? ` • ${role.toUpperCase()}` : ''}</span><h2 id="my-profile-title">Meu Perfil</h2><p>Confira seus dados cadastrados no EcoDog Park.</p></header>
-        {state.loading ? <p className="profile-status" role="status">Carregando seus dados…</p> : state.error ? <div className="profile-status"><p role="alert">{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button></div> : <dl className="profile-fields">{[['nome', 'Nome'], ['email', 'E-mail'], ['telefone', 'Telefone']].map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{state.user[key] || 'Não informado'}</dd></div>)}</dl>}
-        <aside className="profile-notice"><h3>Dados da conta</h3><p>Seus dados estão disponíveis apenas para consulta. CPF e endereço não estão disponíveis nesta consulta.</p></aside>
-        <footer className="dialog-actions profile-actions"><button type="button" onClick={onLogout}>Sair da conta</button></footer>
+        <header className="profile-intro"><h2 id="my-profile-title">Meu perfil</h2><p>Cuide dos seus dados por aqui.</p></header>
+        <div className="profile-tabs" role="tablist" aria-label="Meu perfil" onKeyDown={event => {
+            if (!busy && ['ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                event.preventDefault();
+                const next = tab === 'dados' ? 'seguranca' : 'dados';
+                changeTab(next);
+                event.currentTarget.querySelector(`#profile-tab-${next}`)?.focus();
+            }
+        }}>
+            <button type="button" role="tab" id="profile-tab-dados" tabIndex={tab === 'dados' ? 0 : -1} aria-selected={tab === 'dados'} aria-controls="profile-panel" disabled={busy} onClick={() => changeTab('dados')}>Meus dados</button>
+            <button type="button" role="tab" id="profile-tab-seguranca" tabIndex={tab === 'seguranca' ? 0 : -1} aria-selected={tab === 'seguranca'} aria-controls="profile-panel" disabled={busy} onClick={() => changeTab('seguranca')}>Segurança</button>
+        </div>
+        {state.loading ? <p className="profile-status" role="status">Carregando seus dados…</p> : !canShowForm ? <div className="profile-status"><p role="alert">{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button></div> : <form className="profile-form" onSubmit={save}>
+            <div id="profile-panel" role="tabpanel" aria-labelledby={`profile-tab-${tab}`} className="profile-panel">
+                {tab === 'dados' ? <>
+                    <div className="profile-identity"><strong>{state.user ? [state.user.nome, state.user.sobrenome].filter(Boolean).join(' ') : 'Dados da conta indisponíveis'}</strong>{state.user?.email && <span>{state.user.email}</span>}<small>Nome e e-mail vinculados à sua conta.</small></div>
+                    {monitorBlocked && <div className="profile-warning"><p role="alert">A consulta de perfil do monitor não está liberada pelo backend.</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Tentar novamente</button></div>}
+                    <div className="profile-section"><h3>Telefone</h3>{field('telefone', 'Celular com DDD', { type: 'tel', maxLength: 20, autoComplete: 'tel' })}<p className="profile-help">Usaremos este número para entrar em contato.</p></div>
+                    {isTutor && <div className="profile-section"><h3>Seu endereço</h3><div className="profile-address-row profile-address-street">{field('cep', 'CEP', { maxLength: 9, autoComplete: 'postal-code' })}{field('rua', 'Rua / avenida', { maxLength: 150, autoComplete: 'address-line1' })}</div><div className="profile-address-row profile-address-details">{field('numero', 'Número', { maxLength: 10 })}{field('complemento', 'Complemento (opcional)', { maxLength: 100, autoComplete: 'address-line2' })}{field('bairro', 'Bairro', { maxLength: 100 })}</div><div className="profile-address-row">{field('cidade', 'Cidade', { maxLength: 100, autoComplete: 'address-level2' })}</div>{addressStatus && <p className="profile-help" role="status">{addressStatus}</p>}</div>}
+                </> : <div className="profile-security"><h3>Alterar senha</h3><p>Para sua segurança, confirme a senha atual antes de criar uma nova.</p>{[['senhaAtual', 'Senha atual', 'Digite sua senha atual', 'current-password'], ['novaSenha', 'Nova senha', 'Crie uma nova senha', 'new-password'], ['confirmacao', 'Confirmar nova senha', 'Repita a nova senha', 'new-password']].map(([key, label, placeholder, autoComplete]) => <div key={key}><label className="profile-field">{label}<input className="design-input" type="password" name={key} autoComplete={autoComplete} placeholder={placeholder} maxLength={100} required value={password[key] || ''} onChange={event => setPassword(values => ({ ...values, [key]: event.target.value }))}/></label>{key === 'novaSenha' && <p className="profile-help">Use pelo menos 8 caracteres, com letras e números.</p>}</div>)}<aside className="profile-privacy"><strong>Sua senha é privada.</strong><p>Nunca compartilhe sua senha com outras pessoas.</p></aside></div>}
+                {!isTutor && <p className="profile-warning" role="status">A alteração de {tab === 'dados' ? 'telefone' : 'senha'} ainda não está disponível para este acesso no backend. Nenhuma alteração será salva.</p>}
+                {error && <p role="alert">{error}</p>}{message && <p role="status">{message}</p>}
+            </div>
+            <footer className="profile-footer"><div className="profile-actions"><button type="button" disabled={busy} onClick={onClose}>Cancelar</button><button type="submit" disabled={busy || !isTutor || addressStatus === 'Consultando CEP…'}>{busy ? 'Salvando…' : tab === 'dados' ? 'Salvar alterações' : 'Atualizar senha'}</button></div>{tab === 'dados' && isTutor && <p className="profile-help">As alterações serão aplicadas à sua conta.</p>}<button type="button" className="profile-logout" disabled={busy} onClick={onLogout}>Sair da conta</button></footer>
+        </form>}
+        {!canShowForm && !state.loading && <div className="profile-footer"><button type="button" className="profile-logout" onClick={onLogout}>Sair da conta</button></div>}
     </section>;
 }

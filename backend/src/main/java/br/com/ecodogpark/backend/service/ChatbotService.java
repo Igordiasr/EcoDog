@@ -7,8 +7,25 @@ import java.util.Locale;
 
 @Service
 public class ChatbotService {
-    public String responder(String mensagem) {
-        String texto = normalizar(mensagem);
+    AtendimentosPendentesService atendimentosPendentesService;
+    WhatsAppConversaService whatsAppConversaService;
+
+    public ChatbotService(
+            AtendimentosPendentesService atendimentosPendentesService,
+            WhatsAppConversaService whatsAppConversaService
+    ) {
+        this.atendimentosPendentesService = atendimentosPendentesService;
+        this.whatsAppConversaService = whatsAppConversaService;
+    }
+
+    public String responder(String remetente, String mensagem, Long id) {
+        System.out.println("================================");
+        System.out.println("Mensagem recebida!");
+        System.out.println("Remetente: " + remetente);
+        System.out.println("Mensagem: " + mensagem);
+        System.out.println("================================");
+
+        String texto = normalizar(mensagem.toLowerCase());
 
         if (texto.contains("horario") || texto.contains("funcionamento")) {
             return """
@@ -47,12 +64,17 @@ public class ChatbotService {
         } else if (
                 texto.contains("atendente")
                         || texto.contains("humano")
-                        || texto.contains("pessoa")
+                        || texto.contains("falar com alguém")
+                        || texto.contains("falar com alguem")
         ) {
+            atendimentosPendentesService.registrar(remetente, mensagem);
+            whatsAppConversaService.solicitarAtendimentoHumando(id);
+            System.out.println(
+                    "Solicitação registrada. Aguardando atendimento humano."
+            );
             return """
-                    Entendi! Você precisa de atendimento humano.
-                    Vou transferir seu atendimento para nossa equipe.
-                    Aguarde um momento.
+                    Sua solicitação de atendimento foi registrada.
+                    Em breve nossa equipe entrará em contato para prosseguir com o atendimento!
                     """;
         } else if (
                 texto.contains("oi")

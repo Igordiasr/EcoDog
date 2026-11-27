@@ -1,22 +1,25 @@
 package br.com.ecodogpark.backend.service;
 
-import br.com.ecodogpark.backend.config.TokenConfig;
 import br.com.ecodogpark.backend.dto.MonitorRequest;
 import br.com.ecodogpark.backend.dto.FuncionarioResponse;
+import br.com.ecodogpark.backend.dto.QuantidadeDiariasResponse;
 import br.com.ecodogpark.backend.dto.UsuarioDTO.*;
+import br.com.ecodogpark.backend.entity.ContratoDiasSemanaEntity;
+import br.com.ecodogpark.backend.entity.ContratosEntity;
 import br.com.ecodogpark.backend.entity.UsuariosEntity;
+import br.com.ecodogpark.backend.enums.DiaSemana;
 import br.com.ecodogpark.backend.enums.TipoUsuario;
-import br.com.ecodogpark.backend.exception.CredenciaisIncorretasException;
 import br.com.ecodogpark.backend.exception.DadoJaCadastradoException;
-import br.com.ecodogpark.backend.repository.ContratoRepository;
-import br.com.ecodogpark.backend.repository.UsuarioRepository;
+import br.com.ecodogpark.backend.repository.*;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,23 +28,72 @@ import org.springframework.web.server.ResponseStatusException;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final ContratoRepository contratoRepository;
+    private final ContratoDiasSemanaRepository contratoDiasSemanaRepository;
+    private final AgendamentoRepository agendamentoRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
                           ContratoRepository contratoRepository,
+                          ContratoDiasSemanaRepository contratoDiasSemanaRepository,
+                          AgendamentoRepository agendamentoRepository,
                           PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.contratoRepository = contratoRepository;
+        this.contratoDiasSemanaRepository = contratoDiasSemanaRepository;
+        this.agendamentoRepository = agendamentoRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<ClienteResponse> listarClientes() {
-        return contratoRepository.listaCliente();
-    }
+    public List<ClienteResponse> buscarClientes() {
+        LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
+        List<ContratosEntity> contratos = contratoRepository.buscarContratosParaListaClientes(hoje);
+        if (contratos.isEmpty()) {
+            return List.of();
+        }
 
-//    public List<UsuarioResponse> listarTutores() {
-//        return usuarioRepository.findByTipo(TipoUsuario.TUTOR).stream().map(this::paraUsuarioResponse).toList();
-//    }
+        List<Long> idsContratos = contratos.stream()
+                .map(ContratosEntity::getIdContrato).toList();
+
+        List<ContratoDiasSemanaEntity> diasContratados =
+                contratoDiasSemanaRepository.findByContrato_idContratoIn(idsContratos);
+        Map<Long, List<DiaSemana>> diasPorContrato = diasContratados.stream()
+                .collect(Collectors.groupingBy(
+                        dia -> dia.getContrato().getIdContrato(),
+                        Collectors.mapping(ContratoDiasSemanaEntity::getDiaSemana, Collectors.toList())
+                ));
+
+        List<QuantidadeDiariasResponse> quantidades = contratoRepository.contarDiariasPorContrato(idsContratos);
+        Map<Long, Integer> quantidadePorContrato = quantidades.stream()
+                .collect(Collectors.toMap(
+                        QuantidadeDiariasResponse::idContrato,
+                        quantidade -> quantidade.quantidade().intValue()
+                ));
+
+        return contratos.stream().map(contrato -> {
+            Long idContrato = contrato.getIdContrato();
+            String categoria = contrato.getServicos().getCategoria();
+            Integer quantidadeDiarias = null;
+            List<DiaSemana> diasDaSemana = null;
+            if ("HOTEL".equals(categoria) || "DAYUSE".equals(categoria)) {
+                quantidadeDiarias = quantidadePorContrato.getOrDefault(idContrato, 0);
+            } else if ("CRECHE".equals(categoria)) {
+                diasDaSemana = diasPorContrato.getOrDefault(idContrato, List.of());
+            }
+            return new ClienteResponse(
+                    contrato.getPet().getFkUsuario().getIdUsuario(),
+                    contrato.getPet().getFkUsuario().getNome(),
+                    contrato.getPet().getIdPet(),
+                    contrato.getPet().getNome(),
+                    idContrato,
+                    contrato.getServicos().getIdServico(),
+                    categoria,
+                    contrato.getValor(),
+                    "ATIVO".equals(contrato.getSituacao()),
+                    quantidadeDiarias,
+                    diasDaSemana
+            );
+        }).toList();
+    }
 
     public UsuarioResponse buscarTutorPorId(UUID id) {
         return paraUsuarioResponse(buscarTutor(id));
@@ -180,6 +232,7 @@ public class UsuarioService {
 
     private void preencherUsuarioAdministrativo(UsuariosEntity usuario, UsuarioRequest request) {
         usuario.setNome(request.nome());
+        usuario.setSobrenome(request.sobrenome());
         usuario.setEmail(request.email());
         usuario.setCpf(request.cpf());
         usuario.setTelefone(request.telefone().trim());
@@ -191,6 +244,7 @@ public class UsuarioService {
         return new FuncionarioResponse(
                 usuario.getIdUsuario(),
                 usuario.getNome(),
+                usuario.getSobrenome(),
                 usuario.getEmail(),
                 usuario.getTelefone(),
                 usuario.getStatusUsuario(),
@@ -200,6 +254,7 @@ public class UsuarioService {
 
     private void paraUsuarioEntity(UsuariosEntity usuario, MonitorRequest monitorRequest) {
         usuario.setNome(monitorRequest.nome());
+        usuario.setSobrenome(monitorRequest.sobrenome());
         usuario.setEmail(monitorRequest.email());
         usuario.setCpf(monitorRequest.cpf());
         usuario.setTelefone(monitorRequest.telefone().trim());

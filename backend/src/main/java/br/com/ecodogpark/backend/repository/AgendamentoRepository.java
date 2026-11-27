@@ -4,9 +4,12 @@ import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.AgendamentosTutorRespon
 import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.DiasComAgendamentoResponse;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServicoResponse;
+import br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +21,10 @@ import java.util.UUID;
 
 public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity, Long> {
     Optional<AgendamentosEntity> findByFkPetIdPetAndFkCalendarioDataAndSituacao(UUID idPet, LocalDate data, SituacaoAgendamento situacao);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM AgendamentosEntity a WHERE a.idAgendamentos = :id")
+    Optional<AgendamentosEntity> buscarPorIdParaAtualizacao(@Param("id") Long id);
 
     @Query("""
         SELECT new br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse(
@@ -37,7 +44,7 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
         JOIN a.fkPet p
         JOIN a.fkCalendario c
         WHERE c.data = :data
-        AND a.situacao != "CANCELADO"
+        AND a.situacao <> br.com.ecodogpark.backend.enums.SituacaoAgendamento.CANCELADO
         ORDER BY p.nome ASC
     """)
     List<CheckinCheckoutResponse> listarPorData(
@@ -68,19 +75,25 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
     """)
     List<AgendamentosEntity> listarAgendamentosDoDia(@Param("data") LocalDate data);
 
-    @Query(value = """
-        SELECT DATE(a.data_entrada) AS data, COUNT(*) AS quantidade
-        FROM agendamentos a
+    @Query("""
+        SELECT new br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.DiasComAgendamentoResponse(
+            CAST(a.dataEntrada AS LocalDate),
+            COUNT(a)
+        )
+        FROM AgendamentosEntity a
         WHERE (
-            (:servico IN('CRECHE', 'DAYUSE') AND a.servico IN ('CRECHE', 'DAYUSE'))
-            OR  
+            (:servico IN ('CRECHE', 'DAYUSE') AND a.servico IN ('CRECHE', 'DAYUSE'))
+            OR
             (:servico = 'HOTEL' AND a.servico = 'HOTEL')
         )
-          AND a.data_entrada >= :inicio
-          AND a.data_entrada < :fim
-          AND a.situacao IN ('CONFIRMADO', 'AGENDADO')
-        GROUP BY DATE(a.data_entrada)
-    """, nativeQuery = true)
+        AND a.dataEntrada >= :inicio
+        AND a.dataEntrada < :fim
+        AND a.situacao IN ( br.com.ecodogpark.backend.enums.SituacaoAgendamento.PENDENTE,
+                            br.com.ecodogpark.backend.enums.SituacaoAgendamento.CONFIRMADO,
+                            br.com.ecodogpark.backend.enums.SituacaoAgendamento.AGENDADO
+        )
+        GROUP BY CAST(a.dataEntrada AS LocalDate)
+    """)
     List<DiasComAgendamentoResponse> buscarAgendamentoPorServico(
             @Param("servico") String servico,
             @Param("inicio") LocalDateTime inicio,
@@ -92,52 +105,47 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
         WHERE a.fkPet.idPet = :idPet
           AND a.dataEntrada >= :inicio
           AND a.dataEntrada < :fim
-          AND a.situacao IN('AGENDADO', 'CONFIRMADO')
+          AND a.situacao IN('AGENDADO', 'CONFIRMADO', 'PENDENTE')
     """)
     boolean petJaAgendado(@Param("idPet")UUID idPet,
                           @Param("inicio")LocalDateTime inicio,
                           @Param("fim")LocalDateTime fim);
 
     @Query("""
-        SELECT COUNT(a) FROM AgendamentosEntity a
-            WHERE a.fkPet.idPet = :idPet
-              AND a.servico = 'CRECHE'
-              AND a.dataEntrada >= :inicio
-              AND a.dataEntrada < :fim
-              AND a.situacao IN('AGENDADO', 'CONFIRMADO', 'RETIRADO')
+        SELECT a
+        FROM AgendamentosEntity a
+        JOIN FETCH a.fkPet p
+        JOIN FETCH p.fkUsuario u
+        WHERE u.idUsuario = :idTutor
+          AND a.situacao = br.com.ecodogpark.backend.enums.SituacaoAgendamento.AGENDADO
+        ORDER BY a.dataEntrada
     """)
-    long contarCrecheNaSemana(@Param("idPet") UUID idPet,
-                              @Param("inicio")LocalDateTime inicio,
-                              @Param("fim") LocalDateTime fim);
+    List<AgendamentosEntity> buscarAgendamentosDoTutor(@Param("idTutor") UUID idTutor);
 
     @Query("""
-        SELECT new br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.AgendamentosTutorResponse(
-            c.data, p.idPet, p.nome, a.servico, a.situacao
+        SELECT new br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse(
+            c.data
             )
         FROM AgendamentosEntity a
-         JOIN a.fkPet p
-         JOIN a.fkCalendario c
-        WHERE p.fkUsuario.idUsuario = :idUsuario
-          AND c.data >= :inicio
-          AND c.data <= :fim
-          AND a.situacao IN(:situacoes)
-        ORDER BY c.data, p.nome
+        JOIN a.fkCalendario c
+        JOIN a.fkPet p
+        WHERE p.idPet = :idPet
+        AND c.data <= CURRENT_DATE
+        AND a.situacao IN (SituacaoAgendamento.CONFIRMADO, SituacaoAgendamento.RETIRADO)
+        ORDER BY c.data DESC
     """)
-    List<AgendamentosTutorResponse> buscarAgendamentosDoTutor(@Param("idUsuario") UUID idUsuario,
-                                                              @Param("inicio") LocalDate inicio,
-                                                              @Param("fim") LocalDate fim,
-                                                              @Param("situacoes") List<SituacaoAgendamento> situacoes);
+    List<DataAgendadaResponse> buscarDatasDeAgendamentosAnteriores(@Param("idPet") UUID idPet);
 
     @Query("""
-        SELECT a FROM AgendamentosEntity a
-        WHERE a.fkPet.idPet = :idPet
-          AND a.servico = :servico
-          AND a.dataEntrada >= :inicio
-          AND a.dataEntrada < :fim
-          AND a.situacao IN ('AGENDADO', 'CONFIRMADO')
+        SELECT
+            c.data
+        FROM AgendamentosEntity a
+        JOIN a.fkCalendario c
+        JOIN a.fkPet p
+        WHERE p.idPet = :idPet
+        AND c.data <= CURRENT_DATE
+        AND a.situacao IN (SituacaoAgendamento.CONFIRMADO, SituacaoAgendamento.RETIRADO)
+        ORDER BY c.data DESC LIMIT 1
     """)
-    List<AgendamentosEntity> buscarAtivosNoPerido(@Param("idPet") UUID idPet,
-                                                  @Param("servico") String servico,
-                                                  @Param("inicio") LocalDateTime inicio,
-                                                  @Param("fim") LocalDateTime fim);
+    LocalDate buscarUltimoAgendamento(@Param("idPet") UUID idPet);
 }

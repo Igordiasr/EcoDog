@@ -1,6 +1,5 @@
 package br.com.ecodogpark.backend.repository;
 
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
 import br.com.ecodogpark.backend.entity.WhatsAppAtendimentoEntity;
 import br.com.ecodogpark.backend.enums.SituacaoAtendimento;
 import org.springframework.data.jpa.repository.JpaRepository;

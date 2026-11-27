@@ -1,5 +1,6 @@
-import { requestJson } from './http';
+import { HttpError, requestJson } from './http';
 import { validISODate, validPeriod } from '../models/dashboard-model';
+import { uuid } from '../models/integration-contracts';
 function record(value, label) {
     if (!value || typeof value !== 'object' || Array.isArray(value))
         throw new Error(`Resposta inválida: ${label}.`);
@@ -30,11 +31,11 @@ function optionalText(value, label) {
 function time(value) {
     if (value === null || value === undefined)
         return undefined;
-    if (typeof value !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value))
+    if (typeof value !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,9})?)?$/.test(value))
         throw new Error('Horário inválido.');
     return value.slice(0, 5);
 }
-const statuses = ['AGENDADO', 'CONFIRMADO', 'RETIRADO', 'CANCELADO'];
+const statuses = ['PENDENTE', 'AGENDADO', 'CONFIRMADO', 'RETIRADO', 'CANCELADO'];
 function parseDay(payload, expected, data) {
     const day = record(payload, 'dia');
     if (day.data !== expected)
@@ -55,17 +56,44 @@ function parseDay(payload, expected, data) {
     });
     array(day.alunosAgendados, 'alunos').forEach(raw => {
         const a = record(raw, 'aluno');
-        if (typeof a.nome !== 'string' || !a.nome.trim() || !statuses.includes(String(a.situacao)))
+        if (typeof a.nome !== 'string' || !a.nome.trim() || (a.situacao != null && !statuses.includes(String(a.situacao))))
             throw new Error('Aluno agendado inválido.');
         const age = a.idade === null ? undefined : capacity(a.idade, 'idade');
-        const student = { id: id(a.idAgendamento, 'agendamento'), petId: id(a.idPet, 'pet'), date: expected, name: a.nome, breed: optionalText(a.raca, 'raça'), tutor: optionalText(a.tutor, 'tutor'), age, status: a.situacao };
+        const student = { id: id(a.idAgendamento, 'agendamento'), petId: uuid(a.idPet, 'pet'), date: expected, name: a.nome, breed: optionalText(a.raca, 'raça'), tutor: optionalText(a.tutor, 'tutor'), age, status: a.situacao };
         data.students.push(student);
     });
 }
-/** Read-only until SEC-01 validates administrator authorization and writes are concurrency-safe. */
-export function createCalendarSource(baseUrl, request) {
-    const get = (path, query, signal) => requestJson(baseUrl, path, { query }, signal, request);
+export function createCalendarSource(baseUrl, request, token, onSessionExpired) {
+    const call = async (path, options = {}, signal) => {
+        try {
+            return await requestJson(baseUrl, path, { ...options, headers: token ? { Authorization: `Bearer ${token}` } : {} }, signal, request);
+        } catch (error) {
+            if (error instanceof HttpError && error.status === 401) onSessionExpired?.();
+            throw error;
+        }
+    };
+    const get = (path, query, signal) => call(path, { query }, signal);
     return {
+        activityConflict: () => true,
+        async catalog(signal) {
+            return array(await get('/calendario/catalogo-atividades', undefined, signal), 'atividades').map(item => ({ id: id(item.idAtividade, 'atividade'), name: optionalText(item.nome, 'nome') }));
+        },
+        async apply(command) {
+            if (command.kind === 'capacity') {
+                const current = await get('/calendario/dia', { data: command.date });
+                const creche = capacity(current.vagasCreche, 'Creche');
+                const hotel = capacity(current.vagasHotel, 'Hotel');
+                return call(`/calendario/${command.date}/vagas`, { method: 'PUT', body: { vagasCreche: command.service === 'Creche' ? command.quantity : creche, vagasHotel: command.service === 'Hotel' ? command.quantity : hotel } });
+            }
+            if (command.kind === 'activity') return call(`/calendario/${command.activity.date}/atividades`, { method: 'POST', body: { idAtividade: Number(command.activity.catalogId), horaInicio: `${command.activity.start}:00`, horaFim: `${command.activity.end}:00` } });
+            if (command.kind === 'removeActivity') return call(`/calendario/atividades/${command.id}`, { method: 'DELETE' });
+            if (command.kind === 'cancelBooking') {
+                const bookingId = Number(command.id);
+                if (!Number.isSafeInteger(bookingId) || bookingId <= 0 || String(bookingId) !== String(command.id)) throw new Error('Agendamento inválido.');
+                return call(`/calendario/agendamentos/${bookingId}`, { method: 'PATCH', body: { situacao: 'CANCELADO' } });
+            }
+            throw new Error('Esta alteração não está disponível.');
+        },
         async loadMonth(period, selectedDate, signal) {
             if (!validPeriod(period))
                 throw new Error('Mês inválido.');

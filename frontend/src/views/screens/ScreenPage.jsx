@@ -24,17 +24,22 @@ import { ActivityCatalogDetails } from '../components/ActivityCatalogDetails';
 import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordDesign, monitorRecordLocked, monitorOptions, integratedMonitorDesign } from '../design/monitor-records';
 import { useMonitorFeed } from '../../viewmodels/use-monitor-feed';
 import { usePetDiary } from '../../viewmodels/use-pet-diary';
+import { PageFeedback } from '../components/PageFeedback';
+import { userFeedback } from '../../viewmodels/user-feedback';
 import { integratedPetDiaryDesign } from '../design/pet-diary';
 import { presenceDay } from '../../viewmodels/use-presence';
 import { dashboardDesign, dashboardFormDesign } from '../design/dashboard';
 import { useDashboard } from '../../viewmodels/use-dashboard';
+import { DashboardPayments } from '../components/DashboardPayments';
 import { useManagementCalendar } from '../../viewmodels/use-management-calendar';
 import { managementCalendarDesign } from '../design/management-calendar';
 import { ManagementCalendarDialogs } from '../components/ManagementCalendar';
 import { checkInFeedDesign, diaryActionsDesign } from '../design/presentation-adjustments';
-import { presenceDesign } from '../design/presence';
+import { presenceDesign, removeExpectedTime } from '../design/presence';
+import { monitorUnavailableReason } from '../design/monitor-availability';
 import { usePresence } from '../../viewmodels/use-presence';
 import { useDailyActivities } from '../../viewmodels/use-daily-activities';
+import { UserManagement } from '../components/UserManagement';
 import { dailyActivitiesDesign } from '../design/daily-activities';
 import { findDesignNode } from '../design/structure-booking';
 import { usePetHealthCatalog } from '../../models/pet-health-catalog';
@@ -44,7 +49,7 @@ import { useTutorPets } from '../../viewmodels/use-tutor-pets';
 import { screens } from './catalog';
 import { createAuthViewModel } from '../../viewmodels/auth';
 import { registrationDesign } from '../design/auth';
-import { prototypeOperationBlock, recordIdentityUnavailable, monitorDataUnavailable, presenceDataUnavailable } from '../../viewmodels/prototype-safety';
+import { prototypeOperationBlock, recordIdentityUnavailable } from '../../viewmodels/prototype-safety';
 const imports = import.meta.glob('../design/*.json');
 import { correctDesignCopy } from '../design/copy-corrections';
 const load = async (key) => {
@@ -76,18 +81,19 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         return () => controller.abort();
     }, [session?.token, session?.id, preview]);
     const editPetParam = id === 'TL06' && !preview ? new URLSearchParams(location.search).get('editar') : null;
-    const editPetId = editPetParam === null ? undefined : Number(editPetParam);
+    const editPetId = editPetParam === null ? undefined : editPetParam.toLowerCase();
     const [editPetReady, setEditPetReady] = useState(false);
     const mobile = useMobile();
     const dashboard = useDashboard(id === 'TL13', preview, api, dashboardSource);
     const managementCalendar = useManagementCalendar(id === 'TL14', preview, api, calendarSource);
     const petHealthCatalog = usePetHealthCatalog(id === 'TL06' && preview, preview, petHealthCatalogSource);
     const tutorPets = useTutorPets(id === 'TL05', session);
-    const presence = usePresence(id === 'TL11' && !preview, session);
+    const presence = usePresence(['TL11', 'TL10'].includes(id) && !preview, session);
     const dailyActivities = useDailyActivities(id === 'TL12' && !preview, session);
-    const monitorPetId = Number(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet'));
-    const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session);
-    const diaryPetId = Number(new URLSearchParams(location.search).get('pet'));
+    const monitorPetId = String(location.state?.monitorContext?.idPet || new URLSearchParams(location.search).get('pet') || '').toLowerCase();
+    const monitorBlockReason = id !== 'TL10' || preview ? '' : presence.loading ? 'Consultando a presença do pet. Aguarde para atualizar suas informações.' : presence.error ? 'Não foi possível verificar a presença do pet. As alterações estão indisponíveis no momento.' : monitorUnavailableReason(presence.pets, monitorPetId);
+    const monitorFeed = useMonitorFeed(id === 'TL10' && !preview, monitorPetId, session, monitorBlockReason);
+    const diaryPetId = new URLSearchParams(location.search).get('pet')?.toLowerCase();
     const diaryDay = new URLSearchParams(location.search).get('data') || presenceDay();
     const petDiary = usePetDiary(id === 'TL07' && !preview, diaryPetId, diaryDay, session);
     const [design, setDesign] = useState(null);
@@ -232,7 +238,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         setFields({});
         loadTutorPets(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, controller.signal).then(pets => {
             if (controller.signal.aborted) return;
-            const pet = pets.find(pet => pet.idPet === editPetId);
+            const pet = pets.find(pet => pet.idPet.toLowerCase() === editPetId);
             if (!pet) throw new Error('Pet não encontrado na sua lista.');
             setFields({ nome: pet.nome, raca: pet.raca || '', sexo: pet.sexo || '', castrado: pet.castrado === true ? 'Sim' : pet.castrado === false ? 'Não' : '', nascimento: pet.dataNascimento?.split('-').reverse().join('/') || '', veterinario: pet.veterinario || '', contato: pet.telefoneVeterinario || '', convenio: typeof pet.convenio === 'boolean' ? pet.convenio ? 'Sim' : 'Não' : '', obs: pet.observacao || '', 'relacionamento-com-outros-pets': pet.relacaoComOutros || '' });
             setEditPetReady(false);
@@ -272,7 +278,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (!availability || availability.key !== availabilityKey || bookingDates.some(date => !availability.available.has(date))) {
             return;
         }
-        bookingBudget(bookingBaseUrl, session, selectedBookingService, pets.map(Number), bookingDates, controller.signal).then(data => {
+        bookingBudget(bookingBaseUrl, session, selectedBookingService, pets, bookingDates, controller.signal).then(data => {
             if (!controller.signal.aborted) setBudgetState({ key: budgetKey, data });
         }).catch(error => { if (!controller.signal.aborted) setBudgetError(error.message); });
         return () => controller.abort();
@@ -330,7 +336,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             setAllergyDraft([...allergies]);
             setAllergyDescription('');
         }
-        if (!['confirm', 'allergies', 'details', 'profile'].includes(key)) {
+        if (!['confirm', 'allergies', 'details', 'profile'].includes(key) && !(key === 'revenue' && dashboardSource?.pendingMovements)) {
             try {
                 const data = await load(key);
                 setDialogDesign(data);
@@ -426,7 +432,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             // Only the creation form/draft is sent. Never attach unrelated pet names,
             // design targets or the prototype's day/service to another operation.
             const result = integratedBooking
-                ? await saveTutorBooking(bookingBaseUrl, session, selectedBookingService, pets.map(Number), bookingDates)
+                ? await saveTutorBooking(bookingBaseUrl, session, selectedBookingService, pets, bookingDates)
                 : operation === 'savePet' && id === 'TL06' && !dialog && !preview
                 ? await registerTutorPet(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, petDraft, undefined, undefined, editPetId)
                 : await api.execute(operation, petDraft || (dialog ? dialogFields : fields));
@@ -551,7 +557,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             }
             void monitorFeed.save(record.monitorRecord, values).then(saved => {
                 if (!saved) return;
-                monitorSavedRef.current = { ...monitorSavedRef.current, [key]: { values: { ...values } } };
+                monitorSavedRef.current = { ...monitorSavedRef.current, [key]: saved };
                 setMonitorSaved(monitorSavedRef.current);
                 setMessage('Registro salvo no sistema.');
             }).catch(error => setMessage(error.message));
@@ -799,7 +805,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             void openDialog('linkPlan');
             return;
         }
-        if (label === 'Adicionar receita') {
+        if (label === 'Adicionar receita' || label === 'Registrar pagamento') {
             void openDialog('revenue');
             return;
         }
@@ -888,6 +894,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
     };
     const enhance = (node, inDashboardForm = false) => {
+        if (id === 'TL17' && !preview && !dialog) {
+            if (node.name === 'Tabela de planos') return { ...node, name: 'Serviços administrativos integrados', children: [] };
+            if (['Ao9hK', 'zzn30'].includes(node.id)) return { ...node, className: 'hidden', children: [] };
+            if (['rAmJV', 'zCeQs'].includes(node.id)) return { ...node, children: ['A criação, edição, alteração de situação e exclusão de planos ainda não estão disponíveis no sistema.'] };
+        }
         if (id === 'TL06' && !nodes(node).length && ['Adicionar', '+ Adicionar', '+  Adicionar', 'Adicionar alergia'].includes(content(node).trim())) return { ...node, className: 'hidden', children: [] };
         if (['TL10', 'TL11', 'TL12', 'TL13', 'TL14', 'TL15', 'TL16', 'TL17'].includes(id) && node.name === 'Ajuda') return { ...node, className: 'hidden', children: [] };
         if (['TL10', 'TL11', 'TL12'].includes(id) && node.name === 'Navegação' && nodes(node).length) {
@@ -915,7 +926,11 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             return { ...(node.name === 'Registro de vacina' ? addValidityToVaccineRecord(node) : node), id: node.name === 'Registro de vacina' ? 'pet-vacinas' : 'pet-medicamentos', name: 'Pet records' };
         if (id === 'TL06' && !dialog && (node.name === 'Listagem de alergias' || node.id === 'x2uAZ'))
             return { ...node, name: 'Pet allergies' };
-        let children = node.children?.filter(c => !(id === 'TL13' && inDashboardForm && content(c).trim() === '×')).filter(c => id !== 'TL06' || typeof c === 'string' || !['e1u9df', 'uwuPj'].includes(c.id || '')).map(c => typeof c === 'string' ? c : enhance(c, inDashboardForm));
+        let children = node.children?.filter(c => !(id === 'TL13' && inDashboardForm && content(c).trim() === '×')).map(c => typeof c === 'string' ? c : enhance(c, inDashboardForm));
+        if (id === 'TL10' && !dialog && monitorBlockReason && children) {
+            const headerIndex = children.findIndex(child => typeof child !== 'string' && child.name === 'Cabeçalho e navegação');
+            if (headerIndex !== -1) children.splice(headerIndex + 1, 0, { tag: 'section', id: 'monitor-availability-notice', name: 'Alterações indisponíveis', className: 'monitor-availability-notice', monitorNotice: monitorBlockReason });
+        }
         if (id === 'TL03' && !preview && children) {
             const petTemplate = children.find(child => typeof child !== 'string' && (child.name === 'Pet selecionado' || /^(Thor|Mel|Luke) · selecionado$/.test(child.name || '')));
             if (petTemplate) {
@@ -964,20 +979,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         }
         if (id === 'TL02')
             children = children?.map(child => typeof child === 'string' ? child.replace('acompanhar seus aumigos.', 'acompanhar seus pets.') : child);
-        if (id === 'TL05' && node.name === 'Meus planos' && children) {
-            const parts = children.filter((child) => typeof child !== 'string');
-            const header = parts.find(child => child.name === 'Título e agendamento');
-            const card = parts.find(child => child.name === 'Plano contratado');
-            const schedule = parts.find(child => child.name === 'Ação');
-            if (header && card) {
-                const table = {
-                    tag: 'div', id: `${card.id}-contents`, name: 'Plano contratado',
-                    className: `box-border w-full h-fit flex flex-col${mobile ? ' gap-[20px]' : ''}`,
-                    children: card.children,
-                };
-                children = [{ ...card, tag: 'section', name: 'Meus Planos • Card', children: [header, table, ...(schedule ? [schedule] : [])] }];
-            }
-        }
         if (id === 'TL03' && !mobile && node.id === 'PyCgJ') {
             let valuesCard;
             const removeValuesCard = child => {
@@ -990,10 +991,6 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
             };
             children = children?.map(removeValuesCard).filter(item => item !== null);
             if (valuesCard && children?.length) children = [children[0], ...children.slice(1), { ...valuesCard, tag: 'aside' }];
-        }
-        if (id === 'TL05' && node.name === 'Plano contratado') {
-            const header = children?.filter(child => typeof child !== 'string' && child.name === 'Cabeçalho da tabela') || [];
-            return { ...node, children: [...header, { tag: 'p', id: `${node.id}-unavailable`, name: 'Consulta de planos indisponível', className: 'w-full p-[16px] text-[16px]/[23px] text-[var(--text)] font-[Roboto,system-ui,sans-serif]', children: ['Não foi possível consultar seus planos: o backend ainda não disponibiliza essa consulta.'] }] };
         }
         if (repeats[node.id] && children) {
             const group = children.findLast(c => typeof c !== 'string' && c.name === 'Grupo de campos');
@@ -1030,7 +1027,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
         if (id === 'TL07')
             return diaryActionsDesign({ ...node, children });
         if (id === 'TL11')
-            return !preview ? presenceDesign(checkInFeedDesign({ ...node, children }), presence) : checkInFeedDesign({ ...node, children });
+            return !preview ? presenceDesign(checkInFeedDesign(removeExpectedTime({ ...node, children })), presence) : checkInFeedDesign(removeExpectedTime({ ...node, children }));
         if (id === 'TL12' && !preview && !dialog)
             return dailyActivitiesDesign({ ...node, children }, dailyActivities, currentUser?.token === session?.token ? currentUser?.name : undefined);
         if (id === 'TL14')
@@ -1055,26 +1052,30 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 });
         }, tutorPets: id === 'TL05' ? tutorPets : undefined, petHealthCatalog: id === 'TL06' ? petHealthCatalog : undefined, managementCalendar: id === 'TL14' ? managementCalendar : undefined, dashboard: id === 'TL13' ? dashboard : undefined, activityIndex, petRecords, petErrors, removePetRecord, petAllergies: allergies, setPetAllergies: setAllergies, action, day, selectedDates: bookingDates, crecheWeekdays, cart, removeDate: (date) => { if (service !== 'Creche')
             setSelectedDates(dates => dates.filter(selected => selected !== date)); }, service, pets, busy: busy || monitorFeed.saving || id === 'TL10' && !preview && (monitorFeed.loading || !monitorFeed.data) || id === 'TL13' && dashboard.saving || id === 'TL14' && managementCalendar.saving, search: fields.pesquisa || '', monthOffset };
-    const screen = design && (mobile ? design.steps[step] || design.mobile : design.desktop);
+    const screen = id === 'TL15' && !preview ? null : design && (mobile ? design.steps[step] || design.mobile : design.desktop);
     const modalScreen = dialogDesign && (mobile ? dialogDesign.steps[dialogStep] || dialogDesign.mobile : dialogDesign.desktop);
     const info = screens.find(s => s.id === id);
+    const pageNotices = [];
+    if (id === 'TL07' && !preview && (petDiary.loading || petDiary.error)) pageNotices.push({ message: petDiary.error || 'Estamos buscando os registros do seu pet…', error: !!petDiary.error, retry: petDiary.error ? petDiary.reload : undefined, disabled: petDiary.loading });
+    if (id === 'TL10' && !monitorBlockReason && (preview || monitorFeed.loading || monitorFeed.error)) pageNotices.push({ message: preview ? 'Esta é uma demonstração. As alterações não serão salvas na sua conta.' : monitorFeed.error || 'Carregando rotina do pet…', error: !!monitorFeed.error });
+    if (id === 'TL11' && preview) pageNotices.push({ message: 'Esta é uma demonstração. Os horários e registros de presença são exemplos.' });
+    if (id === 'TL11' && !preview && presence.error) pageNotices.push({ message: presence.error, error: true });
+    if (id === 'TL12' && !preview && dailyActivities.error) pageNotices.push({ message: dailyActivities.error, error: true, retry: dailyActivities.retry, disabled: dailyActivities.saving || dailyActivities.loading });
+    if (id === 'TL06' && petHealthCatalog.message) pageNotices.push({ message: petHealthCatalog.message });
+    if (id === 'TL13' && (dashboard.loading || dashboard.loadError)) pageNotices.push({ message: dashboard.loadError || 'Carregando suas informações…', error: !!dashboard.loadError });
+    const pageFeedback = <>
+      {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
+        <span>Demonstração • dados de exemplo</span>
+        <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
+        <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
+      </aside>}
+      <PageFeedback notices={pageNotices}/>
+    </>;
     return <>
     <a className="skip-link" href="#main-content">Ir para o conteúdo</a>
-    {preview && <aside className="preview-bar" aria-label="Prévia de desenvolvimento">
-      <span>Protótipo • dados ilustrativos</span>
-      <label><span className="sr-only">Tela</span><select aria-label="Tela do protótipo" value={id} onChange={e => go(e.target.value)}>{screens.map(s => <option key={s.id} value={s.id}>{s.id} — {s.name}</option>)}</select></label>
-      <button type="button" onClick={() => navigate('/')}>Sair da prévia</button>
-    </aside>}
     <main id="main-content" className={`design-page ${mobile ? 'design-mobile' : 'design-desktop'}${['TL01', 'TL08', 'TL09'].includes(id) ? ' institutional-page' : ''}${id === 'TL07' ? ' diary-page' : ''}${id === 'TL06' ? ' pet-registration-page' : ''}${id === 'TL10' ? ' monitor-feed-page' : ''}${id === 'TL13' ? ' dashboard-page' : ''}${id === 'TL14' ? ' management-calendar-page' : ''}`} aria-label={info.name}>
-      {id === 'TL07' && !preview && (petDiary.loading || petDiary.error) && <p className="loading-message" role={petDiary.error ? 'alert' : 'status'}>{petDiary.error || 'Carregando diário do pet…'}</p>}
-      {id === 'TL10' && (preview || monitorFeed.loading || monitorFeed.error) && <p className="loading-message" role="status">{preview ? `${monitorDataUnavailable} Novos rascunhos podem ser salvos apenas em memória e ficam bloqueados para alterações nesta sessão; recarregar a página descarta esses dados.` : monitorFeed.error || 'Carregando rotina do pet…'}</p>}
-       {id === 'TL11' && preview && <p className="loading-message" role="status">{presenceDataUnavailable} Horários, presença e contadores dos cartões são exemplos, não registros consultados do sistema.</p>}
-       {id === 'TL11' && !preview && presence.error && <p className="loading-message" role="alert">{presence.error}</p>}
-       {id === 'TL12' && !preview && dailyActivities.error && <p className="loading-message" role="alert">{dailyActivities.error} <button type="button" disabled={dailyActivities.saving || dailyActivities.loading} onClick={dailyActivities.retry}>Tentar novamente</button></p>}
-      {id === 'TL06' && petHealthCatalog.message && <p className="loading-message" role="status">{petHealthCatalog.message}</p>}
-      {id === 'TL13' && (dashboard.loading || dashboard.loadError) && <p className="loading-message" role={dashboard.loadError ? 'alert' : 'status'}>{dashboard.loadError || 'Carregando dados do dashboard…'}</p>}
-      {!design && <p role="status" className="loading-message">{message || 'Carregando…'}</p>}
-       {screen && <DesignContext.Provider value={{ ...context, session, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
+      {id === 'TL15' && !preview && <UserManagement session={session} onMenu={() => setMenu(true)} />}
+       {screen && <DesignContext.Provider value={{ ...context, session, pageFeedback, addHealthRecord: (kind, values) => { const recordId = petRecordSequence.current++; setPetRecords(records => ({ ...records, [kind]: [...records[kind], recordId] })); setFields(fields => ({ ...fields, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [`${kind}.${recordId}.${key}`, value])) })); }, presenceIntegrated: id === 'TL11' && !preview, dailyActivities: id === 'TL12' && !preview ? dailyActivities : undefined, busy: context.busy || presence.saving || dailyActivities.saving }}>
         <form ref={formRef} onSubmit={e => e.preventDefault()} aria-label={info.name}>
           <DesignRenderer node={enhance(id === 'TL10' && !preview ? integratedMonitorDesign(screen, monitorFeed) : id === 'TL07' && !preview ? integratedPetDiaryDesign(screen, petDiary, diaryDay) : screen)} root/>
         </form>
@@ -1092,7 +1093,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         return;
                     }
                     setPetPhoto(file);
-                    setMessage('Foto selecionada. Ao cadastrar, ela será salva localmente e somente a URL será enviada ao backend.');
+                    setMessage('Foto selecionada para o cadastro. Ela ficará disponível neste navegador.');
                 }
                 if (photoRef.current)
                     URL.revokeObjectURL(photoRef.current);
@@ -1100,7 +1101,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                 setPhoto(photoRef.current);
             }
         }}/>
-    {(message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : message}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
+    {(screen || id === 'TL15') && (message || busy) && <div className="status-message" role={busy || message === 'Registro salvo no sistema.' ? 'status' : 'alert'} aria-live={busy || message === 'Registro salvo no sistema.' ? 'polite' : 'assertive'}>{busy ? 'Aguarde…' : userFeedback(message, 'Não foi possível concluir a ação. Confira as informações e tente novamente.')}<button type="button" aria-label="Fechar mensagem" onClick={() => setMessage('')}>×</button></div>}
     {id === 'TL14' && <ManagementCalendarDialogs calendar={managementCalendar}/>}
     {id === 'TL06' && <PetCatalogDialog catalog={petHealthCatalog}/>}
     {id === 'TL12' && !preview && dailyActivities.detailsPet && <Modal title={`Detalhes de ${dailyActivities.detailsPet.nome}`} onClose={dailyActivities.closePet}>
@@ -1116,14 +1117,16 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
     {id === 'TL11' && !preview && presence.target && <Modal title={presence.target.operation === 'checkIn' ? 'Registrar entrada' : 'Registrar saída'} onClose={presence.close}>
       <form className="dialog-content" onSubmit={event => { event.preventDefault(); void presence.save(); }}>
         <h2>{presence.target.operation === 'checkIn' ? 'Registrar entrada' : 'Registrar saída'} • {presence.target.pet.nomePet}</h2>
+        {presence.target.operation === 'checkOut' && <section className="monitor-availability-notice" aria-label="Aviso sobre o check-out"><h3>Confirmar saída?</h3><p>Após registrar a saída de {presence.target.pet.nomePet}, não será mais possível atualizar suas informações no feed do monitor. Deseja continuar?</p></section>}
         <label className="allergy-description">Nome do responsável<input required maxLength={100} autoFocus value={presence.responsible} disabled={presence.saving} onChange={event => presence.setResponsible(event.target.value)}/></label>
         {presence.error && <p role="alert">{presence.error}</p>}
-        <div className="dialog-actions"><button type="button" disabled={presence.saving} onClick={presence.close}>Cancelar</button><button type="submit" disabled={presence.saving || !presence.responsible.trim()}>{presence.saving ? 'Aguarde…' : 'Confirmar'}</button></div>
+        <div className="dialog-actions"><button type="button" disabled={presence.saving} onClick={presence.close}>Cancelar</button><button type="submit" disabled={presence.saving || !presence.responsible.trim()}>{presence.saving ? 'Aguarde…' : presence.target.operation === 'checkOut' ? 'Confirmar saída' : 'Confirmar'}</button></div>
       </form>
     </Modal>}
-    {dialog && <Modal title={dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'}>
+    {dialog && <Modal title={dialog === 'profile' ? 'Meu Perfil' : dialog === 'assistant' ? 'Assistente EcoMigo' : dialog === 'confirm' ? 'Confirmar operação' : 'Formulário'} onClose={close} wide={dialog === 'petEdit'} className={dialog === 'profile' ? 'profile-modal' : ''}>
       {dialog === 'linkPlan' && <p className="dialog-content" role="status">{recordIdentityUnavailable} O formulário permanece apenas como rascunho ilustrativo de vínculo.</p>}
-      {modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
+      {dialog === 'revenue' && dashboardSource?.pendingMovements ? <DashboardPayments source={dashboardSource} onClose={close} onPaid={() => { close(); dashboard.reload(); setMessage('Pagamento registrado com sucesso.'); }}/>
+          : modalScreen ? <DesignContext.Provider value={{ ...context, modal: true }}><form ref={modalFormRef} className={id === 'TL13' ? 'dashboard-form' : undefined} onSubmit={e => e.preventDefault()}><DesignRenderer node={enhance(modalScreen, id === 'TL13')} root/></form></DesignContext.Provider>
                 : dialog === 'confirm' ? <div className="dialog-content"><h2>Confirmar operação</h2><p>Deseja confirmar esta ação?</p><div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="button" disabled={busy} onClick={() => confirmAction && void run(confirmAction)}>Confirmar</button></div></div>
                     : dialog === 'allergies' ? <form ref={modalFormRef} className="dialog-content" onSubmit={e => {
                             e.preventDefault();
@@ -1135,7 +1138,7 @@ export function ScreenPage({ id, preview = false, api, session, holidayCalendar 
                         }}><h2>Alergias</h2><p>Selecione uma ou mais alergias previamente cadastradas. Quando “Outros” for selecionado, o campo de descrição personalizada será exibido.</p>{[...new Set(['Alergia a frango', ...allergies, 'Outros'])].map(a => <label key={a} className="allergy-option"><input type="checkbox" checked={allergyDraft.includes(a)} onChange={e => setAllergyDraft(v => e.target.checked ? [...v, a] : v.filter(x => x !== a))}/>{a}</label>)}{allergyDraft.includes('Outros') && <label className="allergy-description">Descrição da alergia *<input required value={allergyDescription} onChange={e => setAllergyDescription(e.target.value)}/></label>}<div className="dialog-actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={allergyDraft.includes('Outros') && !allergyDescription.trim()}>Salvar alergia</button></div></form>
                         : dialog === 'details' && id === 'TL09' && !preview ? <ActivityCatalogDetails close={close}/>
                             : dialog === 'details' ? <div className="dialog-content"><h2>Detalhes</h2><p>Os detalhes desta atividade dependem dos dados do sistema.</p><button type="button" onClick={close}>Voltar</button></div>
-                                : dialog === 'profile' ? session?.token && !preview ? <MyProfile session={session} onLogout={async () => { await api.logout(); onSession(null); navigate('/entrar'); }}/> : <p className="dialog-content">Entre na sua conta para consultar seus dados.</p>
+                                : dialog === 'profile' ? session?.token && !preview ? <MyProfile session={session} onClose={close} onLogout={async () => { await api.logout(); onSession(null); navigate('/entrar'); }}/> : <p className="dialog-content">Entre na sua conta para consultar seus dados.</p>
                                     : <p role="status" className="loading-message">Carregando…</p>}
     </Modal>}
   </>;

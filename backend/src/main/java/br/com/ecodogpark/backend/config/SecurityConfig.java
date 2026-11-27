@@ -36,6 +36,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/tutores").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/tutores/**").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.GET, "/calendario/dias", "/calendario/dia", "/calendario/catalogo-atividades").hasAnyRole("TUTOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/calendario/*/vagas").hasAnyRole("TUTOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.POST, "/calendario/*/atividades").hasAnyRole("TUTOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/calendario/atividades/*").hasAnyRole( "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PATCH, "/calendario/agendamentos/*").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/calendario/**").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/whatsapp/webhook").permitAll()

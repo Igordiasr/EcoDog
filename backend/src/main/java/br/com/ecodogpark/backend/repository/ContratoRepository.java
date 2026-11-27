@@ -3,7 +3,7 @@ package br.com.ecodogpark.backend.repository;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.GraficoContratosPorServicoResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.NovosServicosMensaisResponse;
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.PlanosAtivosResponse;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.ClienteResponse;
+import br.com.ecodogpark.backend.dto.QuantidadeDiariasResponse;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ContratoRepository extends JpaRepository<ContratosEntity, Long> {
@@ -65,29 +64,6 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     """)
     Long contarContratosInativos();
 
-
-    @Query("""
-        SELECT new br.com.ecodogpark.backend.dto.UsuarioDTO.ClienteResponse(
-            tutor.idUsuario,
-            CONCAT(tutor.nome, ' ', tutor.sobrenome),
-            pet.idPet,
-            pet.nome,
-            contrato.idContrato,
-            servico.nome,
-            contrato.valor,
-            CASE
-                WHEN contrato.situacao = 'ATIVO' THEN true
-                ELSE false
-            END
-        )
-        FROM ContratosEntity contrato
-        JOIN contrato.pet pet
-        JOIN pet.fkUsuario tutor
-        JOIN contrato.servico servico
-        ORDER BY tutor.nome, pet.nome
-    """)
-    List<ClienteResponse> listaCliente();
-
     boolean existsByPetFkUsuarioIdUsuarioAndSituacaoIn(UUID idUsuario, List<String> situacoes);
 
     @Query("""
@@ -98,45 +74,38 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
           AND c.dataInicio <= :fim
           AND c.dataFim >= :inicio
     """)
-
     boolean existePlanoSobreposto(@Param("idPet") UUID idPet,
                                   @Param("inicio")LocalDate inicio,
                                   @Param("fim") LocalDate fim);
 
     @Query("""
         SELECT c FROM ContratosEntity c
-        WHERE c.pet.idPet = :idPet
-          AND c.servico.modalidade = 'PLANO'
-          AND c.servico.categoria = 'CRECHE'
-          AND c.situacao IN('ATIVO', 'PENDENTE')
-          AND :data BETWEEN c.dataInicio AND c.dataFim
+        JOIN FETCH c.pet p
+        JOIN FETCH p.fkUsuario u
+        JOIN FETCH c.servico s
+        WHERE c.situacao = 'ATIVO'
+          AND c.dataInicio <= :hoje
+          AND c.dataFim >= :hoje
     """)
-    Optional<ContratosEntity> buscarPlanoVigente(@Param("idPet") UUID idPet,
-                                                 @Param("data") LocalDate data);
+    List<ContratosEntity> buscarContratosParaListaClientes(@Param("hoje") LocalDate hoje);
 
-    @Query("""
-        SELECT c FROM ContratosEntity c
-        WHERE c.pet.idPet = :idPet
-          AND c.servico.categoria = :categoria
-          AND c.servico.modalidade <> 'PLANO'
-          AND c.situacao IN ('PENDENTE', 'ATIVO')
-          AND :data BETWEEN c.dataInicio AND c.dataFim
-        ORDER BY c.dataInicio DESC
-        LIMIT 1
+    @Query(value = """
+        SELECT new br.com.ecodogpark.backend.dto.QuantidadeDiariasResponse(
+            c.idContrato AS idContrato,
+            COUNT(DISTINCT a.idAgendamentos) AS quantidade
+        )
+        FROM ContratosEntity c
+        LEFT JOIN AgendamentosEntity a
+            ON a.fkPet.idPet = c.pet.idPet
+            AND a.servico = c.servico.categoria
+            AND CAST(a.dataEntrada as LocalDate)
+                BETWEEN c.dataInicio AND c.dataFim
+            AND a.situacao <> br.com.ecodogpark.backend.enums.SituacaoAgendamento.CANCELADO
+        WHERE c.idContrato IN (:idsContratos)
+          AND c.servico.categoria IN ('HOTEL', 'DAYUSE')
+        GROUP BY c.idContrato
     """)
-    Optional<ContratosEntity> buscarContratoDoDia(@Param("idPet") UUID idPet,
-                                                  @Param("categoria") String categoria,
-                                                  @Param("data") LocalDate data);
-
-    @Query("""
-        SELECT c FROM ContratosEntity c
-        WHERE c.pet.idPet = :idPet
-          AND c.servico.categoria = :categoria
-          AND c.servico.modalidade <> 'PLANO'
-          AND c.situacao IN ('PENDENTE', 'ATIVO')
-          AND :data BETWEEN c.dataInicio AND c.dataFim
-    """)
-    List<ContratosEntity> buscarContratosPorDia(@Param("idPet") UUID idPet,
-                                                @Param("categoria") String categoria,
-                                                @Param("data") LocalDate data);
+    List<QuantidadeDiariasResponse> contarDiariasPorContrato(
+            @Param("idsContratos") List<Long> idsContratos
+    );
 }

@@ -11,14 +11,18 @@ import { BookingCartSummary } from './BookingCart';
 import { formatMoney } from '../../viewmodels/booking-cart';
 import { selectedPetsSentence } from '../../viewmodels/booking-presentation';
 import { petChoices } from '../../viewmodels/pet-draft';
-import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLocked, monitorOptions, monitorOption } from '../design/monitor-records';
+import { isMonitorRecord, monitorRecordKey, monitorRecordValues, monitorRecordLocked, monitorRecordSaved, monitorOptions, monitorOption } from '../design/monitor-records';
 import { DashboardCharts } from './DashboardCharts';
+import { DashboardOccupancy } from './DashboardOccupancy';
 import { DashboardField, isDashboardField } from './DashboardField';
 import { dashboardSummary } from '../../models/dashboard-model';
-import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking } from './ManagementCalendar';
+import { ManagementCalendar, ManagementCapacity, ManagementAvailability, ManagementBulk, ManagementActivity, ManagementBooking, ManagementStudent } from './ManagementCalendar';
+import { canCancelStudentBooking } from '../../models/calendar-model';
+import { CalendarNotice } from './CalendarNotice';
 import { findDesignNode } from '../design/structure-booking';
 import { ScheduledPetDays } from './ScheduledPetDays';
 import { TutorPets } from './TutorPets';
+import { TutorPlans } from './TutorPlans';
 import { PetField } from './PetField';
 import { PetAllergies } from './PetAllergies';
 import { petRecordFields } from '../../models/pet-validation';
@@ -27,8 +31,10 @@ import { frontendLinks } from '../../models/frontend-config';
 import { InstitutionalLinks } from './InstitutionalLinks';
 import { currentBookingMonthOffset } from '../design/calendar';
 import { PetHealthSection } from './PetHealthSection';
+import { PetPhoto } from './PetPhoto';
+import { AdminPlanServices } from './AdminPlanServices';
 export const DesignContext = createContext(null);
-const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
+const labels = new Set(['Entrar', 'Cadastrar', 'INÍCIO', 'SOBRE', 'ESTRUTURA', 'ENTRAR', 'CADASTRE-SE', 'Meus Pets', 'Agendamento', 'Dashboard geral', 'Calendário', 'Usuários', 'Clientes', 'Planos', 'Adicionar Pet', 'Agendar', 'Salvar', 'Salvar alterações', 'Cancelar', 'Voltar', 'Editar', 'Excluir', 'Ver diário', 'Criar usuário', 'Criar Plano', 'Vincular Plano', 'Criar meta', 'Editar meta', 'Adicionar receita', 'Registrar pagamento', 'Adicionar', 'Adicionar foto', 'Adicionar alergia', 'Registrar entrada', 'Registrar saída', 'Entrada registrada', 'Saída registrada', 'Atividades', 'Detalhes', 'Ver detalhes', 'Concluído', 'CONCLUÍDOS', 'Desativar', 'Ativar', 'Alterar', 'Adicionar atividade', 'Continuar', 'Avançar', 'Anterior', 'Próximo', 'Enviar', 'Entendi', 'Fechar', 'Voltar para Meus Pets', 'Salvar meta', 'Selecionar meta', '←', '→', '×']);
 const stripPosition = (c) => c.replace(/(?:^|\s)(?:absolute|left-\S+|top-\S+)/g, ' ').trim();
 const stripSize = (c) => c.replace(/(?:^|\s)(?:w-\[\d+(?:\.\d+)?px\]|h-\[\d+(?:\.\d+)?px\])/g, ' ').trim();
 function isLeaf(n) { return !nodes(n).length && n.tag !== 'img'; }
@@ -39,6 +45,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const value = content(node);
     const childNodes = nodes(node);
     const parent = ancestors.at(-1);
+    if (name === 'Serviços administrativos integrados') return <AdminPlanServices session={ctx.session}/>;
     if (ctx.screen === 'TL02' && ['YtHBL', 'PaegW'].includes(node.id)) return <div className="auth-links"><Link to="/cadastro">Não tem login? Cadastre-se</Link><Link to="/esqueceu-senha">Esqueceu a senha?</Link></div>;
     if (!inert && ctx.screen === 'TL06' && ['Pet records', 'Pet allergies'].includes(name)) return <PetHealthSection key={node.id} kind={name === 'Pet allergies' ? 'alergias' : node.id === 'pet-vacinas' ? 'vacinas' : 'medicamentos'} ctx={ctx}/>;
     if (ctx.screen === 'TL02' && !nodes(node).length && /Esqueceu.*senha/i.test(value)) return null;
@@ -63,6 +70,7 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (parentIsHeader && childNodes.some(n => n.name === 'Botão Cadastrar') && childNodes.some(n => n.name === 'Botão Entrar'))
         className += ' header-actions';
     const props = { className, 'data-design-id': node.id, 'data-design-name': name };
+    if (node.monitorNotice) return <section {...props} role="status" aria-label="Alterações indisponíveis"><h2>Alterações indisponíveis</h2><p>{node.monitorNotice}</p></section>;
     if (ctx.screen === 'TL08' && ['Od5Hs', 'CHLdU'].includes(node.id || ''))
         props.style = { backgroundImage: `url("${lastStudentPhoto}")` };
     if (['TL01', 'TL08', 'TL09'].includes(ctx.screen) && isLeaf(node) && value && ancestors.some(ancestor => /Footer|Rodapé|rodapé|Assinatura/.test(ancestor.name || '')))
@@ -107,6 +115,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (node.editPetId) return <button {...props} type="button" aria-label="Editar pet" onClick={() => ctx.action('Editar pet integrado', node, ancestors)}>{node.children?.map((child, index) => typeof child === 'string' ? child : <DesignRenderer key={child.id || index} node={child} ancestors={[...ancestors, node]} inert/>)}</button>;
     if (ctx.screen === 'TL05' && name === 'Pets cadastrados')
         return <TutorPets model={ctx.tutorPets} session={ctx.session} node={node} renderCard={card => <DesignRenderer key={card.id} node={card} ancestors={[...ancestors, node]} inert/>}/>;
+    if (ctx.screen === 'TL05' && name === 'Plano contratado')
+        return <TutorPlans session={ctx.session} node={node} renderNode={plan => <DesignRenderer key={plan.id} node={plan} ancestors={ancestors} inert/>}/>;
     const isHeaderProfile = name === 'Perfil' && parentIsHeader && node.tag !== 'img';
     if (isHeaderProfile && !inert) {
         const identity = ctx.userName ? `${ctx.userName}${ctx.userRole ? ` • ${ctx.userRole}` : ''}` : undefined;
@@ -123,7 +133,12 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     if (ctx.screen === 'TL14' && ctx.managementCalendar) {
         const calendar = ctx.managementCalendar;
         if (name === 'Management state')
-            return <div className="management-message"><p role={calendar.loadError ? 'alert' : 'status'}>{calendar.loading ? 'Carregando calendário…' : calendar.loadError || (calendar.example ? 'Prévia com dados mock. Alterações somente em memória.' : 'Dados carregados pelo adaptador do calendário.')}</p>{calendar.loadError && <button type="button" className="management-button" onClick={() => void calendar.reload()}>Recarregar dados</button>}{calendar.message && <p role="status">{calendar.message}</p>}</div>;
+            return <div className="management-message" aria-label="Avisos do calendário">
+                {calendar.loading && <CalendarNotice kind="loading" message="Estamos buscando as atividades e os aulunos deste dia. Só um instante…"/>}
+                {!calendar.loading && calendar.loadError && <CalendarNotice kind="error" title="Não conseguimos carregar o calendário" message={calendar.loadError} retry={() => void calendar.reload()} disabled={calendar.loading}/>}
+                {!calendar.loading && !calendar.loadError && calendar.example && <CalendarNotice title="Prévia do calendário" message="Você está visualizando uma prévia."/>}
+                {!calendar.activity && !calendar.bulk && calendar.message && <CalendarNotice kind={calendar.messageKind} message={calendar.message} onDismiss={() => calendar.setMessage('')} bringIntoView/>}
+            </div>;
         if (name === 'Management calendar')
             return <ManagementCalendar calendar={calendar} className={className}/>;
         if (name === 'Management availability')
@@ -141,12 +156,19 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
             const photo = findDesignNode(node, 'Foto a preencher');
             return row ? <ManagementBooking calendar={calendar} className={className} row={row} photo={photo && <DesignRenderer node={photo} inert/>}/> : null;
         }
+        if (name === 'Management student') {
+            const row = calendar.data?.students?.find(row => row.id === node.id && row.date === calendar.selectedDate);
+            const photo = findDesignNode(node, 'Foto a preencher');
+            return row ? <ManagementStudent row={row} photo={photo && <DesignRenderer node={photo} inert/>} saving={calendar.saving} onRemove={canCancelStudentBooking(row) ? () => calendar.cancelBooking(row.id) : undefined}/> : null;
+        }
     }
     if (ctx.screen === 'TL13' && ctx.dashboard) {
         if (ctx.modal && isDashboardField(node))
             return <DashboardField node={node} dashboard={ctx.dashboard}/>;
         if (name === 'Dashboard revenue chart' || name === 'Dashboard contracts chart' || name === 'Dashboard distribution chart')
             return <div {...props}><DashboardCharts data={ctx.dashboard.data} kind={name === 'Dashboard revenue chart' ? 'revenue' : name === 'Dashboard contracts chart' ? 'contracts' : 'distribution'}/></div>;
+        if (name === 'Dashboard occupancy')
+            return <div {...props}><DashboardOccupancy data={ctx.dashboard.data}/></div>;
         if (name.startsWith('Dashboard progress ') || name.startsWith('Dashboard occupancy progress ')) {
             const service = name.replace(/^Dashboard (?:occupancy )?progress /, '');
             const view = ctx.dashboard.data && dashboardSummary(ctx.dashboard.data);
@@ -177,6 +199,8 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         return <span {...props} className={`${className} arrow-icon-slot text-[var(--brand)]`}><ArrowIcon direction={direction}/></span>;
     }
     // Informative photos use their exact imported fills, but are exposed as images.
+    if (node.petPhoto)
+        return <PetPhoto key={node.src || 'no-photo'} {...props} src={node.src} name={name}/>;
     if (node.tag === 'img')
         return <img {...props} className={className} src={node.src} alt={node.decorative ? '' : name} aria-hidden={node.decorative || undefined} loading="lazy" draggable={false}/>;
     if (node.tag === 'br' || node.tag === 'hr')
@@ -335,20 +359,22 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
         const selected = ctx.pets.includes(pet);
         return <button {...props} type="button" className={`${className} design-button`} aria-label={pet} aria-pressed={selected} onClick={() => ctx.action(`Pet ${pet}`, node, ancestors)}>{selected ? '×' : '○'}</button>;
     }
-    const canAct = !inert && !isLeaf(node) && (labels.has(label) || ['CADASTRAR', 'Quero agendar', 'Agendar visita', 'Saiba mais', 'Como funciona'].includes(label)) && childNodes.length <= 3 && !/Coluna|Registro|Data|Resumo|cta-agendar/.test(name);
+    const canAct = !inert && !isLeaf(node) && (labels.has(label) || ['CADASTRAR', 'Quero agendar', 'Agendar visita', 'Saiba mais', 'Como funciona'].includes(label)) && childNodes.length <= 3 && !/Coluna|Registro|Data|Resumo|cta-agendar|Ação de observações/.test(name);
     if (!inert && ctx.screen === 'TL11' && ['Feed do Monitor', 'Diário do Pet'].includes(label) && !isLeaf(node))
         return <button {...props} type="button" className={`${className} design-button`} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
     const inlineLink = !inert && isLeaf(node) && /Já tem|Não tem login|Clique aqui|Conheça|Saiba mais|NOSSO ESPAÇO|SOBRE NÓS/.test(value);
     if (canAct || inlineLink) {
         const record = ctx.screen === 'TL10' ? ancestors.findLast(isMonitorRecord) : undefined;
         const alreadySaved = /Entrada registrada|Saída registrada/.test(label) || label === 'Salvar' && !!record && monitorRecordLocked(record, ctx.monitorSaved?.[monitorRecordKey(record)]);
+        const monitorSave = label === 'Salvar' && !!record;
+        const monitorSaved = monitorSave && monitorRecordSaved(record, ctx.monitorSaved?.[monitorRecordKey(record)]);
         const completedActivity = ctx.dailyActivities && label === 'Concluído' && ancestors.findLast(parent => parent.dailyActivity)?.dailyActivity.situacao === 'CONCLUIDA';
         const presencePet = ancestors.findLast(parent => parent.presencePet)?.presencePet;
         const missingCheckInEvidence = ctx.screen === 'TL11' && (ctx.presenceIntegrated
             ? label === 'Registrar entrada' ? !presencePet || presencePet.situacao !== 'AGENDADO' || !!presencePet.dataSaidaRaw
                 : label === 'Registrar saída' && (!presencePet || presencePet.situacao !== 'CONFIRMADO' || !presencePet.dataEntradaRaw || !!presencePet.dataSaidaRaw)
             : label === 'Registrar saída');
-        return <button {...props} type="button" className={`${className} design-button`} disabled={ctx.busy || alreadySaved || completedActivity || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{renderChildren(true)}</button>;
+        return <button {...props} type="button" className={`${className} design-button${monitorSave ? monitorSaved ? ' monitor-save-saved' : ' monitor-save-pending' : ''}`} disabled={ctx.busy || alreadySaved || completedActivity || missingCheckInEvidence} aria-description={missingCheckInEvidence ? 'Check-out indisponível: nenhum check-in operacional foi consultado.' : undefined} aria-label={monitorSaved ? 'Salvo' : label === '×' ? 'Remover' : label} onClick={() => ctx.action(label, node, ancestors)}>{monitorSaved ? <span className="font-interface">Salvo</span> : renderChildren(true)}</button>;
     }
     if (!inert && ctx.screen === 'TL09' && bookingContext && isLeaf(node) && name === 'Mês') {
         const label = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(2026, 7 + ctx.monthOffset, 1));
@@ -427,5 +453,6 @@ export function DesignRenderer({ node, ancestors = [], root = false, inert = fal
     const footerLinkKind = insideFooter && (name === 'Localização' && childNodes.length ? 'maps' : name === 'Redes' ? 'instagram' : name === 'Informações institucionais' ? content(childNodes[0]) === 'Localização' ? 'maps' : content(childNodes[0]) === 'Nossas Redes' ? 'instagram' : null : null);
     if (insideFooter && name === 'Redes' && frontendLinks.instagram) return <div {...props}>{childNodes.filter(child => content(child) === 'Nossas Redes').map(child => <DesignRenderer key={child.id} node={child} ancestors={[...ancestors, node]} inert/>)}<a className="institutional-instagram-link" href={frontendLinks.instagram} target="_blank" rel="noopener noreferrer" aria-label="EcoDog Park no Instagram">{childNodes.filter(child => content(child) !== 'Nossas Redes').map(child => <DesignRenderer key={child.id} node={child} ancestors={[...ancestors, node]} inert/>)}</a></div>;
     if (footerLinkKind) props.className += ' institutional-footer-section';
-    return createElement(institutionalFooter ? 'footer' : tag, props, renderChildren(), institutionalFooter && !ctx.mobile && <InstitutionalLinks kind="maps"/>, footerLinkKind && !(footerLinkKind === 'maps' && !ctx.mobile) && <InstitutionalLinks kind={footerLinkKind}/>);
+    const element = createElement(institutionalFooter ? 'footer' : tag, props, renderChildren(), institutionalFooter && !ctx.mobile && <InstitutionalLinks kind="maps"/>, footerLinkKind && !(footerLinkKind === 'maps' && !ctx.mobile) && <InstitutionalLinks kind={footerLinkKind}/>);
+    return isHeader && !ctx.modal ? <>{element}{ctx.pageFeedback}</> : element;
 }

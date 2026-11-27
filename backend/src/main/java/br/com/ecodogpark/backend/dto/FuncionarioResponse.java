@@ -11,6 +11,8 @@ public record FuncionarioResponse(
         UUID id,
         @Schema(description = "Nome do funcionário")
         String nome,
+        @Schema(description = "Sobrenome do funcionário")
+        String sobrenome,
         @Schema(description = "Endereço de e-mail do funcionário", example = "usuario@example.com")
         String email,
         @Schema(description = "Telefone de contato com DDD", example = "11912345678")

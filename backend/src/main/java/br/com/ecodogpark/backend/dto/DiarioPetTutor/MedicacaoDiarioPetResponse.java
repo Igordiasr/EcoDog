@@ -1,8 +1,8 @@
-package br.com.ecodogpark.backend.dto;
+package br.com.ecodogpark.backend.dto.DiarioPetTutor;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import br.com.ecodogpark.backend.entity.SituacaoMedicacao;
+import br.com.ecodogpark.backend.enums.SituacaoMedicacao;
 
 @Schema(description = "Dados de retorno de medicacao diario pet")
 public record MedicacaoDiarioPetResponse(

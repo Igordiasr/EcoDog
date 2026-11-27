@@ -3,10 +3,7 @@ package br.com.ecodogpark.backend.dto.TutorDTO.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +19,7 @@ public record CadastroPetRequest(
         String raca,
 
         @Schema(description = "Sexo do pet", example = "M")
-        @NotBlank @Size(min = 1, max = 1)
+        @NotBlank @Size(min = 1, max = 1) @Pattern(regexp = "^[FM]$")
         String sexo,
 
         @Schema(description = "Indica se o pet é castrado", example = "true")
@@ -46,7 +43,7 @@ public record CadastroPetRequest(
         String veterinario,
 
         @Schema(description = "Telefone de contato do veterinário")
-        @NotBlank @Size(max = 11)
+        @NotBlank @Size(max = 15)
         String telefoneVeterinario,
 
         @Schema(description = "Indica se o pet possui convênio veterinário", example = "true")

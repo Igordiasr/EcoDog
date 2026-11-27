@@ -430,27 +430,59 @@ input.design-input, select.design-input, textarea.design-input { display: block;
 .dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
 .dialog-content button { min-height: 44px; border: 1px solid var(--brand); border-radius: 10px; padding: 10px 24px; font-family: "Lilita One", sans-serif; color: var(--primary-accessible); }
 .dialog-actions button:last-child { background: var(--brand); color: var(--surface); }
-.profile-modal { width: min(720px, calc(100% - 40px)); }
-.profile-modal .modal-close { top: 24px; right: 32px; border: 1px solid var(--brand); border-radius: 10px; color: var(--brand); font: 24px "Lilita One", sans-serif; }
-.profile-content { gap: 24px; color: #182d21; font: 14px/1.5 Roboto, sans-serif; }
-.profile-intro { display: flex; flex-direction: column; gap: 12px; }
-.profile-context { min-height: 44px; display: flex; align-items: center; padding-right: 56px; color: var(--brand); font: 14px "Lilita One", sans-serif; }
-.profile-content h2 { margin: 0; color: var(--brand); font: 40px/1.2 "Luckiest Guy", sans-serif; }
+.profile-modal { width: min(720px, calc(100% - 40px)); overflow: hidden; box-shadow: 0 12px 35px #0f2e1a2e; }
+.profile-modal .modal-close { top: 32px; right: 32px; border: 1px solid #96b6a3; border-radius: 8px; color: #247346; font: 16px "Lilita One", sans-serif; }
+.profile-content { padding: 0; gap: 0; max-height: calc(100svh - 40px); color: #182d21; font: 14px/1.4 Roboto, sans-serif; }
+.profile-intro { padding: 32px 92px 16px 32px; display: flex; flex-direction: column; gap: 2px; }
+.profile-content h2 { margin: 0; color: #247346; font: 32px/1.4 "Lilita One", sans-serif; }
 .profile-content p { margin: 0; }
-.profile-fields { display: flex; flex-direction: column; gap: 24px; margin: 0; }
-.profile-fields > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.profile-fields dt, .profile-notice h3 { color: var(--brand); font: 14px "Lilita One", sans-serif; }
-.profile-fields dd { margin: 0; padding: 12px; min-height: 48px; border: 1px solid #6b8f7d; border-radius: 10px; background: var(--surface); color: #364d40; font: 16px/1.5 Roboto, sans-serif; overflow-wrap: anywhere; }
-.profile-notice { padding: 16px; border-radius: 12px; background: var(--background); }
-.profile-notice h3 { margin: 0 0 8px; }
-.profile-status { display: flex; flex-direction: column; gap: 12px; }
-.profile-actions { padding-top: 8px; }
-.profile-actions button { min-height: 48px; }
+.profile-intro p, .profile-security > p { color: #52675a; }
+.profile-tabs { display: flex; gap: 8px; padding: 0 32px 16px; }
+.profile-content .profile-tabs button { flex: 1; min-width: 0; padding: 12px; border: 1px solid #96b6a3; border-radius: 8px; background: white; color: #247346; font: 16px/1.4 "Lilita One", sans-serif; }
+.profile-content .profile-tabs button[aria-selected="true"] { border-color: #247346; background: #247346; color: white; }
+.profile-form { display: flex; flex-direction: column; min-height: 0; }
+.profile-panel { overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 20px; padding: 0 32px 32px; }
+.profile-identity { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 12px; background: #eff7f2; overflow-wrap: anywhere; }
+.profile-identity strong { color: #247346; font: 22px/1.4 "Lilita One", sans-serif; }
+.profile-identity span { font-size: 16px; }
+.profile-identity small, .profile-help { color: #52675a; font: 12px/1.4 Roboto, sans-serif; }
+.profile-section, .profile-security { display: flex; flex-direction: column; gap: 12px; }
+.profile-section h3, .profile-security h3 { margin: 0; color: #247346; font: 20px/1.4 "Lilita One", sans-serif; }
+.profile-security { gap: 16px; padding-top: 8px; }
+.profile-security h3 { font-size: 24px; }
+.profile-security .profile-help { margin-top: 8px; }
+.profile-field { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; color: #247346; font: 14px/1.4 "Lilita One", sans-serif; }
+.profile-field .design-input { box-sizing: border-box; min-height: 46px; padding: 12px; border: 1px solid #96b6a3; border-radius: 8px; background: white; color: #182d21; font: 16px/1.4 Roboto, sans-serif; }
+.profile-address-row { display: flex; gap: 16px; }
+.profile-address-street .profile-field-cep { flex: 0 0 160px; }
+.profile-address-details .profile-field-numero { flex: 0 0 100px; }
+.profile-address-details .profile-field-complemento { flex: 0 0 220px; }
+.profile-privacy, .profile-warning { padding: 12px; border-radius: 8px; background: #eff7f2; color: #52675a; }
+.profile-privacy strong { display: block; color: #247346; font: 14px/1.4 "Lilita One", sans-serif; }
+.profile-privacy p { margin-top: 4px; font-size: 12px; }
+.profile-warning button { margin-top: 8px; }
+.profile-footer { border-top: 1px solid #dfeae3; padding: 16px 32px 32px; display: flex; flex-direction: column; gap: 10px; }
+.profile-actions { display: flex; gap: 12px; }
+.profile-content .profile-actions button { min-height: 46px; border: 1px solid #96b6a3; border-radius: 8px; background: white; color: #247346; font: 16px/1.4 "Lilita One", sans-serif; }
+.profile-actions button:first-child { flex: 0 0 160px; }
+.profile-content .profile-actions button:last-child { flex: 1; border-color: #247346; background: #247346; color: white; }
+.profile-content .profile-logout { align-self: flex-start; min-height: 32px; padding: 0; border: 0; background: transparent; color: #52675a; font: 12px/1.4 Roboto, sans-serif; text-decoration: underline; }
+.profile-content button:disabled { opacity: .55; cursor: not-allowed; }
+.profile-status { display: flex; flex-direction: column; gap: 12px; padding: 0 32px 32px; }
 @media (max-width: 600px) {
-  .profile-content { padding: 24px; gap: 20px; }
-  .profile-modal .modal-close { right: 24px; }
-  .profile-content h2 { font-size: 32px; }
-  .profile-actions button { width: 100%; }
+  .profile-content { max-height: calc(100svh - 24px); }
+  .profile-intro { padding: 20px 80px 16px 20px; }
+  .profile-modal .modal-close { top: 20px; right: 20px; }
+  .profile-tabs { padding: 0 20px 16px; }
+  .profile-panel { padding: 0 20px 20px; }
+  .profile-footer { padding: 16px 20px 20px; }
+  .profile-address-street { flex-direction: column; gap: 12px; }
+  .profile-address-street .profile-field-cep { flex-basis: auto; }
+  .profile-address-details { flex-wrap: wrap; gap: 12px; }
+  .profile-address-details .profile-field-numero { flex: 1 1 80px; }
+  .profile-address-details .profile-field-complemento { flex: 2 1 140px; }
+  .profile-address-details .profile-field-bairro { flex: 1 1 100%; }
+  .profile-actions button:first-child { flex-basis: 110px; }
 }
 .allergy-option { display: flex; align-items: center; gap: 12px; min-height: 44px; }
 .allergy-option input { width: 20px; height: 20px; accent-color: var(--brand); }

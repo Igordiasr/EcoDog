@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Modal } from './Modal';
 import { deleteTutorPet } from '../../api/pets-api';
+import { petPhotoDesign } from '../design/pet-photo';
 export function petCardFromPrototype(template, pet, { onDelete, busy = false } = {}) {
     let description = 0;
     const map = node => {
@@ -17,9 +18,7 @@ export function petCardFromPrototype(template, pet, { onDelete, busy = false } =
         else if (node.name === 'Descrição') {
             copy.children = [[pet.raca || 'Não informada', `Nascimento: ${pet.dataNascimento ? pet.dataNascimento.split('-').reverse().join('/') : 'Não informado'}`, `Sexo: ${pet.sexo || 'Não informado'} • ${pet.castrado === true ? (pet.sexo === 'F' ? 'Castrada' : 'Castrado') : pet.castrado === false ? 'Não castrado' : 'Castração não informada'}`][description++]];
         } else if (node.name === 'Foto do pet') {
-            // The list endpoint does not return photos; do not assign another pet's image.
-            copy.className = node.className.replace(/bg-\[url\([^]*?\)\]/g, '') + ' bg-[var(--background)] flex items-center justify-center';
-            copy.children = [{ tag: 'span', name: 'Foto indisponível', className: 'text-[14px] text-[var(--brand)] font-[Roboto,system-ui,sans-serif]', children: ['Sem foto'] }];
+            return petPhotoDesign(copy, pet.fotoUrl, pet.nome);
         } else copy.children = node.children?.map(map);
         return copy;
     };
@@ -35,11 +34,11 @@ export function TutorPets({ model, node, renderCard, session }) {
         try {
             await deleteTutorPet(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080', session, target.idPet);
             setTarget(null); setMessage('Pet excluído com sucesso.'); model.reload();
-        } catch (error) { setMessage(error.message); }
+        } catch { setMessage('Não foi possível excluir seu pet. Consulte a EcoDog antes de tentar novamente.'); }
         finally { inFlight.current = false; setBusy(false); }
     };
     if (model.loading) return <p role="status">Carregando seus pets…</p>;
-    if (model.error) return <div><p role="alert">{model.error}</p><button type="button" className="management-button" onClick={model.reload}>Tentar novamente</button></div>;
+    if (model.error) return <div><p role="alert">Não foi possível consultar seus pets. Tente novamente ou consulte a EcoDog.</p><button type="button" className="management-button" onClick={model.reload}>Tentar novamente</button></div>;
     if (!model.pets.length) return <div>{message && <p role="status">{message}</p>}<p role="status">Você ainda não possui pets cadastrados.</p></div>;
     const group = node.children.find(child => child.name === 'Grupo de pets');
     const template = group ? group.children.find(child => child.name === 'Pet cadastrado') : node.children.find(child => child.name === 'Pet cadastrado');

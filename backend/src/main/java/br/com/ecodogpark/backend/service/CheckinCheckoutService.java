@@ -4,7 +4,7 @@ package br.com.ecodogpark.backend.service;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutRequest;
 import br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import br.com.ecodogpark.backend.repository.AgendamentoRepository;
 
 import org.springframework.http.HttpStatus;
@@ -96,7 +96,7 @@ public class CheckinCheckoutService {
     }
 
     private AgendamentosEntity buscarAgendamento(Long id) {
-        return agendamentoRepository.findById(id)
+        return agendamentoRepository.buscarPorIdParaAtualizacao(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Agendamento não encontrado."

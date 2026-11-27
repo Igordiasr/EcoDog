@@ -3,7 +3,9 @@ package br.com.ecodogpark.backend.controller;
 import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.AdicionarAtividadeCalendarioRequest;
 import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.AtividadeCalendarioResponse;
 import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.CalendarioDiaResponse;
+import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.CancelarAgendamentoCalendarioRequest;
 import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.VagasCalendarioRequest;
+import br.com.ecodogpark.backend.dto.AgendamentoTutorDTO.CancelamentoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -112,5 +114,21 @@ public class GerenciamentoCalendarioController {
             @PathVariable Long id) {
         servico.removerAtividade(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Cancelar agendamento do dia", description = "Remove o auluno do calendário ao cancelar seu agendamento, preservando o cadastro do pet e o histórico. Disponível para administradores antes do check-in.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Agendamento cancelado"),
+            @ApiResponse(responseCode = "400", description = "Identificador ou situação inválida", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Autenticação necessária ou acesso restrito a administradores", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Agendamento não encontrado", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Agendamento já cancelado ou não pode ser cancelado após a entrada", content = @Content)
+    })
+    @PatchMapping("/agendamentos/{idAgendamento}")
+    public ResponseEntity<CancelamentoResponse> cancelarAgendamento(
+            @Parameter(description = "Identificador do agendamento", example = "15") @PathVariable Long idAgendamento,
+            @Valid @RequestBody CancelarAgendamentoCalendarioRequest requisicao) {
+        servico.cancelarAgendamento(idAgendamento, requisicao.situacao());
+        return ResponseEntity.ok(new CancelamentoResponse("Agendamento cancelado."));
     }
 }

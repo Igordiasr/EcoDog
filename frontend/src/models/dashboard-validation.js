@@ -23,7 +23,9 @@ export function validateDashboardForm(mode, values, data) {
             errors.ano = 'Informe um ano válido.';
         if (!/^(0[1-9]|1[0-2])$/.test(values.mes || ''))
             errors.mes = 'Selecione um mês válido.';
-        if (data?.goals.some(goal => goal.period === `${values.ano}-${values.mes}${integrated ? '-01' : ''}` && goal.service === values.servico))
+        if (integrated && (!validISODate(values['data-referencia'] || '') || !values['data-referencia'].startsWith(`${values.ano}-${values.mes}-`)))
+            errors['data-referencia'] = 'Informe uma data válida no mês e ano selecionados.';
+        if (data?.goals.some(goal => goal.period === (integrated ? values['data-referencia'] : `${values.ano}-${values.mes}`) && goal.service === values.servico))
             errors.servico = 'Já existe uma meta para este serviço e período. Utilize Editar meta.';
     }
     else {

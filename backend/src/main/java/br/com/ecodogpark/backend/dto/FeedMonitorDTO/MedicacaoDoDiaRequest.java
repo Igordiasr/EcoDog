@@ -2,7 +2,7 @@ package br.com.ecodogpark.backend.dto.FeedMonitorDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import br.com.ecodogpark.backend.entity.SituacaoMedicacao;
+import br.com.ecodogpark.backend.enums.SituacaoMedicacao;
 
 @Schema(description = "Dados de entrada para medicacao do dia")
 public record MedicacaoDoDiaRequest(

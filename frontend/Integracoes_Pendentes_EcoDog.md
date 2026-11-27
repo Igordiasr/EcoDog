@@ -56,7 +56,7 @@ Conferência estática dos consumidores em `src/models/auth.js`, `src/models/pet
 | TL16/TL17 — contratos e planos | Consultas futuras precisam de IDs para ações/seleção, nomes para exibição, condições mostradas/editadas e situação para ativar/desativar. | Objetos completos nas respostas POST/PUT só se a tela atualizar o estado diretamente; com recarga, status basta. PATCH de situação pode retornar 204 com recarga, sem eco de ID/`ativo`. Não exigir objetos aninhados completos onde ID/rótulo resolve. |
 | TL13 — dashboard e metas | Resumo usa KPIs, **`planosAtivos.planosAtivos`**, ocupação, séries, distribuição e movimentações. Serviços fornecem ID/nome/categoria/frequência para seleção; consulta de metas usa `idMeta`, `mesReferencia`, `valor`, `servico.idServico`. | `saveGoal` aguarda a gravação mas não utiliza seu corpo: não exigir objeto completo nem `idMeta` no POST/PUT atual. O ID é necessário na consulta para editar. Não exigir campos extras de serviço apenas para gravar uma meta. |
 | TL13 — receitas | Consulta de pendências fornece IDs reais para futura baixa; criação avulsa ainda não tem HTTP. Sucesso de gravação seguido de recarga pode usar apenas status. | O eco integral de tutor/pet/serviço/valor/pagamento no POST sugerido não tem consumidor atual. Não exigir `MovimentacoesEntity` nem relações JPA como resposta de uma futura baixa; preferir DTO mínimo ou 204 com adaptação. |
-| TL14 — calendário | Fonte opcional lê datas, identidade/configuração do dia, vagas, IDs/nome/horários das atividades e IDs/dados/situação dos alunos. IDs distinguem catálogo, programação e agendamento. | Fonte atual é somente leitura e não está ligada por padrão. Corpos de edição/lote/aprovação não têm consumidor de gravação: podem ser substituídos por status e recarga. Metadados de catálogo só se exibidos no seletor/detalhe. |
+| TL14 — calendário | A fonte padrão administrativa lê as datas, vagas, atividades e alunos do dia; usa `idAgendamento` e `situacao` para separar pendentes e cancelar quando permitido. Vagas, inclusão/remoção de atividades e cancelamento usam os contratos existentes e recarregam os dados. | A confirmação da estadia ainda não tem operação disponível; não enviar alteração nem simular sucesso. A aplicação mensal atual faz alterações individuais e não é atômica. Metadados de catálogo só são necessários quando exibidos. |
 | Meus Dados | Leitura atual usa nome/e-mail/telefone. Formulário completo futuro requer os campos efetivamente exibidos e endereço editável, com autorização. | Respostas de PATCH contato/endereço podem ser 204 se houver recarga; não é necessário eco de ID. Nascimento/perfil/CPF pertencem à leitura futura, não à resposta de cadastro. Complemento omitido deve ser preservado no servidor, independentemente de ser devolvido. |
 | Recuperação / EcoMigo web | Recuperação precisa de confirmação genérica, sem revelar existência da conta. Chat futuro precisa do texto da resposta; ID de conversa apenas se houver continuidade gerenciada pelo servidor. | `idMensagem`, `autor`, `dataHora` e `atendimentoHumanoSolicitado` são condicionais a histórico/identificação/exibição/encaminhamento implementados. Nenhum desses campos é consumido por HTTP hoje. Não exigir chat web JSON para abrir o WhatsApp. |
 
@@ -352,7 +352,7 @@ POST envia o JSON abaixo sem ID no caminho; PUT envia também `idContrato` no ca
 
 Validar propriedade do pet, períodos, preço, conflitos e efeitos em saldo/agendamentos. `quantidadeDiarias` não existe em `ContratosEntity`; `ativo`/`periodo` são propostas, não valores garantidos pelo modelo atual.
 
-### TL17 — Planos: criação, edição, situação e exclusão | Pendente
+### TL17 — Planos: criação, edição, situação e exclusão | Consulta parcial
 
 **Já tem:** consulta de serviços por `/dashboard/servicos` e ativos por `/calendario/servicos?categoria=CRECHE`.
 
@@ -363,7 +363,9 @@ Validar propriedade do pet, períodos, preço, conflitos e efeitos em saldo/agen
 
 Nenhuma dessas consultas retorna `idPlano` ou `quantidadeDiarias` como no contrato sugerido abaixo.
 
-**Falta:** CRUD de planos/serviços e conexão das ações da tela.
+**Consulta conectada:** a tela administrativa usa `GET /dashboard/servicos` com o token da sessão e exibe os serviços retornados, inclusive modalidades diferentes de `PLANO`, com busca local, carregamento, lista vazia e nova tentativa. Exibe frequência como recebida, sem convertê-la em diárias. Dados de exemplo não aparecem no fluxo autenticado. A integração depende da disponibilidade e autorização do backend em execução.
+
+**Falta:** CRUD de planos/serviços e conexão das ações da tela. Criar, editar, alterar situação e excluir continuam indisponíveis: as rotas abaixo são sugestões, não contratos existentes.
 
 **Envio sugerido — `POST /planos` / `PUT /planos/{idPlano}`:**
 
@@ -448,7 +450,7 @@ Consulta sugerida: `GET /metas?mesReferencia=2026-11&idServico=2`. **Envia:** m�
 
 Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obrigatório a contrato, duplicidade e efeitos contábeis. Alternativa sem novo endpoint: adaptar tela à baixa de pendências com `id`/`idContrato` reais, sem preço avulso.
 
-### TL14 — Calendário administrativo | Pendente no fluxo padrão
+### TL14 — Calendário administrativo | Confirmação de estadia pendente
 
 **Já tem:** cliente `calendar-api.js` e endpoints:
 
@@ -456,6 +458,7 @@ Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obriga
 - `PUT /calendario/2026-11-10/vagas`: `{"vagasCreche":20,"vagasHotel":10}`.
 - `POST /calendario/2026-11-10/atividades`: `{"idAtividade":3,"horaInicio":"09:00:00","horaFim":"10:00:00"}`.
 - `DELETE /calendario/atividades/{id}`, sem corpo.
+- `PATCH /calendario/agendamentos/{idAgendamento}`: `{"situacao":"CANCELADO"}`, somente administrador; cancela antes da entrada, sem excluir o cadastro do pet.
 
 | Operação **existente** | O que é enviado | O que é retornado |
 | --- | --- | --- |
@@ -465,12 +468,25 @@ Forma de pagamento precisa ser coletada, não presumida. Definir vínculo obriga
 | `PUT /calendario/{data}/vagas` | Data no caminho; JSON `{"vagasCreche":20,"vagasHotel":10}` | 200, `CalendarioDiaResponse` com vagas atualizadas |
 | `POST /calendario/{data}/atividades` | Data no caminho; JSON `{"idAtividade":3,"horaInicio":"09:00:00","horaFim":"10:00:00"}` | 201, objeto com `idAtividadeDoDia`, `idAtividade`, `nome`, `descricao`, `categoria`, `horaInicio`, `horaFim`, `situacao` |
 | `DELETE /calendario/atividades/{id}` | ID da atividade programada no caminho; sem corpo | 204, sem corpo |
+| `PATCH /calendario/agendamentos/{idAgendamento}` | ID do agendamento no caminho; `{"situacao":"CANCELADO"}` | 200, `{"mensagem":"Agendamento cancelado."}`; 404 se não encontrado; 409 se não puder ser cancelado |
 
 No retorno do dia, `atividades` contém os campos de programação acima; `alunosAgendados` contém `idAgendamento`, `idPet`, `nome`, `raca`, `idade`, `tutor`, `situacao`. Dia não configurado retorna ID nulo, vagas zeradas e atividades vazias.
 
-**Retorno esperado com foto — GET do dia 200 / PUT de vagas 200:** acrescentar `fotoUrl: string | null` a cada item de `alunosAgendados`, preservando todos os campos atuais. Exemplo de aluno: `{"idAgendamento":15,"idPet":9,"nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"CONFIRMADO","fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Foto preenche o espaço “Foto a preencher” do aluno; não pertence ao catálogo de atividades. A coleção vazia continua `[]`. Tipos/valores dos demais campos devem seguir o DTO existente; a única inclusão proposta aqui é `fotoUrl`.
+**Retorno esperado com foto — GET do dia 200 / PUT de vagas 200:** acrescentar `fotoUrl: string | null` a cada item de `alunosAgendados`, preservando todos os campos atuais. Exemplo de aluno: `{"idAgendamento":15,"idPet":"550e8400-e29b-41d4-a716-446655440000","nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"PENDENTE","fotoUrl":"http://localhost:5173/arquivos/pets/<uuid>.webp"}`. Foto preenche o espaço “Foto a preencher” do aluno; não pertence ao catálogo de atividades. A coleção vazia continua `[]`. Tipos/valores dos demais campos devem seguir o DTO existente; a única inclusão proposta aqui é `fotoUrl`.
 
-**Falta:** criar/conectar `calendarSource` no App padrão. Edição de horários, lote e aprovação administrativa não têm endpoints equivalentes.
+**Aulunos a confirmar — consulta existente:** a tela consulta `GET /calendario/dia?data=2026-11-10` e separa, no início da lista da data selecionada, os itens de `alunosAgendados` com `situacao: "PENDENTE"`. São usados os campos já documentados `idAgendamento` (número), `idPet` (UUID), `nome`, `raca`, `idade`, `tutor` e `situacao`; a data vem da consulta. Não é necessário um novo endpoint para essa lista por dia. O retorno atual não informa serviço, horário ou foto; não inventar esses valores. Se não houver pendentes, a lista deve estar vazia, não conter exemplos.
+
+**Consulta dedicada opcional — proposta, não existente:** se for necessário buscar pendências separadamente no futuro, sugerir `GET /calendario/agendamentos/pendentes?data=2026-11-10`, restrito a administradores. Retorno 200: array com os mesmos campos do aluno do dia e `data`; lista vazia `[]`. Exemplo:
+
+```json
+[{"idAgendamento":15,"idPet":"550e8400-e29b-41d4-a716-446655440000","data":"2026-11-10","nome":"Bob","raca":"Labrador","idade":6,"tutor":"Maria Silva","situacao":"PENDENTE"}]
+```
+
+**Confirmação da estadia — pendente no backend:** não existe operação administrativa para confirmar a estadia. O botão é apresentado desabilitado e nenhuma confirmação é simulada. Proposta: `PATCH /calendario/agendamentos/{idAgendamento}/aprovacao`, com `{"aprovar":true}`; resposta sugerida 200: `{"idAgendamento":15,"data":"2026-11-10","situacao":"AGENDADO"}`. A tela deverá então recarregar a data e só apresentar sucesso após confirmação. Alternativamente, 204 sem corpo também é suficiente se o consumidor for adaptado.
+
+`PENDENTE` indica agendamento aguardando aprovação; `AGENDADO` é a situação esperada após aprovação para permitir entrada. Não usar `CONFIRMADO` como aprovação administrativa: o check-in do monitor já usa essa situação para registrar a entrada. A operação proposta deve validar permissão de administrador, existência, situação atual e disponibilidade; definir conflitos (409), repetição, concorrência e efeitos sobre contrato, pagamentos e saldo antes da implementação. Agendamentos por contratação podem abranger vários dias, e o vínculo entre agendamento e contrato precisa ser esclarecido antes de modificar contratos ou finanças.
+
+**Demais pendências:** edição de horários e lote atômico não têm endpoints equivalentes. A alteração mensal atual envia cada dia separadamente e pode terminar parcialmente; a aprovação segue desabilitada até existir um contrato real.
 
 **Envios e respostas sugeridos, se essas ações forem mantidas:**
 
@@ -478,11 +494,36 @@ No retorno do dia, `atividades` contém os campos de programação acima; `aluno
 | --- | --- | --- |
 | `PUT /calendario/atividades/{idAtividadeDoDia}` | `{"horaInicio":"09:30:00","horaFim":"10:30:00"}` | `{"idAtividadeDoDia":7,"idAtividade":3,"horaInicio":"09:30:00","horaFim":"10:30:00"}` |
 | `PUT /calendario/vagas/lote` | `{"datas":["2026-11-10","2026-11-11"],"vagasCreche":20,"vagasHotel":10}` | `{"datasAtualizadas":["2026-11-10","2026-11-11"]}` |
-| `PATCH /calendario/agendamentos/{idAgendamento}/aprovacao` | `{"aprovar":true}` | `{"idAgendamento":15,"situacao":"CONFIRMADO"}` |
+| `PATCH /calendario/agendamentos/{idAgendamento}/aprovacao` | `{"aprovar":true}` | `{"idAgendamento":15,"data":"2026-11-10","situacao":"AGENDADO"}` |
 
 Vagas não negativas; horários sem sobreposição e fim posterior ao início. Exclusão pode falhar com pets vinculados. Definir atomicidade do lote, rejeição de agendamento e efeitos financeiros/saldo. Não confundir ID do catálogo com ID da atividade programada.
 
-### Meus Dados — frame `BuDxA` | Parcial
+### Meu Perfil / Meus Dados — frame `BuDxA` | Consulta parcial / atualização pendente
+
+**Atualização da integração:** o frontend consulta e atualiza os dados e o endereço do tutor por `GET/PUT /tutores/conta/{id}` e consulta CEP via ViaCEP durante a edição. Para monitor e administrador, o backend não retorna endereço nem oferece atualização própria compatível; a tela informa a limitação. Além disso, a configuração atual restringe `GET /usuarios/**` a administradores, impedindo a consulta do próprio monitor (403). As descrições abaixo registram a análise anterior e propostas, não o estado atual da tela.
+
+**Revisão documental em 19/11/2026:** popup compartilhado para tutor, monitor e administrador, acessível pelo perfil do cabeçalho e pela ação “Meus Dados”. Esta seção diferencia a consulta consumida hoje dos contratos futuros necessários para o formulário completo do protótipo. Nenhuma API, DTO, banco ou código de frontend foi alterado nesta revisão.
+
+**Consumidor atual:** `src/views/screens/AccountPages.jsx` (`MyProfile`), aberto por `src/views/screens/ScreenPage.jsx`, usa `src/models/current-user.js` (`loadCurrentUser`). O popup exibe somente nome, e-mail e telefone em modo de consulta, com carregamento, erro, nova tentativa e saída da conta. Não envia atualização de dados, endereço ou senha.
+
+| Perfil autenticado | GET chamado pelo frontend atual | Identidade esperada na resposta atual | Destino futuro de consulta / contato |
+| --- | --- | --- | --- |
+| Tutor (`tutor`) | `/tutores/conta/{id}` | `idTutor` | `GET /tutores/me` / `PATCH /tutores/me` |
+| Monitor (`monitor`) | `/usuarios/monitores/{id}` | `id` | `GET /monitores/me` / `PATCH /monitores/me` |
+| Administrador (`admin`) | `/usuarios/administradores/{id}` | `id` | `GET /administradores/me` / `PATCH /administradores/me` |
+
+Essas chamadas atuais foram identificadas no código consumidor, **não validadas em execução**. O adaptador exige identidade UUID correspondente à sessão e `nome` não vazio; normaliza e-mail/telefone ausentes para texto vazio. Exemplo mínimo compatível com a leitura atual de tutor (para funcionários, substituir `idTutor` por `id`):
+
+```json
+{
+  "idTutor": "e9f2c463-65e1-4fcb-9726-49cd2473e165",
+  "nome": "Maria Silva",
+  "email": "tutor@example.com",
+  "telefone": "11912345678"
+}
+```
+
+**Atenção à migração:** as rotas sem `/conta` e `/usuarios` descritas abaixo são destinos documentados, não as URLs chamadas hoje. Os exemplos numéricos antigos desta seção não são compatíveis com a validação UUID atual; o contrato proposto abaixo usa UUID textual e exige adaptar o consumidor à identidade unificada `id`.
 
 **Já tem:** modal de consulta nome/e-mail/telefone por GET individual do perfil. PUT de usuário existe, mas exige CPF/senha e não segue a semântica da tela.
 
@@ -499,13 +540,15 @@ Vagas não negativas; horários sem sobreposição e fim posterior ao início. E
 
 ```json
 {
-  "id": 4, "nome": "Maria Silva", "cpf": "52998224725", "dataNascimento": "1990-08-15",
+   "id": "e9f2c463-65e1-4fcb-9726-49cd2473e165", "nome": "Maria Silva", "cpf": "52998224725", "dataNascimento": "1990-08-15",
   "perfil": "TUTOR", "email": "tutor@example.com", "telefone": "11912345678",
-  "endereco": { "cep": "04101000", "cidade": "São Paulo", "rua": "Rua das Flores", "numero": "123", "bairro": "Vila Mariana" }
+   "endereco": { "cep": "04101000", "cidade": "São Paulo", "rua": "Rua das Flores", "numero": "123", "bairro": "Vila Mariana", "complemento": "Apto. 12" }
 }
 ```
 
 Nascimento desconhecido deve ser `null`; sua origem precisa ser definida, não copiada do exemplo visual.
+
+**Contrato futuro de leitura — tipos e uso:** `id` é UUID em string; `nome`, `cpf`, `dataNascimento` e `perfil` alimentam os campos somente leitura. `perfil` deve ser `TUTOR`, `MONITOR` ou `ADMINISTRADOR`, conforme o token, nunca escolhido no popup. `cpf` é string com 11 dígitos quando disponível; CPF ou nascimento não cadastrados retornam `null`, sem inventar valores. `dataNascimento` usa `YYYY-MM-DD`. `email` e `telefone` são strings; dado ausente pode retornar `null`, a normalizar no formulário. `endereco` é objeto ou `null` quando não cadastrado; seus campos são strings, com `complemento` opcional/nulo. Número é texto para permitir `S/N`. Não devolver senha, hash, token ou relações de persistência. Campos futuros não consumidos pelo popup atual dependem da implementação do formulário completo.
 
 **Envio sugerido de contato — `PATCH /tutores/me`, `PATCH /monitores/me` ou `PATCH /administradores/me`, conforme perfil:**
 
@@ -515,7 +558,7 @@ Nascimento desconhecido deve ser `null`; sua origem precisa ser definida, não c
 }
 ```
 
-Resposta 200: contato atualizado, por exemplo `{"id":4,"email":"novo@example.com","telefone":"11912345678"}`.
+Resposta sugerida 200: contato persistido, por exemplo `{"id":"e9f2c463-65e1-4fcb-9726-49cd2473e165","email":"novo@example.com","telefone":"11912345678"}`. Após sucesso, recarregar o GET do perfil para refletir os valores confirmados. Alternativa a acordar: 204 sem corpo, mantendo a recarga; não tentar interpretar JSON em 204. Nenhum desses retornos é consumido hoje.
 
 **Endereço — sugestão `PATCH /tutores/me/endereco`, `PATCH /monitores/me/endereco` ou `PATCH /administradores/me/endereco`, conforme perfil:**
 
@@ -532,6 +575,52 @@ Resposta 200: contato atualizado, por exemplo `{"id":4,"email":"novo@example.com
 ```
 
 Resposta 204, sem corpo. Confirmação local; validar atual, política de senha e revogação de sessões. Protótipo pede 8 caracteres com letras/números, diferente do mínimo 6 atual. Contato, endereço e senha são chamadas distintas: comunicar sucesso parcial e repetir apenas as operações que falharam.
+
+#### Regras propostas para atualização e segurança — todos os perfis
+
+- Todas as consultas/gravações usam `Authorization: Bearer <token>`; gravações JSON usam `Content-Type: application/json`. GET não envia corpo. Nas rotas `me`, não enviar `id`, `idTutor` ou `perfil` no payload: o servidor deriva a conta do JWT e autoriza somente o próprio usuário no perfil correto.
+- Contato permite apenas `email` e `telefone`; endereço permite apenas seus campos documentados; senha recebe somente `senhaAtual` e `novaSenha`. Nome, CPF, nascimento, perfil e situação da conta não são atualizados por esses contratos. Não reutilizar PUT que exige CPF/senha para salvar contato; não enviar valores fictícios para satisfazer campos obrigatórios.
+- PATCH preserva campos omitidos. Não transformar campo ainda não carregado em texto vazio ou `null`. Para complemento, omissão preserva e `null` remove explicitamente, **semântica proposta a confirmar**. Endereço inexistente deve poder ser cadastrado pelo PATCH com todos os campos obrigatórios; definir isso no backend antes de habilitar a ação.
+- Validar e-mail, unicidade conforme a política das contas, telefone com DDD e CEP com oito dígitos. CPF/telefone/CEP permanecem strings, sem máscara no transporte. CEP, cidade, rua, número e bairro são obrigatórios ao cadastrar endereço completo; complemento é opcional. Reconfirmar limites nos DTOs: referências anteriores de e-mail até 150 e telefone até 20 caracteres não comprovam os limites futuros.
+- Consulta de CEP apenas auxilia o preenchimento; usuário confere o resultado. Falha na consulta não deve impedir preenchimento manual. Salvar no servidor os dados validados, não confiar exclusivamente na validação visual.
+- Troca de senha é opcional e separada: enviar somente quando solicitada e validada; confirmação de nova senha fica no frontend. Validar senha atual no servidor, acordar política e revogação de sessões. Nunca registrar senhas em logs nem armazená-las no navegador após a operação.
+- Acordar efeito da alteração de e-mail: verificação do novo endereço, identificação de login e eventual renovação/invalidação do JWT. O frontend não deve presumir que o token permanece válido nem encerrar a sessão sem regra definida.
+- Persistir cada operação atomicamente. Como contato, endereço e senha são requisições separadas, não anunciar “todos os dados salvos” se uma delas falhar. Não repetir automaticamente gravações após timeout; consultar o estado antes de novo envio.
+
+#### Erros sugeridos e tratamento esperado
+
+Formato **proposto**, a alinhar com o padrão global da API; não representa resposta já verificada:
+
+```json
+{
+  "codigo": "VALIDACAO",
+  "mensagem": "Confira os campos informados.",
+  "erros": [
+    { "campo": "email", "mensagem": "Informe um e-mail válido." },
+    { "campo": "endereco.cep", "mensagem": "Informe um CEP com 8 dígitos." }
+  ]
+}
+```
+
+| Status proposto | Situação / comportamento do frontend |
+| --- | --- |
+| 400 | Payload inválido ou senha atual incorreta; exibir erro de campo quando disponível e preservar dados não sensíveis |
+| 401 | Sessão ausente, inválida ou expirada; encerrar sessão e encaminhar ao login, como no tratamento atual da consulta |
+| 403 | Perfil/permissão incompatível; não tentar endpoints de outros perfis |
+| 404 | Conta não encontrada; não preencher o popup com dados fictícios |
+| 409 | Conflito, por exemplo e-mail já utilizado; manter o formulário para correção |
+| 429 | Limite de tentativas; respeitar orientação de nova tentativa, especialmente na troca de senha |
+| 500 / falha de rede | Informar indisponibilidade, sem presumir gravação ou apagar dados do formulário |
+
+#### Pendências de implementação e critérios de aceite
+
+1. **Contrato/backend futuro:** confirmar as rotas por perfil, DTO unificado de leitura, UUID, origem de CPF/nascimento/endereço, campos nulos, validações, autorização por JWT, atualização parcial e respostas/erros. Disponibilizar GET e as três gravações específicas para cada perfil; garantir CORS para a origem do frontend, incluindo PATCH/PUT e cabeçalhos de autenticação.
+2. **Adaptador/frontend futuro:** migrar `loadCurrentUser` das URLs atuais para `/<perfil>/me`, validar `id` e mapear todos os campos previstos. Criar chamadas de contato/endereço/senha sem misturá-las ao cadastro público ou à gestão administrativa de funcionários.
+3. **Popup futuro:** adicionar campos completos do protótipo, mantendo nome/CPF/nascimento/perfil somente leitura; implementar edição de contato/endereço e troca opcional de senha, validação, carregamento, bloqueio de envio duplicado, cancelamento sem gravação, confirmação de sucesso e erros por operação. Atualizar os dados exibidos após recarga, sem reabrir com estado antigo.
+4. **Sessão e privacidade:** limpar dados ao trocar usuário/sair, cancelar consultas obsoletas, não compartilhar cache entre contas e aplicar a política acordada após troca de e-mail/senha. Sair da conta continua ação distinta de excluir/desativar o usuário.
+5. **Testes de integração:** cobrir os três perfis e todos os pontos de abertura em desktop/mobile; dados completos/nulos/endereço ausente; preservação de complemento omitido; validações; sessão expirada; tentativa de acessar outra conta; senha atual incorreta; conflito de e-mail; falha parcial; timeout; recarga e persistência após reabrir o popup. Validar em ambiente real antes de marcar atualização como integrada.
+
+**Não necessário neste contrato:** foto/avatar, upload, exclusão de conta, mudança de perfil e atualização de dados de outros usuários. São escopos separados e não devem ser acrescentados ao payload do popup.
 
 ### Recuperação de senha | Pendente
 

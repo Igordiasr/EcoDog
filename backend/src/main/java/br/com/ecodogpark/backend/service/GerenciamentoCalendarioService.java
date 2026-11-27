@@ -2,6 +2,7 @@ package br.com.ecodogpark.backend.service;
 
 import br.com.ecodogpark.backend.dto.GestaoCalendarioDTO.*;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import br.com.ecodogpark.backend.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -120,6 +121,23 @@ public class GerenciamentoCalendarioService {
                     "Não é possível remover uma atividade que já possui pets vinculados.");
         }
         atividadesDoDiaRepositorio.deleteById(idAtividadeDoDia);
+    }
+
+    @Transactional
+    public void cancelarAgendamento(Long idAgendamento, SituacaoAgendamento situacao) {
+        if (idAgendamento == null || idAgendamento <= 0 || situacao != SituacaoAgendamento.CANCELADO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confira os dados do agendamento.");
+        }
+        AgendamentosEntity agendamento = agendamentosRepositorio.buscarPorIdParaAtualizacao(idAgendamento)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agendamento não encontrado."));
+        if ((agendamento.getSituacao() != SituacaoAgendamento.PENDENTE
+                && agendamento.getSituacao() != SituacaoAgendamento.AGENDADO)
+                || agendamento.getTutorCheckin() != null || agendamento.getDataSaida() != null
+                || agendamento.getTutorCheckout() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Este agendamento não pode ser cancelado.");
+        }
+        agendamento.setSituacao(SituacaoAgendamento.CANCELADO);
+        agendamentosRepositorio.save(agendamento);
     }
 
     @Transactional(readOnly = true)

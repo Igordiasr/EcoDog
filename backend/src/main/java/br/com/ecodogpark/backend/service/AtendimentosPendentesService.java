@@ -30,8 +30,4 @@ public class AtendimentosPendentesService {
         System.out.println("==========================");
         return atendimento;
     }
-
-    public synchronized List<AtendimentoPendenteRequest> listar() {
-        return new ArrayList<>(atendimentos);
-    }
 }

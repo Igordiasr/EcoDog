@@ -2,10 +2,14 @@ package br.com.ecodogpark.backend.mapper;
 
 import br.com.ecodogpark.backend.dto.TutorDTO.request.*;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.*;
-import br.com.ecodogpark.backend.dto.UsuarioDTO.UsuarioRequest;
 import br.com.ecodogpark.backend.entity.*;
+import br.com.ecodogpark.backend.enums.DiaSemana;
 import br.com.ecodogpark.backend.enums.TipoUsuario;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 public class TutorMapper {
@@ -114,6 +118,17 @@ public class TutorMapper {
                 vacina.getIdVacinas(),
                 vacina.getNome(),
                 vacina.getTipo()
+        );
+    }
+
+    public static MeusAgendamentosResponse paraAgendamentosResponse(UUID idPet, String nome, String servico, Integer quantidadeDias, List<DiaSemana> diasDaSemana, List<LocalDate> diasAgendados) {
+        return new MeusAgendamentosResponse(
+                idPet,
+                nome,
+                servico,
+                quantidadeDias,
+                diasDaSemana,
+                diasAgendados
         );
     }
 }

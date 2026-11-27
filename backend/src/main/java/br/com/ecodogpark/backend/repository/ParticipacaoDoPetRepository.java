@@ -4,7 +4,7 @@ import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.response.DBAtividadesRes
 import br.com.ecodogpark.backend.dto.FeedMonitorDTO.AtividadeDoPetResponse;
 import br.com.ecodogpark.backend.entity.AtividadesDoDiaEntity;
 import br.com.ecodogpark.backend.entity.ParticipacaoDoPetEntity;
-import br.com.ecodogpark.backend.entity.SituacaoAgendamento;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import br.com.ecodogpark.backend.entity.SituacaoAtividade;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -69,6 +69,7 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
             JOIN
                 ag.fkPet p
             WHERE c.data = :data
+              AND (ag.situacao IS NULL OR ag.situacao <> br.com.ecodogpark.backend.enums.SituacaoAgendamento.CANCELADO)
             ORDER BY ad.horaInicio, ad.idAtividadeDoDia, pp.grupo, p.nome ASC
             """)
     List<DBAtividadesResponse> listarAtividadesdoDia(@Param("data") LocalDate data);
@@ -100,6 +101,7 @@ public interface ParticipacaoDoPetRepository extends JpaRepository<ParticipacaoD
     WHERE ag.fkPet.idPet = :idPet
       AND c.data = :data
       AND ca.data = :data
+      AND (ag.situacao IS NULL OR ag.situacao <> br.com.ecodogpark.backend.enums.SituacaoAgendamento.CANCELADO)
     ORDER BY ad.horaInicio, ad.idAtividadeDoDia
     """)
     List<ParticipacaoDoPetEntity> buscarPorPetEData(

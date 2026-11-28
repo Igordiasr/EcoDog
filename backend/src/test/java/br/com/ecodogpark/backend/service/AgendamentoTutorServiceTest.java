@@ -496,10 +496,12 @@ public class AgendamentoTutorServiceTest {
                 AgendamentoCriadoResponse response = mock(AgendamentoCriadoResponse.class);
 
                 prepararServicoEPet(servico, idTutor, pet);
-                when(contratoRepository.existePlanoSobreposto(idPet, inicio, fim)).thenReturn(false);
+
+                when(contratoRepository.existePlanoAtivoOuPendente(idPet)).thenReturn(false);
                 when(contratoRepository.save(any(ContratosEntity.class))).thenReturn(contrato);
 
                 configurarMapperContratoEMovimentacao(contrato, movimentacao);
+
                 mapper.when(() -> AgendamentoMapper.paraAgendamentoCriadoResponse(new BigDecimal("300.00"), true))
                         .thenReturn(response);
 
@@ -510,24 +512,28 @@ public class AgendamentoTutorServiceTest {
 
                 verify(contratoRepository).save(any(ContratosEntity.class));
                 verify(movimentacoesRepository).save(any(MovimentacoesEntity.class));
-                verify(contratoDiasSemanaRepository, times(3)).save(any(ContratoDiasSemanaEntity.class));
-                verify(agendamentoRepository, never()).save(any(AgendamentosEntity.class));
+                verify(contratoDiasSemanaRepository, times(3))
+                        .save(any(ContratoDiasSemanaEntity.class));
+                verify(agendamentoRepository, never())
+                        .save(any(AgendamentosEntity.class));
             }
 
             @Test
-            @DisplayName("Deve lançar exceção quando pet já possui plano no período")
-            void deveLancarExceptionQuandoPetPossuiPlanoSobreposto() {
+            @DisplayName("Deve lançar exceção quando pet já possui plano ativo ou pendente")
+            void deveLancarExceptionQuandoPetPossuiPlanoAtivoOuPendente() {
                 prepararServicoEPet(servico, idTutor, pet);
-                when(contratoRepository.existePlanoSobreposto(idPet, inicio, fim)).thenReturn(true);
+
+                when(contratoRepository.existePlanoAtivoOuPendente(idPet)).thenReturn(true);
 
                 PetPossuiPlanoException exception = assertThrows(PetPossuiPlanoException.class,
                         () -> agendamentoTutorService.criarAgendamento(request, idTutor));
 
-                assertEquals("Rex já possui um plano nesse período", exception.getMessage());
+                assertEquals("Rex já possui um plano ativo ou pendente", exception.getMessage());
 
                 verify(contratoRepository, never()).save(any(ContratosEntity.class));
                 verify(movimentacoesRepository, never()).save(any(MovimentacoesEntity.class));
                 verify(contratoDiasSemanaRepository, never()).save(any(ContratoDiasSemanaEntity.class));
+                verify(agendamentoRepository, never()).save(any(AgendamentosEntity.class));
             }
         }
 

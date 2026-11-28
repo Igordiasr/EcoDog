@@ -640,15 +640,14 @@ class TutorServiceTest {
             List<DiaSemana> diasSemana = List.of(DiaSemana.SEGUNDA, DiaSemana.QUARTA, DiaSemana.SEXTA);
 
             when(agendamentoRepository.buscarAgendamentosDoTutor(idTutor)).thenReturn(List.of(agendamento));
-            when(contratoDiasSemanaRepository.buscarDiasDaSemanaCrechePorPet(eq(idPet), any(LocalDate.class))).thenReturn(diasSemana);
+            when(contratoDiasSemanaRepository.buscarDiasDaSemanaCrechePorPet(idPet)).thenReturn(diasSemana);
 
             List<MeusAgendamentosResponse> response = tutorService.buscarAgendamentos(idTutor);
 
             assertNotNull(response);
             assertEquals(1, response.size());
 
-            verify(contratoDiasSemanaRepository).buscarDiasDaSemanaCrechePorPet(
-                    eq(idPet), any(LocalDate.class));
+            verify(contratoDiasSemanaRepository).buscarDiasDaSemanaCrechePorPet(idPet);
         }
     }
 }

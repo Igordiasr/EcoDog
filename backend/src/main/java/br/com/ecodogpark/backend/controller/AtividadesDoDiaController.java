@@ -9,6 +9,7 @@ import br.com.ecodogpark.backend.dto.AtividadesDoDiaDTO.request.AtualizarAtivida
 import br.com.ecodogpark.backend.service.AtividadesDoDiaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class AtividadesDoDiaController {
 
     @Operation(summary = "Listar atividades", description = "Requisição que busca e lista as atividades que serão realizadas no dia, dividindo os pets em grupos pré-definidos")
     @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<AtividadesDoDiaResponse> buscarAtividadesDoDia() {
         return ResponseEntity.ok(atividadesDoDiaService.buscarAtividadesDoDia());
@@ -37,6 +39,7 @@ public class AtividadesDoDiaController {
             @ApiResponse(responseCode = "400", description = "Situação ou identificador inválido"),
             @ApiResponse(responseCode = "404", description = "Atividade do dia não encontrada")
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @PutMapping
     public ResponseEntity<Void> concluirAtividade(@RequestBody @Valid AtualizarAtividadeRequest atividade) {
         atividadesDoDiaService.concluirAtividade(atividade.situacao(), atividade.idAtividadeDoDia(), atividade.listaPets());

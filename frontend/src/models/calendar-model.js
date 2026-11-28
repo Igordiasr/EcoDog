@@ -25,6 +25,7 @@ export function shiftCalendarMonth(date, offset) {
 }
 export const dayConfiguration = (data, date) => data?.days.find(day => day.date === date) || { date, capacity: {} };
 export const occupiedPlaces = (data, date, service) => new Set(data.bookings.filter(row => row.date === date && row.service === service && row.status === 'confirmed').map(row => row.id)).size;
+export const canCancelStudentBooking = (student) => ['PENDENTE', 'AGENDADO'].includes(student?.status);
 export function parseCapacity(raw) {
     if (!/^\d+$/.test(raw.trim()))
         return null;
@@ -73,9 +74,12 @@ export function validateCalendarCommand(command, data, policy) {
     if (command.kind === 'removeActivity')
         return data.activities.some(row => row.id === command.id && row.date === command.date) ? [] : ['Atividade não encontrada para esta data.'];
     if (command.kind === 'cancelBooking') {
-        const booking = data.bookings.find(row => row.id === command.id && row.date === command.date && row.status !== 'cancelled');
+        const student = data.students?.find(row => row.id === command.id && row.date === command.date);
+        const booking = student || data.bookings.find(row => row.id === command.id && row.date === command.date && row.status !== 'cancelled');
         if (!booking)
             return ['Agendamento não encontrado para esta data.'];
+        if (student && !canCancelStudentBooking(student))
+            return ['Este agendamento não pode ser cancelado após a entrada do auluno.'];
         const error = policy?.cancellationError?.(booking);
         return error ? [error] : [];
     }

@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -39,6 +40,7 @@ public class CheckinCheckoutController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso")
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<CheckinCheckoutResponse>> listar(
             @Parameter(description = "Data de referência (yyyy-MM-dd); quando omitida, utiliza o dia atual em America/Sao_Paulo", example = "2026-10-26")
@@ -62,6 +64,7 @@ public class CheckinCheckoutController {
             @ApiResponse(responseCode = "404", description = "Agendamento não encontrado", content = @Content),
             @ApiResponse(responseCode = "409", description = "Agendamento cancelado ou check-in já realizado", content = @Content)
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @PatchMapping("/{id}/check-in")
     public ResponseEntity<Void> realizarCheckin(
             @Parameter(description = "Identificador do registro", example = "1")
@@ -79,6 +82,7 @@ public class CheckinCheckoutController {
             @ApiResponse(responseCode = "404", description = "Agendamento não encontrado", content = @Content),
             @ApiResponse(responseCode = "409", description = "Check-in ainda não realizado ou check-out já realizado", content = @Content)
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @PatchMapping("/{id}/check-out")
     public ResponseEntity<Void> realizarCheckout(
             @Parameter(description = "Identificador do registro", example = "1")

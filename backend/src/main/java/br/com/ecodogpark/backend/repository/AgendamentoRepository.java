@@ -7,7 +7,9 @@ import br.com.ecodogpark.backend.dto.DashboardDTO.response.AgendamentosPorServic
 import br.com.ecodogpark.backend.dto.DiarioPetTutor.DataAgendadaResponse;
 import br.com.ecodogpark.backend.entity.AgendamentosEntity;
 import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,6 +21,10 @@ import java.util.UUID;
 
 public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity, Long> {
     Optional<AgendamentosEntity> findByFkPetIdPetAndFkCalendarioDataAndSituacao(UUID idPet, LocalDate data, SituacaoAgendamento situacao);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM AgendamentosEntity a WHERE a.idAgendamentos = :id")
+    Optional<AgendamentosEntity> buscarPorIdParaAtualizacao(@Param("id") Long id);
 
     @Query("""
         SELECT new br.com.ecodogpark.backend.dto.CheckinCheckoutDTO.CheckinCheckoutResponse(
@@ -32,13 +38,13 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
             a.tutorCheckout,
             a.pertences,
             a.racaoMarca,
-            a.quantidade
+            a.racaoQuantidade
         )
         FROM AgendamentosEntity a
         JOIN a.fkPet p
         JOIN a.fkCalendario c
         WHERE c.data = :data
-        AND a.situacao != "CANCELADO"
+        AND a.situacao <> br.com.ecodogpark.backend.enums.SituacaoAgendamento.CANCELADO
         ORDER BY p.nome ASC
     """)
     List<CheckinCheckoutResponse> listarPorData(
@@ -142,4 +148,27 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
         ORDER BY c.data DESC LIMIT 1
     """)
     LocalDate buscarUltimoAgendamento(@Param("idPet") UUID idPet);
+
+    @Query("""
+    SELECT COUNT(a)
+    FROM AgendamentosEntity a
+    JOIN a.fkCalendario c
+    WHERE c.data = :data
+      AND (
+          (:servico IN ('CRECHE', 'DAYUSE')
+              AND a.servico IN ('CRECHE', 'DAYUSE'))
+          OR
+          (:servico = 'HOTEL'
+              AND a.servico = 'HOTEL')
+      )
+      AND a.situacao IN (
+          br.com.ecodogpark.backend.enums.SituacaoAgendamento.PENDENTE,
+          br.com.ecodogpark.backend.enums.SituacaoAgendamento.CONFIRMADO,
+          br.com.ecodogpark.backend.enums.SituacaoAgendamento.AGENDADO
+      )
+""")
+    long contarAgendamentosPorServicoEData(
+            @Param("servico") String servico,
+            @Param("data") LocalDate data
+    );
 }

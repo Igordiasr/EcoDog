@@ -12,6 +12,7 @@ import br.com.ecodogpark.backend.service.FeedMonitorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Pet, tutor ou agendamento confirmado do dia não encontrado", content = @Content)
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @GetMapping("/pet/{idPet}")
     public ResponseEntity<PetFeedMonitorResponse> buscarPetParaMonitor(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable UUID idPet) {
@@ -44,6 +46,7 @@ public class FeedMonitorController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Busca concluída; retorna lista vazia quando não há registros")
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @GetMapping("/pet/{idPet}/atividades")
     public ResponseEntity<List<AtividadeDoPetResponse>> atividadesDoPet(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable UUID idPet) {
@@ -56,6 +59,7 @@ public class FeedMonitorController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Busca concluída; retorna lista vazia quando não há registros")
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @GetMapping("/pet/{idPet}/medicacoes")
     public ResponseEntity<List<MedicacaoDoDiaResponse>> medicacaoDoPet(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable UUID idPet) {
@@ -70,6 +74,7 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "400", description = "Observação inválida", content = @Content),
             @ApiResponse(responseCode = "404", description = "Agendamento não encontrado ou não confirmado", content = @Content)
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @PostMapping("/pet/{idPet}/observacoes")
     public ResponseEntity<ObservacaoDoDiaResponse> criarObservacao(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable UUID idPet,
@@ -85,6 +90,7 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "400", description = "Situação inválida ou justificativa ausente", content = @Content),
             @ApiResponse(responseCode = "404", description = "Agendamento ou participação não encontrado", content = @Content)
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @PutMapping("/pet/{idPet}/atividades/{idParticipacao}")
     public ResponseEntity<AtividadeDoPetResponse> atualizarAtividade(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable UUID idPet,
@@ -103,6 +109,7 @@ public class FeedMonitorController {
             @ApiResponse(responseCode = "400", description = "Situação inválida ou justificativa ausente", content = @Content),
             @ApiResponse(responseCode = "404", description = "Agendamento ou medicação não encontrado", content = @Content)
     })
+    @PreAuthorize("hasAnyRole('MONITOR', 'ADMINISTRADOR')")
     @PutMapping("/pet/{idPet}/medicacoes/{idMedicacao}")
     public ResponseEntity<MedicacaoDoDiaResponse> atualizarMedicacao(@Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
                                                                       @PathVariable UUID idPet,

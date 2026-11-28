@@ -67,18 +67,6 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     boolean existsByPetFkUsuarioIdUsuarioAndSituacaoIn(UUID idUsuario, List<String> situacoes);
 
     @Query("""
-        SELECT COUNT(c) > 0 FROM ContratosEntity c
-        WHERE c.pet.idPet = :idPet
-          AND c.servico.modalidade = 'PLANO'
-          AND c.situacao IN ('ATIVO', 'PENDENTE')
-          AND c.dataInicio <= :fim
-          AND c.dataFim >= :inicio
-    """)
-    boolean existePlanoSobreposto(@Param("idPet") UUID idPet,
-                                  @Param("inicio")LocalDate inicio,
-                                  @Param("fim") LocalDate fim);
-
-    @Query("""
         SELECT c FROM ContratosEntity c
         JOIN FETCH c.pet p
         JOIN FETCH p.fkUsuario u
@@ -108,4 +96,24 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     List<QuantidadeDiariasResponse> contarDiariasPorContrato(
             @Param("idsContratos") List<Long> idsContratos
     );
+
+    @Query("""
+    SELECT c
+    FROM ContratosEntity c
+    JOIN FETCH c.pet p
+    JOIN FETCH c.servico s
+    WHERE p.idPet IN :idsPets
+      AND c.situacao = 'ATIVO'
+    ORDER BY p.nome ASC, c.dataInicio DESC
+""")
+    List<ContratosEntity> buscarContratosDosPetsParaGerenciamento(@Param("idsPets") List<UUID> idsPets);
+
+    @Query("""
+        SELECT COUNT(c) > 0
+        FROM ContratosEntity c
+        WHERE c.pet.idPet = :idPet
+          AND c.servico.modalidade = 'PLANO'
+          AND c.situacao IN ('ATIVO', 'PENDENTE')
+""")
+    boolean existePlanoAtivoOuPendente(@Param("idPet") UUID idPet);
 }

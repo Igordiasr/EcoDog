@@ -1,5 +1,6 @@
 import { content, nodes, fieldKey } from './types';
 import { findDesignNode } from './structure-booking';
+import { petPhotoDesign } from './pet-photo';
 export const monitorOptions = {
     refeicao: ['Se alimentou', 'Recusou'], participacao: ['Participou', 'Não participou'], medicacao: ['Tomou', 'Não tomou'],
 };
@@ -35,8 +36,7 @@ export function integratedMonitorDesign(root, feed) {
     const visit = node => {
         if (typeof node === 'string') return node;
         if (/^Foto (de |do pet)/.test(node.name || '')) {
-            const className = (node.className || '').replace(/bg-\[url\([^]*?\)\]/g, '') + ' monitor-pet-photo';
-            return data?.pet.fotoUrl ? { ...node, tag: 'img', name: `Foto de ${data.pet.nome}`, className, src: data.pet.fotoUrl, decorative: false, children: [] } : { ...node, tag: 'div', name: 'Foto do pet não disponível', className, children: [] };
+            return petPhotoDesign(node, data?.pet.fotoUrl, data?.pet.nome);
         }
         if (['Alimentação', 'Atividades', 'Medicações'].includes(node.name)) {
             const template = nodes(node).find(isMonitorRecord);

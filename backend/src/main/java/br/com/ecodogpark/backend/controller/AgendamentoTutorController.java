@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class AgendamentoTutorController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/pets")
     public ResponseEntity<List<PetsDoTutorResponse>> buscarPets(
             @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
@@ -60,6 +62,7 @@ public class AgendamentoTutorController {
             @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso"),
             @ApiResponse(responseCode = "400", description = "Categoria inválida ou ausente", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/servicos")
     public ResponseEntity<List<ServicoAtivoResponse>> buscarServicos(
             @Parameter(description = "Categoria do serviço: CRECHE, DAYUSE ou HOTEL", example = "CRECHE")
@@ -75,6 +78,7 @@ public class AgendamentoTutorController {
             @ApiResponse(responseCode = "403", description = "Um ou mais pets não pertencem ao tutor", content = @Content),
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado ou inativo", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/orcamentos")
     public ResponseEntity<OrcamentoResponse> criarOrcamento(@RequestBody @Valid OrcamentoRequest request,
                                                             @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")
@@ -90,6 +94,7 @@ public class AgendamentoTutorController {
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado ou inativo", content = @Content),
             @ApiResponse(responseCode = "409", description = "Vagas insuficientes, agendamento duplicado ou plano em conflito", content = @Content)
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/agendamentos")
     public ResponseEntity<AgendamentoCriadoResponse> agendar(@RequestBody @Valid OrcamentoRequest request,
                                                              @Parameter(description = "Identificador do tutor", example = "68736f5d-7587-51fc-9101-46a148dc4852")

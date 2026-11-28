@@ -13,6 +13,7 @@ import br.com.ecodogpark.backend.entity.MovimentacoesEntity;
 import br.com.ecodogpark.backend.service.DashboardService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -31,6 +32,7 @@ public class DashboardController {
 
     @Operation(summary = "Buscar dados dashboard", description = "Requisição responsável por buscar todos os dados de métricas e gráficos da dashboard")
     @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<DadosDashboardResponse> buscarDados() {
         return ResponseEntity.ok(dashboardService.buscarDados());
@@ -38,6 +40,7 @@ public class DashboardController {
 
     @Operation(summary = "Buscar metas", description = "Requisição para buscar as metas cadastradas para exibição no dropdown da edição de metas")
     @ApiResponse(responseCode = "200", description = "Busca concluída com sucesso")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/metas")
     public ResponseEntity<List<MetaParaListaResponse>> buscarMetas(@Parameter(description = "Data de referência do mês da meta (yyyy-MM-dd)", example = "2026-10-26")
             @RequestParam LocalDate mesReferencia, @Parameter(description = "Nome do serviço usado para filtrar as metas", example = "Creche")
@@ -49,6 +52,7 @@ public class DashboardController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso")
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/servicos")
     public ResponseEntity<List<ServicoParaListaResponse>> buscarServicos() {
         return ResponseEntity.ok(dashboardService.buscarServicos());
@@ -60,6 +64,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "400", description = "Dados da meta inválidos", content = @Content)
     })
     @PostMapping("/metas")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ManipulacaoMetaResponse> cadastrarMeta(@RequestBody @Valid ManipulacaoMetaRequest novaMeta) {
         return ResponseEntity.status(201).body(dashboardService.cadastrarMeta(novaMeta));
     }
@@ -70,6 +75,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "400", description = "Dados da meta inválidos", content = @Content),
             @ApiResponse(responseCode = "404", description = "Meta não encontrada", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/metas/{id}")
     public ResponseEntity<ManipulacaoMetaResponse> alterarMeta(@RequestBody @Valid ManipulacaoMetaRequest novaMeta, @Parameter(description = "Identificador do registro", example = "1")
             @PathVariable Long id) {
@@ -80,6 +86,7 @@ public class DashboardController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso")
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/movimentacoes")
     public ResponseEntity<List<MovimentacaoPendenteResponse>> listarMovimentacoesPendentes() {
         return ResponseEntity.ok(dashboardService.buscarMovimentacoesPendentes());
@@ -91,6 +98,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "400", description = "Dados da movimentação inválidos", content = @Content),
             @ApiResponse(responseCode = "404", description = "Movimentação não encontrada", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/movimentacoes/{id}")
     public ResponseEntity<MovimentacoesEntity> atualizarMovimentacao(@RequestBody @Valid AlterarMovimentacaoRequest movimentacao, @Parameter(description = "Identificador do registro", example = "1")
             @PathVariable Long id) {

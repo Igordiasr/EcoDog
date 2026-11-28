@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -240,8 +239,8 @@ public class TutorService {
             List<DiaSemana> diasDaSemana = null;
 
             if ("CRECHE".equals(servico)) {
-                diasDaSemana = contratoDiasSemanaRepository.buscarDiasDaSemanaCrechePorPet(pet.getIdPet(), LocalDate.now(ZoneId.of("America/Sao_Paulo")));
-                quantidadeDias = diasDaSemana.size();
+                diasDaSemana = contratoDiasSemanaRepository.buscarDiasDaSemanaCrechePorPet(pet.getIdPet());
+                quantidadeDias = diasAgendados.size();
             } else {
                 quantidadeDias = diasAgendados.size();
             }

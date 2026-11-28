@@ -2,6 +2,7 @@ import { createDashboardApi } from './dashboard-api';
 import { dashboardServices, emptyDashboardData, validPeriod, validISODate } from '../models/dashboard-model';
 import { nonnegative, text } from '../models/integration-contracts';
 import { HttpError } from './http';
+import { requestJson } from './http';
 
 const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 function period(value) {
@@ -33,7 +34,7 @@ export function dashboardData(raw) {
         activeContracts: raw.planosAtivos,
         revenueSeries: raw.graficoReceita.map(row => ({ period: period(row.mesReferencia), forecast: cents(row.receitaPrevista), received: cents(row.receitaRecebida) })),
         contractSeries: raw.graficoNovosServicos.map(row => ({ period: period(row.mesReferencia), counts: [row.creche, row.hotel, row.dayUse].map(value => nonnegative(value, 'novos contratos')) })),
-        distribution: { counts, total: counts.reduce((sum, count) => sum + count, 0), unclassified: [], unit: 'contratos' },
+        distribution: { counts, total: counts.reduce((sum, count) => sum + count, 0), unclassified: [], unit: 'registros' },
         movements: raw.ultimasMovimentacoes.map((row, index) => {
             if (!validISODate(row.dataPagamento)) throw new Error('Data de pagamento inválida.');
             return { id: String(index), date: row.dataPagamento, service: text(row.servico, 'serviço'), petName: text(row.pet, 'pet'), cents: cents(row.valor) };
@@ -43,22 +44,42 @@ export function dashboardData(raw) {
 
 export function createDashboardSource(baseUrl, request, token, onSessionExpired) {
     const api = createDashboardApi(baseUrl, request, token);
-    return { async load(signal) {
-        try { return dashboardData(await api.summary(signal)); }
+    const authenticated = async action => {
+        try { return await action(); }
         catch (error) {
             if (error instanceof HttpError && error.status === 401) onSessionExpired?.();
             throw error;
         }
+    };
+    return { async load(signal) {
+        const result = dashboardData(await authenticated(() => api.summary(signal)));
+        const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+        try {
+            const day = await authenticated(() => requestJson(baseUrl, '/calendario/dia', { query: { data: today }, headers: token ? { Authorization: `Bearer ${token}` } : {} }, signal, request));
+            if (day?.data === today && day.idCalendario != null) {
+                for (const [service, capacity] of [['Creche', day.vagasCreche], ['Hotel', day.vagasHotel]])
+                    if (Number.isSafeInteger(capacity) && capacity >= 0) result.summary.occupancy.find(row => row.service === service).capacity = capacity;
+            }
+        } catch (error) {
+            if (signal?.aborted || error instanceof HttpError && error.status === 401) throw error;
+        }
+        return result;
     },
     async services(signal) {
-        return (await api.services(signal)).map(row => ({ id: String(row.idServico), name: `${row.nome} • ${row.categoria}${row.frequencia ? ` • ${row.frequencia}` : ''}`, category: row.categoria }));
+        return (await authenticated(() => api.services(signal))).map(row => ({ id: String(row.idServico), name: `${row.nome} • ${row.categoria}${row.frequencia ? ` • ${row.frequencia}` : ''}`, category: row.categoria }));
     },
     async goals(referenceDate, service, signal) {
-        return (await api.goals(referenceDate, service.category, signal)).filter(row => String(row.servico?.idServico) === service.id).map(row => ({ id: String(row.idMeta), period: row.mesReferencia, service: service.id, cents: cents(row.valor) }));
+        return (await authenticated(() => api.goals(referenceDate, service.category, signal))).filter(row => String(row.servico?.idServico) === service.id).map(row => ({ id: String(row.idMeta), period: row.mesReferencia, service: service.id, cents: cents(row.valor) }));
     },
     async saveGoal(referenceDate, serviceId, value, target) {
-        await api.saveGoal({ mesReferencia: referenceDate, valor: value, servico: { idServico: Number(serviceId) } }, target);
+        await authenticated(() => api.saveGoal({ mesReferencia: referenceDate, valor: value, servico: { idServico: Number(serviceId) } }, target));
         return { message: target ? 'Meta atualizada com sucesso.' : 'Meta cadastrada com sucesso.' };
+    },
+    async pendingMovements(signal) {
+        return (await authenticated(() => api.pendingMovements(signal))).map(row => ({ ...row, valor: nonnegative(row.valor, 'valor') }));
+    },
+    async payMovement(row, method, date) {
+        return authenticated(() => api.payMovement(row.id, row.idContrato, method, date));
     } };
 }
 export const dashboardSource = createDashboardSource(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');

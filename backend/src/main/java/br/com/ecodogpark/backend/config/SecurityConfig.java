@@ -4,6 +4,7 @@ import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -12,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -31,24 +33,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/tutores").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/tutores/**").hasRole("TUTOR")
-                        .requestMatchers(HttpMethod.GET, "/calendario/dias", "/calendario/dia", "/calendario/catalogo-atividades").hasAnyRole("TUTOR", "ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.PUT, "/calendario/*/vagas").hasAnyRole("TUTOR", "ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.POST, "/calendario/*/atividades").hasAnyRole("TUTOR", "ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.DELETE, "/calendario/atividades/*").hasAnyRole( "ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.PATCH, "/calendario/agendamentos/*").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/calendario/**").hasRole("TUTOR")
-                        .requestMatchers(HttpMethod.GET, "/usuarios/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/whatsapp/atendimentos-pendentes").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/whatsapp/webhook").permitAll()
-                        .anyRequest().permitAll())
+                        .requestMatchers(HttpMethod.POST, "/whatsapp/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/whatsapp/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/calendario/disponibilidade").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                        ))
                 .build();
     }
 

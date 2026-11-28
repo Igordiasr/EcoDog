@@ -500,6 +500,8 @@ Vagas não negativas; horários sem sobreposição e fim posterior ao início. E
 
 ### Meu Perfil / Meus Dados — frame `BuDxA` | Consulta parcial / atualização pendente
 
+**Atualização da integração:** o frontend consulta e atualiza os dados e o endereço do tutor por `GET/PUT /tutores/conta/{id}` e consulta CEP via ViaCEP durante a edição. Para monitor e administrador, o backend não retorna endereço nem oferece atualização própria compatível; a tela informa a limitação. Além disso, a configuração atual restringe `GET /usuarios/**` a administradores, impedindo a consulta do próprio monitor (403). As descrições abaixo registram a análise anterior e propostas, não o estado atual da tela.
+
 **Revisão documental em 19/11/2026:** popup compartilhado para tutor, monitor e administrador, acessível pelo perfil do cabeçalho e pela ação “Meus Dados”. Esta seção diferencia a consulta consumida hoje dos contratos futuros necessários para o formulário completo do protótipo. Nenhuma API, DTO, banco ou código de frontend foi alterado nesta revisão.
 
 **Consumidor atual:** `src/views/screens/AccountPages.jsx` (`MyProfile`), aberto por `src/views/screens/ScreenPage.jsx`, usa `src/models/current-user.js` (`loadCurrentUser`). O popup exibe somente nome, e-mail e telefone em modo de consulta, com carregamento, erro, nova tentativa e saída da conta. Não envia atualização de dados, endereço ou senha.

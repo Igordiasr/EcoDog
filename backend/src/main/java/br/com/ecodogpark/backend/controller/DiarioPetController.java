@@ -10,6 +10,7 @@ import br.com.ecodogpark.backend.dto.DiarioPetTutor.DiarioPetResponse;
 import br.com.ecodogpark.backend.service.DiarioPetService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -35,6 +36,7 @@ public class DiarioPetController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso")
     })
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping
     public ResponseEntity<DiarioPetResponse> obterDiarioDoPet(
             @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
@@ -48,8 +50,13 @@ public class DiarioPetController {
         return ResponseEntity.ok(diarioPetService.obterDiarioDoPet(idPet, data));
     }
 
+    @Operation(summary = "Consultar as datas de agendamentos anteriores", description = "Retorna lista de datas de agendamentos anteriores com a situação 'CONFIRMADO' ou 'RETIRRADO'")
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/agendamentos/{idPet}")
-    public ResponseEntity<List<DataAgendadaResponse>> buscarAgendamentosAnteriores(@PathVariable UUID idPet) {
+    public ResponseEntity<List<DataAgendadaResponse>> buscarAgendamentosAnteriores(
+            @Parameter(description = "Identificador do pet", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable UUID idPet
+    ) {
         return ResponseEntity.ok(diarioPetService.obterAgendamentosAnteriores(idPet));
     }
 }

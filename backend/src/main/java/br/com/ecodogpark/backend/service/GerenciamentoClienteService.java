@@ -4,8 +4,10 @@ import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AlterarStat
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.AtualizarValorContratoRequest;
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.request.VincularPlanoRequest;
 import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.*;
+import br.com.ecodogpark.backend.dto.QuantidadeDiariasResponse;
 import br.com.ecodogpark.backend.entity.*;
 import br.com.ecodogpark.backend.enums.DiaSemana;
+import br.com.ecodogpark.backend.enums.SituacaoAgendamento;
 import br.com.ecodogpark.backend.enums.TipoUsuario;
 import br.com.ecodogpark.backend.exception.*;
 import br.com.ecodogpark.backend.mapper.GerenciamentoClienteMapper;
@@ -19,10 +21,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static br.com.ecodogpark.backend.service.AgendamentoTutorService.capacidadePadrao;
 
 @Service
 public class GerenciamentoClienteService {
@@ -65,7 +69,7 @@ public class GerenciamentoClienteService {
             return List.of();
         }
         List<UUID> idsPets = pets.stream().map(PetsEntity::getIdPet).toList();
-        List<ContratosEntity> contratos = contratoRepository.buscarContratosDosPetsParaGerenciamento(idsPets, hoje);
+        List<ContratosEntity> contratos = contratoRepository.buscarContratosDosPetsParaGerenciamento(idsPets);
         List<Long> idsContratos = contratos.stream().map(ContratosEntity::getIdContrato).toList();
 
         List<ContratoDiasSemanaEntity> diasContratados = idsContratos.isEmpty()
@@ -81,14 +85,14 @@ public class GerenciamentoClienteService {
                         )
                 ));
 
-        List<QuantidadeDiariasProjection> quantidades = idsContratos.isEmpty()
+        List<QuantidadeDiariasResponse> quantidades = idsContratos.isEmpty()
                 ? List.of()
-                : agendamentoRepository.contarDiariasPorContrato(idsContratos);
+                : contratoRepository.contarDiariasPorContrato(idsContratos);
 
         Map<Long, Long> quantidadePorContrato = quantidades.stream()
                 .collect(Collectors.toMap(
-                        QuantidadeDiariasProjection::getIdContrato,
-                        QuantidadeDiariasProjection::getQuantidade
+                        QuantidadeDiariasResponse::idContrato,
+                        QuantidadeDiariasResponse::quantidade
                 ));
 
         Map<UUID, List<ContratosEntity>> contratosPorPet = contratos.stream()
@@ -198,11 +202,20 @@ public class GerenciamentoClienteService {
         if (request.dataInicio() == null) {
             throw new DataInvalidaException("A data de início é obrigatória");
         }
+
+        if (!"CRECHE".equals(servico.getCategoria()) && request.dataFim() == null) {
+            throw new DataInvalidaException("A data fim é obrigatória para este serviço");
+        }
+
         if (request.dataFim() != null && request.dataFim().isBefore(request.dataInicio())) {
             throw new DataInvalidaException("A data de fim não pode ser anterior à data de início");
         }
 
         validarDiasSemana(servico, request.diasSemana());
+
+        if ("PLANO".equals(servico.getModalidade()) && contratoRepository.existePlanoAtivoOuPendente(pet.getIdPet())) {
+                throw new PetPossuiPlanoException("O pet já possui um plano ativo ou pendente nesse período");
+        }
 
         ContratosEntity contrato = new ContratosEntity();
         contrato.setPet(pet);
@@ -218,6 +231,7 @@ public class GerenciamentoClienteService {
             salvarDiasDaSemana(contrato, request.diasSemana());
             gerarAgendamentosCreche(contrato, request.diasSemana());
         } else {
+            gerarAgendamentosPorPeriodo(contrato);
             gerarMovimentacoes(contrato);
         }
 
@@ -272,7 +286,7 @@ public class GerenciamentoClienteService {
                 ? contrato.getDataInicio()
                 : hoje;
 
-        LocalDate dataFim = hoje.plusDays(30);
+        LocalDate dataFim = dataInicio.plusDays(30);
         Set<DiaSemana> diasContratados = new HashSet<>(diaSemanas);
         List<AgendamentosEntity> agendamentos = new ArrayList<>();
 
@@ -281,8 +295,9 @@ public class GerenciamentoClienteService {
                 DiaSemana diaAtual = converterDiaSemana(dataInicio.getDayOfWeek());
 
                 if (diasContratados.contains(diaAtual)) {
-                    CalendarioEntity  calendario = calendarioRepository.findByData(dataInicio)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não existe calendario para " + diaAtual));
+                    validarDisponibilidade("CRECHE", dataInicio, contrato.getPet().getIdPet());
+
+                    CalendarioEntity calendario = buscarOuCriarCalendario(dataInicio);
 
                     AgendamentosEntity agendamento = new AgendamentosEntity();
                     agendamento.setFkPet(contrato.getPet());
@@ -302,6 +317,35 @@ public class GerenciamentoClienteService {
         }
     }
 
+    private void gerarAgendamentosPorPeriodo(ContratosEntity contrato ) {
+        LocalDate dataInicio = contrato.getDataInicio();
+        LocalDate dataFim = contrato.getDataFim();
+
+        List<AgendamentosEntity> agendamentos = new ArrayList<>();
+
+        while (!dataInicio.isAfter(dataFim)) {
+            String servico = contrato.getServicos().getCategoria();
+            validarDisponibilidade(servico, dataInicio, contrato.getPet().getIdPet());
+
+            CalendarioEntity calendario = buscarOuCriarCalendario(dataInicio);
+            AgendamentosEntity agendamento = new AgendamentosEntity();
+
+            agendamento.setFkPet(contrato.getPet());
+            agendamento.setFkCalendario(calendario);
+            agendamento.setDataEntrada(dataInicio.atStartOfDay());
+            agendamento.setDataSaida(null);
+            agendamento.setServico(contrato.getServicos().getCategoria());
+            agendamento.setSituacao(SituacaoAgendamento.AGENDADO);
+
+            agendamentos.add(agendamento);
+            dataInicio = dataInicio.plusDays(1);
+        }
+
+        if (!agendamentos.isEmpty()) {
+            agendamentoRepository.saveAll(agendamentos);
+        }
+    }
+
     private DiaSemana converterDiaSemana(DayOfWeek dia) {
         return switch (dia) {
             case MONDAY -> DiaSemana.SEGUNDA;
@@ -311,6 +355,43 @@ public class GerenciamentoClienteService {
             case FRIDAY -> DiaSemana.SEXTA;
 
             default -> throw new IllegalArgumentException("Dia da semana não permitido na creche");
+        };
+    }
+
+    private CalendarioEntity buscarOuCriarCalendario(LocalDate data) {
+        return calendarioRepository.findByData(data)
+                .orElseGet(() -> {
+                    CalendarioEntity calendario = new CalendarioEntity();
+                    calendario.setData(data);
+                    calendario.setVagasCreche(capacidadePadrao);
+                    calendario.setVagasHotel(capacidadePadrao);
+
+                    return calendarioRepository.save(calendario);
+                });
+    }
+
+    private void validarDisponibilidade(String servico, LocalDate data, UUID idPet) {
+        CalendarioEntity calendario = buscarOuCriarCalendario(data);
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.plusDays(1).atStartOfDay();
+
+        if (agendamentoRepository.petJaAgendado(idPet, inicio, fim)) {
+            throw new PetJaAgendadoException("O pet já possui agendamento em " + data);
+        }
+
+        long ocupadas = agendamentoRepository.contarAgendamentosPorServicoEData(servico, data);
+
+        if (capacidadeDoDia(servico, calendario) <= ocupadas) {
+            throw new VagaIndisponivelException("Não existem vagas disponíveis em " + data);
+        }
+    }
+
+    private int capacidadeDoDia(String servico, CalendarioEntity calendario) {
+        return switch (servico) {
+            case "CRECHE", "DAYUSE" -> calendario.getVagasCreche();
+            case "HOTEL" -> calendario.getVagasHotel();
+            default -> throw new ServicoInvalidoException("Serviço inválido");
         };
     }
 }

@@ -20,9 +20,6 @@ public interface ContratoDiasSemanaRepository extends JpaRepository<ContratoDias
         WHERE c.pet.idPet = :idPet
           AND c.servico.categoria = 'CRECHE'
           AND c.situacao = 'ATIVO'
-          AND c.dataInicio <= :hoje
-          AND c.dataFim >= :hoje
     """)
-    List<DiaSemana> buscarDiasDaSemanaCrechePorPet(@Param("idPet")UUID idPet,
-                                                   @Param("hoje")LocalDate hoje);
+    List<DiaSemana> buscarDiasDaSemanaCrechePorPet(@Param("idPet")UUID idPet);
 }

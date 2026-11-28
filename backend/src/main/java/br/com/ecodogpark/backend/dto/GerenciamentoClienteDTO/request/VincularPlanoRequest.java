@@ -39,14 +39,8 @@ public record VincularPlanoRequest(
         @Schema(description = "Data de início do contrato", example = "2026-11-24")
         LocalDate dataInicio,
 
-        @NotNull
         @Schema(description = "Data de fim do contrato", example = "2026-11-26")
-        LocalDate dataFim,
-
-        @NotBlank
-        @Pattern(regexp = "ATIVO|PENDENTE|CANCELADO|ENCERRADO", message = "Situação inválida")
-        @Schema(description = "Situação inicial do contrato", allowableValues = {"ATIVO", "PENDENTE", "CANCELADO", "ENCERRADO"}, example = "ATIVO")
-        String situacao
+        LocalDate dataFim
 
 ) {
 }

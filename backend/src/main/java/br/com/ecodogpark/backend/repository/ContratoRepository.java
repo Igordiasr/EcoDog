@@ -5,7 +5,6 @@ import br.com.ecodogpark.backend.dto.DashboardDTO.response.NovosServicosMensaisR
 import br.com.ecodogpark.backend.dto.DashboardDTO.response.PlanosAtivosResponse;
 import br.com.ecodogpark.backend.dto.QuantidadeDiariasResponse;
 import br.com.ecodogpark.backend.entity.ContratosEntity;
-import br.com.ecodogpark.backend.enums.TipoUsuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -68,18 +67,6 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     boolean existsByPetFkUsuarioIdUsuarioAndSituacaoIn(UUID idUsuario, List<String> situacoes);
 
     @Query("""
-        SELECT COUNT(c) > 0 FROM ContratosEntity c
-        WHERE c.pet.idPet = :idPet
-          AND c.servico.modalidade = 'PLANO'
-          AND c.situacao IN ('ATIVO', 'PENDENTE')
-          AND c.dataInicio <= :fim
-          AND c.dataFim >= :inicio
-    """)
-    boolean existePlanoSobreposto(@Param("idPet") UUID idPet,
-                                  @Param("inicio")LocalDate inicio,
-                                  @Param("fim") LocalDate fim);
-
-    @Query("""
         SELECT c FROM ContratosEntity c
         JOIN FETCH c.pet p
         JOIN FETCH p.fkUsuario u
@@ -117,12 +104,16 @@ public interface ContratoRepository extends JpaRepository<ContratosEntity, Long>
     JOIN FETCH c.servico s
     WHERE p.idPet IN :idsPets
       AND c.situacao = 'ATIVO'
-      AND c.dataInicio <= :hoje
-      AND c.dataFim >= :hoje
     ORDER BY p.nome ASC, c.dataInicio DESC
 """)
-    List<ContratosEntity> buscarContratosDosPetsParaGerenciamento(
-            @Param("idsPets") List<UUID> idsPets,
-            @Param("hoje") LocalDate hoje
-    );
+    List<ContratosEntity> buscarContratosDosPetsParaGerenciamento(@Param("idsPets") List<UUID> idsPets);
+
+    @Query("""
+        SELECT COUNT(c) > 0
+        FROM ContratosEntity c
+        WHERE c.pet.idPet = :idPet
+          AND c.servico.modalidade = 'PLANO'
+          AND c.situacao IN ('ATIVO', 'PENDENTE')
+""")
+    boolean existePlanoAtivoOuPendente(@Param("idPet") UUID idPet);
 }

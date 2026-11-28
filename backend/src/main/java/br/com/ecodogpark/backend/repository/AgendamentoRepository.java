@@ -148,4 +148,27 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentosEntity,
         ORDER BY c.data DESC LIMIT 1
     """)
     LocalDate buscarUltimoAgendamento(@Param("idPet") UUID idPet);
+
+    @Query("""
+    SELECT COUNT(a)
+    FROM AgendamentosEntity a
+    JOIN a.fkCalendario c
+    WHERE c.data = :data
+      AND (
+          (:servico IN ('CRECHE', 'DAYUSE')
+              AND a.servico IN ('CRECHE', 'DAYUSE'))
+          OR
+          (:servico = 'HOTEL'
+              AND a.servico = 'HOTEL')
+      )
+      AND a.situacao IN (
+          br.com.ecodogpark.backend.enums.SituacaoAgendamento.PENDENTE,
+          br.com.ecodogpark.backend.enums.SituacaoAgendamento.CONFIRMADO,
+          br.com.ecodogpark.backend.enums.SituacaoAgendamento.AGENDADO
+      )
+""")
+    long contarAgendamentosPorServicoEData(
+            @Param("servico") String servico,
+            @Param("data") LocalDate data
+    );
 }

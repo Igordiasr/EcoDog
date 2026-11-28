@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.repository;
 
+import br.com.ecodogpark.backend.dto.DashboardDTO.response.QuantidadeVagasDoDiaResponse;
 import br.com.ecodogpark.backend.entity.CalendarioEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,13 @@ public interface CalendarioRepository extends JpaRepository<CalendarioEntity, Lo
                                             @Param("fim") LocalDate fim);
 
     Optional<CalendarioEntity> findByData(LocalDate data);
+
+    @Query("""
+        SELECT new br.com.ecodogpark.backend.dto.DashboardDTO.response.QuantidadeVagasDoDiaResponse(
+            c.vagasCreche + c.vagasHotel
+            )
+        FROM CalendarioEntity c
+        WHERE c.data = :hoje
+    """)
+    QuantidadeVagasDoDiaResponse buscarQuantidadeTotalVagasHoje(@Param("hoje") LocalDate hoje);
 }

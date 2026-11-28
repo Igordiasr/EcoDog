@@ -30,7 +30,7 @@ public class  AgendamentoTutorService {
     private final PetRepository petRepository;
     private final ServicosRepository servicosRepository;
 
-    private static final Integer capacidadePadrao = 10;
+    public static final Integer capacidadePadrao = 10;
 
     public AgendamentoTutorService(AgendamentoRepository agendamentoRepository,
                                    CalendarioRepository calendarioRepository,
@@ -184,8 +184,8 @@ public class  AgendamentoTutorService {
         LocalDate fim = inicio.plusMonths(1).minusDays(1);
 
         for (PetsEntity pet : pets) {
-            if (contratoRepository.existePlanoSobreposto(pet.getIdPet(), inicio, fim)) {
-                throw new PetPossuiPlanoException(pet.getNome() + " já possui um plano nesse período");
+            if (contratoRepository.existePlanoAtivoOuPendente(pet.getIdPet())) {
+                throw new PetPossuiPlanoException(pet.getNome() + " já possui um plano ativo ou pendente");
             }
         }
 

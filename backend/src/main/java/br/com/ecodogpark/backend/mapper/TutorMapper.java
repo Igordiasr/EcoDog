@@ -1,5 +1,6 @@
 package br.com.ecodogpark.backend.mapper;
 
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.TutorDisponivelResponse;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.*;
 import br.com.ecodogpark.backend.dto.TutorDTO.response.*;
 import br.com.ecodogpark.backend.entity.*;
@@ -118,6 +119,16 @@ public class TutorMapper {
                 vacina.getIdVacinas(),
                 vacina.getNome(),
                 vacina.getTipo()
+        );
+    }
+
+    public static TutorDisponivelResponse entityParaTutorDisponivelResponse(
+            UsuariosEntity tutor
+    ) {
+        return new TutorDisponivelResponse(
+                tutor.getIdUsuario(),
+                tutor.getNome(),
+                tutor.getSobrenome()
         );
     }
 

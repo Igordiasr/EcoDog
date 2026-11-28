@@ -1,5 +1,8 @@
 package br.com.ecodogpark.backend.mapper;
 
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.ContratoGerenciamentoResponse;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.PetGerenciamentoResponse;
+import br.com.ecodogpark.backend.dto.GerenciamentoClienteDTO.response.VincularPetResponse;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroAlergiaPetRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroMedicacaoPetRequest;
 import br.com.ecodogpark.backend.dto.TutorDTO.request.CadastroPetRequest;
@@ -158,5 +161,25 @@ public class PetMapper {
     public static void atualizarVacina(CadastroVacinaPetRequest request, VacinasDoPetEntity associacao) {
         associacao.setDataAplicacao(request.dataAplicacao());
         associacao.setDataValidade(request.dataValidade());
+    }
+
+    public static PetGerenciamentoResponse entityParaGerenciamentoResponse(
+            PetsEntity pet,
+            List<ContratoGerenciamentoResponse> contratos
+    ) {
+        return new PetGerenciamentoResponse(
+                pet.getIdPet(),
+                pet.getNome(),
+                pet.getFkUsuario().getNome() + " " + pet.getFkUsuario().getSobrenome(),
+                contratos.size(),
+                contratos
+        );
+    }
+
+    public static VincularPetResponse entityParaVincularResponse(PetsEntity pet) {
+        return new VincularPetResponse(
+                pet.getIdPet(),
+                pet.getNome()
+        );
     }
 }

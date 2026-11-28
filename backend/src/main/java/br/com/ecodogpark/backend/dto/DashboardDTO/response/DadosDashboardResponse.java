@@ -10,8 +10,8 @@ public record DadosDashboardResponse(
         List<KpiReceitasResponse> kpiReceitas,
         @Schema(description = "Quantidade de planos ativos")
         PlanosAtivosResponse planosAtivos,
-        @Schema(description = "Quantidade de agendamentos agrupada por serviço")
-        List<AgendamentosPorServicoResponse> agendamentosPorServico,
+        @Schema(description = "Indicador de pets agendados por serviço e quantidade total de vagas para o dia")
+        PetsPrevistosKpiResponse petsPrevistosKpi,
         @Schema(description = "Receitas previstas e recebidas por mês")
         List<GraficoReceitaResponse> graficoReceita,
         @Schema(description = "Novos serviços contratados por mês")

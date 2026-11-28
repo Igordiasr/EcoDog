@@ -6,6 +6,7 @@ import br.com.ecodogpark.backend.dto.DashboardDTO.response.*;
 import br.com.ecodogpark.backend.entity.MetasEntity;
 import br.com.ecodogpark.backend.entity.MovimentacoesEntity;
 import br.com.ecodogpark.backend.entity.ServicosEntity;
+import br.com.ecodogpark.backend.mapper.DashboardMapper;
 import br.com.ecodogpark.backend.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,24 +24,27 @@ import java.util.stream.IntStream;
 
 @Service
 public class DashboardService {
-    ContratoRepository contratoRepository;
-    MovimentacoesRepository movimentacoesRepository;
-    MetaRepository metaRepository;
-    AgendamentoRepository agendamentoRepository;
-    ServicoRepository servicoRepository;
+    private final ContratoRepository contratoRepository;
+    private final MovimentacoesRepository movimentacoesRepository;
+    private final MetaRepository metaRepository;
+    private final AgendamentoRepository agendamentoRepository;
+    private final ServicoRepository servicoRepository;
+    private final CalendarioRepository calendarioRepository;
 
     public DashboardService(
             ContratoRepository contratoRepository,
             MovimentacoesRepository movimentacoesRepository,
             MetaRepository metaRepository,
             AgendamentoRepository agendamentoRepository,
-            ServicoRepository servicoRepository
+            ServicoRepository servicoRepository,
+            CalendarioRepository calendarioRepository
     ) {
         this.contratoRepository = contratoRepository;
         this.movimentacoesRepository = movimentacoesRepository;
         this.metaRepository = metaRepository;
         this.agendamentoRepository = agendamentoRepository;
         this.servicoRepository = servicoRepository;
+        this.calendarioRepository = calendarioRepository;
     }
 
     public DadosDashboardResponse buscarDados() {
@@ -50,7 +54,7 @@ public class DashboardService {
 
         List<KpiReceitasResponse> kpiReceitas = montarKPIReceitas(hoje);
         PlanosAtivosResponse planosAtivos = contratoRepository.buscarPlanosAtivos();
-        List<AgendamentosPorServicoResponse> quantidadePetsAgendados = agendamentoRepository.buscarAgendamentosPorServicoParaHoje(hoje);
+        PetsPrevistosKpiResponse quantidadePetsAgendados = buscarPetsPrevistos(hoje);
         List<GraficoReceitaResponse> graficoReceita = buscarReceitaUltimosMeses(inicio, fim);
         List<GraficoNovosServicosResponse> graficoNovosServicos = buscarListaNovosServicos(inicio, fim);
         List<GraficoContratosPorServicoResponse> graficoContratosPorServico = buscarSituacaoServicos();
@@ -69,20 +73,21 @@ public class DashboardService {
 
     public List<ServicoParaListaResponse> buscarServicos() {
         return servicoRepository.findAll()
-                .stream().map(this::servicoParaServicoParaLista).toList();
+                .stream().map(DashboardMapper::servicoParaServicoParaLista).toList();
     }
 
     public List<MetaParaListaResponse> buscarMetas(LocalDate mesReferencia, String servico) {
-        return metaRepository.buscarMetaPorMesEServico(mesReferencia, servico.toUpperCase()).stream().map(this::metaParaMetaParaLista).toList();
+        LocalDate inicioMes = mesReferencia.withDayOfMonth(1);
+        return metaRepository.buscarMetaPorMesEServico(inicioMes, servico.toUpperCase()).stream().map(DashboardMapper::metaParaMetaParaLista).toList();
     }
 
     public ManipulacaoMetaResponse cadastrarMeta(ManipulacaoMetaRequest novaMeta) {
-        return metaParaManipulacaoMetaResponse(metaRepository.save(criarMetaParaEntity(novaMeta)));
+        return DashboardMapper.metaParaManipulacaoMetaResponse(metaRepository.save(DashboardMapper.criarMetaParaEntity(novaMeta)));
     }
 
     public ManipulacaoMetaResponse atualizarMeta(ManipulacaoMetaRequest meta, Long id) {
         if (!metaRepository.existsById(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meta não encontrada");
-        return metaParaManipulacaoMetaResponse(metaRepository.save(incluirIdMeta(meta, id)));
+        return DashboardMapper.metaParaManipulacaoMetaResponse(metaRepository.save(DashboardMapper.incluirIdMeta(meta, id)));
     }
 
     public List<MovimentacaoPendenteResponse> buscarMovimentacoesPendentes() {
@@ -105,10 +110,10 @@ public class DashboardService {
     private List<KpiReceitasResponse> montarKPIReceitas(LocalDate hoje) {
         LocalDate inicioMes = hoje.withDayOfMonth(1);
 
-        Map<String, BigDecimal> recebido = transformarValorPorServicoEmMap(
+        Map<String, BigDecimal> recebido = DashboardMapper.transformarValorPorServicoEmMap(
                 movimentacoesRepository.buscarTotalRecebidoPorServico(inicioMes, hoje)
         );
-        Map<String, BigDecimal> metas = transformarValorPorServicoEmMap(
+        Map<String, BigDecimal> metas = DashboardMapper.transformarValorPorServicoEmMap(
                 metaRepository.buscarMetasPorServico(inicioMes, inicioMes.plusMonths(1))
         );
 
@@ -123,18 +128,13 @@ public class DashboardService {
                 }).toList();
     }
 
-    private Map<String, BigDecimal> transformarValorPorServicoEmMap(List<ValorPorServicoResponse> lista) {
-        return lista.stream()
-                .collect(Collectors.toMap(ValorPorServicoResponse::categoria, ValorPorServicoResponse::valor));
-    }
-
     private List<GraficoReceitaResponse> buscarReceitaUltimosMeses(LocalDate inicio, LocalDate fim) {
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("MMMM/yyyy", new Locale("pt", "BR"));
 
-        Map<YearMonth, BigDecimal> previsao = concatenarMesAno(
+        Map<YearMonth, BigDecimal> previsao = DashboardMapper.concatenarMesAno(
                 metaRepository.buscarReceitasPrevistas(inicio, fim)
         );
-        Map<YearMonth, BigDecimal> totalRecebido = concatenarMesAno(
+        Map<YearMonth, BigDecimal> totalRecebido = DashboardMapper.concatenarMesAno(
                 movimentacoesRepository.buscarReceitasRecebidasUltimosMeses(inicio, fim)
         );
 
@@ -147,14 +147,6 @@ public class DashboardService {
 
                     return new GraficoReceitaResponse(mes.format(formatador), previsto, recebido);
                 }).toList();
-    }
-
-    private Map<YearMonth, BigDecimal> concatenarMesAno(List<MetasServicosResponse> lista) {
-        return lista.stream()
-                .collect(Collectors.toMap(
-                        receita -> YearMonth.of(receita.ano(), receita.mes()),
-                        MetasServicosResponse::valor
-                ));
     }
 
     private List<GraficoNovosServicosResponse> buscarListaNovosServicos(LocalDate inicio, LocalDate fim) {
@@ -195,65 +187,9 @@ public class DashboardService {
         return listaContratosPorServico;
     }
 
-    private MetasEntity incluirIdMeta(ManipulacaoMetaRequest meta, Long id) {
-        MetasEntity novaMeta = new MetasEntity();
-        novaMeta.setIdMeta(id);
-        novaMeta.setMesReferencia(meta.mesReferencia());
-        novaMeta.setValor(meta.valor());
-        novaMeta.setServicos(meta.servico());
-        return novaMeta;
-    }
-
-    private MetasEntity criarMetaParaEntity(ManipulacaoMetaRequest meta) {
-        MetasEntity novaMeta = new MetasEntity();
-        novaMeta.setMesReferencia(meta.mesReferencia());
-        novaMeta.setValor(meta.valor());
-        novaMeta.setServicos(meta.servico());
-        return novaMeta;
-    }
-
-    private ManipulacaoMetaResponse metaParaManipulacaoMetaResponse(MetasEntity meta) {
-        return new ManipulacaoMetaResponse(
-                meta.getMesReferencia(),
-                meta.getValor(),
-                new ServicoParaListaResponse(
-                        meta.getServicos().getIdServico(),
-                        meta.getServicos().getNome(),
-                        meta.getServicos().getCategoria(),
-                        meta.getServicos().getModalidade(),
-                        meta.getServicos().getFrequencia(),
-                        meta.getServicos().getValor(),
-                        meta.getServicos().getStatus()
-                )
-        );
-    }
-
-    private MetaParaListaResponse metaParaMetaParaLista(MetasEntity meta) {
-        return new MetaParaListaResponse(
-                meta.getIdMeta(),
-                meta.getMesReferencia(),
-                meta.getValor(),
-                new ServicoParaListaResponse(
-                        meta.getServicos().getIdServico(),
-                        meta.getServicos().getNome(),
-                        meta.getServicos().getCategoria(),
-                        meta.getServicos().getModalidade(),
-                        meta.getServicos().getFrequencia(),
-                        meta.getServicos().getValor(),
-                        meta.getServicos().getStatus()
-                )
-        );
-    }
-
-    private ServicoParaListaResponse servicoParaServicoParaLista(ServicosEntity servico) {
-        return new ServicoParaListaResponse(
-                servico.getIdServico(),
-                servico.getNome(),
-                servico.getCategoria(),
-                servico.getModalidade(),
-                servico.getFrequencia(),
-                servico.getValor(),
-                servico.getStatus()
-        );
+    private PetsPrevistosKpiResponse buscarPetsPrevistos(LocalDate hoje) {
+        List<AgendamentosPorServicoResponse> agendamentosPorServico = agendamentoRepository.buscarAgendamentosPorServicoParaHoje(hoje);
+        QuantidadeVagasDoDiaResponse totalVagas = calendarioRepository.buscarQuantidadeTotalVagasHoje(hoje);
+        return DashboardMapper.paraPetsPrevistosKpiResponse(agendamentosPorServico, totalVagas);
     }
 }

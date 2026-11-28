@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,12 +43,13 @@ public class GerenciamentoClienteController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum resultado encontrado", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
-    public ResponseEntity<List<PetGerenciamentoResponse>> buscarContratos(
-            @Parameter(description = "Nome do pet ou nome do tutor para pesquisa", example = "Bob")
-            @RequestParam(required = false) String pesquisa
-    ) {
-        List<PetGerenciamentoResponse> resposta = service.buscarContratos(pesquisa);
+    public ResponseEntity<List<PetGerenciamentoResponse>> buscarContratos(@Parameter(description = "Nome do pet ou nome do tutor para pesquisa", example = "Bob")
+                                                                              @RequestParam(required = false) String pesquisa,
+                                                                          @RequestParam(defaultValue = "0") int pagina) {
+
+        List<PetGerenciamentoResponse> resposta = service.buscarContratos(pesquisa, pagina);
 
         if (resposta.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -61,6 +63,7 @@ public class GerenciamentoClienteController {
             @ApiResponse(responseCode = "200", description = "Planos retornados com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum plano disponível", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/planos")
     public ResponseEntity<List<PlanoDisponivelResponse>> listarPlanos() {
 
@@ -78,6 +81,7 @@ public class GerenciamentoClienteController {
             @ApiResponse(responseCode = "200", description = "Tutores retornados com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum tutor disponível", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/tutores")
     public ResponseEntity<List<TutorDisponivelResponse>> listarTutores() {
         List<TutorDisponivelResponse> resposta = service.listarTutores();
@@ -92,6 +96,7 @@ public class GerenciamentoClienteController {
             @ApiResponse(responseCode = "200", description = "Pets retornados com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhum pet encontrado para o tutor", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/tutores/{idTutor}/pets")
     public ResponseEntity<List<VincularPetResponse>> listarPetsDoTutor(
 
@@ -108,16 +113,17 @@ public class GerenciamentoClienteController {
     @Operation(
             summary = "Atualizar valor do contrato", description = "Atualiza o valor de um contrato existente."
     )
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/contratos/{idContrato}")
-    public ResponseEntity<Void> atualizarContrato(
-            @PathVariable Long idContrato,
-            @Valid @RequestBody AtualizarValorContratoRequest request
-    ) {
+    public ResponseEntity<Void> atualizarContrato(@PathVariable Long idContrato,
+                                                  @Valid @RequestBody AtualizarValorContratoRequest request) {
+
         service.atualizarContrato(idContrato, request);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Alterar status do contrato", description = "Altera o status de um contrato existente. Ex: ENCERRADO")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PatchMapping("/contratos/{idContrato}/status")
     public ResponseEntity<Void> alterarStatusContrato(
             @PathVariable Long idContrato,
@@ -127,12 +133,19 @@ public class GerenciamentoClienteController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Vincular plano ao tutor",
+            description = "Cria um novo contrato para o pet do tutor informado, gerando os agendamentos e movimentações conforme o serviço contratado."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Contrato criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou regras de negócio não atendidas"),
+            @ApiResponse(responseCode = "404", description = "Tutor, pet ou serviço não encontrado")
+    })
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping("/contratos")
     public ResponseEntity<VincularPlanoResponse> vincularPlano(@Valid @RequestBody VincularPlanoRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.vincularPlano(request));
     }
-
-
-
 }
 

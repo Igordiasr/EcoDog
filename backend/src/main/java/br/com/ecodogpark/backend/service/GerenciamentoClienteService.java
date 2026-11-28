@@ -14,10 +14,11 @@ import br.com.ecodogpark.backend.mapper.GerenciamentoClienteMapper;
 import br.com.ecodogpark.backend.mapper.PetMapper;
 import br.com.ecodogpark.backend.mapper.TutorMapper;
 import br.com.ecodogpark.backend.repository.*;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -61,9 +62,15 @@ public class GerenciamentoClienteService {
     }
 
     @Transactional(readOnly = true)
-    public List<PetGerenciamentoResponse> buscarContratos(String pesquisa) {
-        LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
-        List<PetsEntity> pets = petRepository.buscarPetsParaGerenciamento(pesquisa, TipoUsuario.TUTOR);
+    public List<PetGerenciamentoResponse> buscarContratos(String pesquisa, int pagina) {
+        Pageable pageable = PageRequest.of(pagina, 20);
+        Page<UUID> tutores = petRepository.buscarIdsTutoresParaGerenciamento(pesquisa, TipoUsuario.TUTOR, pageable);
+
+        if (tutores.isEmpty()) {
+            return List.of();
+        }
+
+        List<PetsEntity> pets = petRepository.buscarPetsDosTutores(tutores.getContent());
 
         if (pets.isEmpty()) {
             return List.of();
@@ -159,10 +166,10 @@ public class GerenciamentoClienteService {
     @Transactional
     public void atualizarContrato(Long idContrato, AtualizarValorContratoRequest request) {
         ContratosEntity contrato = contratoRepository.findById(idContrato)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrato não encontrado"));
+                .orElseThrow(() -> new ContratoNaoEncontradoException("Contrato não encontrado"));
 
         MovimentacoesEntity movimentacao = movimentacoesRepository.findByContrato(contrato)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movimentação não encontrada."));
+                .orElseThrow(() -> new MovimentacaoNaoEncontradaException("Movimentação não encontrada."));
 
         contrato.setValor(request.valor());
         contratoRepository.save(contrato);
@@ -175,7 +182,7 @@ public class GerenciamentoClienteService {
     @Transactional
     public void alterarStatusContrato(Long idContrato, AlterarStatusContratoRequest request) {
         ContratosEntity contrato = contratoRepository.findById(idContrato)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrato não encontrado"));
+                .orElseThrow(() -> new ContratoNaoEncontradoException("Contrato não encontrado"));
 
         contrato.setSituacao(request.situacao());
         contratoRepository.save(contrato);
@@ -354,7 +361,7 @@ public class GerenciamentoClienteService {
             case THURSDAY -> DiaSemana.QUINTA;
             case FRIDAY -> DiaSemana.SEXTA;
 
-            default -> throw new IllegalArgumentException("Dia da semana não permitido na creche");
+            default -> throw new DiaSemanaNaoPermitidoException("Dia da semana não permitido na creche");
         };
     }
 
